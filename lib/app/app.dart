@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'router/router.dart';
-import 'router/extra_variable/bloc.dart';
+import 'package:note_maker/app/router/router.dart';
+import 'package:note_maker/app/router/extra_variable/bloc.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({
@@ -19,14 +19,20 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp.router(
-        title: 'Flutter Demo',
+        routerConfig: AppRouter.router,
+        title: 'Note-maker',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-          ),
           useMaterial3: true,
+          primaryColor: Colors.white,
+          appBarTheme: const AppBarTheme(
+            elevation: 2.5,
+            scrolledUnderElevation: 2.5,
+            shadowColor: Colors.black,
+            backgroundColor: Colors.white,
+          ),
+          scaffoldBackgroundColor: Colors.white,
         ),
-        routerConfig: ConnectdAppRouter.router,
       ),
     );
   }
