@@ -4,8 +4,9 @@ import 'package:note_maker/models/note/model.dart';
 class NoteDao extends DaoBase<Note> {
   static const storeName = 'notes';
 
-  NoteDao()
-      : super(
-          storeName,
+  NoteDao({
+    super.fromJson = Note.fromJson,
+  }) : super(
+          storeName: storeName,
         );
 }

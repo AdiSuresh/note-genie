@@ -4,14 +4,16 @@ import 'package:sembast/sembast.dart';
 
 class DaoBase<T extends ModelBase> {
   final StoreRef<int, Map<String, Object?>> _store;
+  final T Function(Map<String, Object?>) fromJson;
 
   Future<Database> get db async => await LocalDatabase.instance.database;
 
   StoreRef<int, Map<String, Object?>> get store => _store;
 
-  DaoBase(
-    String storeName,
-  ) : _store = intMapStoreFactory.store(
+  DaoBase({
+    required String storeName,
+    required this.fromJson,
+  }) : _store = intMapStoreFactory.store(
           storeName,
         );
 
@@ -55,9 +57,7 @@ class DaoBase<T extends ModelBase> {
         );
   }
 
-  Future<Stream<List<T>>> getStream(
-    T Function(Map<String, Object?>) fromJson,
-  ) async {
+  Future<Stream<List<T>>> get getStream async {
     return store
         .query()
         .onSnapshots(
@@ -68,10 +68,10 @@ class DaoBase<T extends ModelBase> {
         return event.map(
           (e) {
             final map = <String, dynamic>{}
-              ..['id'] = e.key
               ..addAll(
                 e.value,
-              );
+              )
+              ..['id'] = e.key;
             return fromJson(
               map,
             );

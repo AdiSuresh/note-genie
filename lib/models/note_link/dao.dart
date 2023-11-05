@@ -4,8 +4,9 @@ import 'package:note_maker/models/note_link/model.dart';
 class NoteLinkDao extends DaoBase<NoteLink> {
   static const storeName = 'note_links';
 
-  NoteLinkDao()
-      : super(
-          storeName,
+  NoteLinkDao({
+    super.fromJson = NoteLink.fromJson,
+  }) : super(
+          storeName: storeName,
         );
 }

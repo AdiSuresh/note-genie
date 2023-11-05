@@ -35,11 +35,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    HomeBloc.noteCollectionDao
-        .getStream(
-      NoteCollection.fromJson,
-    )
-        .then(
+    HomeBloc.noteCollectionDao.getStream.then(
       (value) {
         noteCollectionStream = value;
         bloc.add(
@@ -47,11 +43,7 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-    HomeBloc.noteDao
-        .getStream(
-      Note.fromJson,
-    )
-        .then(
+    HomeBloc.noteDao.getStream.then(
       (value) {
         noteStream = value;
         bloc.add(
