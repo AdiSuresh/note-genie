@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'extra_variable/bloc.dart';
-import '../../models/note_collection/note_collection.dart';
+import '../../models/note_collection/model.dart';
 import '../../views/edit_note_collection/bloc.dart';
 import '../../views/edit_note_collection/state.dart';
 import '../../views/edit_note_collection/view.dart';

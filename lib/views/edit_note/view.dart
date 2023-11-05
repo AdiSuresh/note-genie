@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
-import 'package:note_maker/data/note/dao.dart';
-import 'package:note_maker/models/note/note.dart';
+import 'package:note_maker/models/note/dao.dart';
+import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/state.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 
@@ -98,7 +98,7 @@ class _EditNoteState extends State<EditNote> {
       content: content,
     );
     if (note?.id == null) {
-      final id = await noteDao.insert(
+      final id = await noteDao.create(
         note!,
       );
       note = note?.copyWith(
@@ -118,27 +118,6 @@ class _EditNoteState extends State<EditNote> {
         UiUtils.dismissKeyboard(context);
       },
       child: Scaffold(
-        /* appBar: AppBar(
-          title: InkWell(
-            onTap: () {},
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 5,
-                horizontal: 7.5,
-              ),
-              child: Builder(
-                builder: (context) {
-                  final title = titleCtrl.text.isEmpty
-                      ? 'Untitled document'
-                      : titleCtrl.text;
-                  return Text(
-                    title,
-                  );
-                },
-              ),
-            ),
-          ),
-        ), */
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(15),
@@ -146,21 +125,24 @@ class _EditNoteState extends State<EditNote> {
               configurations: quillConfigs,
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 7.5,
-                    ),
-                    child: InkWell(
-                      onTap: () {},
-                      borderRadius: BorderRadius.circular(7.5),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 7.5,
-                          horizontal: 15,
-                        ),
-                        child: Text(
-                          title,
-                          style: themeData.textTheme.titleMedium,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 7.5,
+                      ),
+                      child: InkWell(
+                        onTap: () {},
+                        borderRadius: BorderRadius.circular(7.5),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 7.5,
+                            horizontal: 15,
+                          ),
+                          child: Text(
+                            title,
+                            style: themeData.textTheme.titleLarge,
+                          ),
                         ),
                       ),
                     ),

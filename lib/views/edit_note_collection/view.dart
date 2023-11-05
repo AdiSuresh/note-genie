@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../data/note_collection/dao.dart';
-import '../../models/note_collection/note_collection.dart';
-import 'bloc.dart';
-import '../../utils/extensions/state.dart';
+import 'package:note_maker/models/note_collection/dao.dart';
+import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/views/edit_note_collection/bloc.dart';
+import 'package:note_maker/utils/extensions/state.dart';
 
 class EditNoteCollection extends StatefulWidget {
   static const routeName = '/edit-note-collection';
@@ -89,7 +89,7 @@ class _EditNoteCollectionState extends State<EditNoteCollection> {
           );
           if (isNew) {
             noteCollectionDao
-                .insert(
+                .create(
               result,
             )
                 .then(

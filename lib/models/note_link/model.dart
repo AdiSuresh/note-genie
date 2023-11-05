@@ -1,16 +1,16 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:note_maker/models/model_base.dart';
 
-part 'note_link.g.dart';
+part 'model.g.dart';
 
 @JsonSerializable()
-class NoteLink {
-  final int? id;
+class NoteLink extends ModelBase {
   final int aId;
   final int bId;
   final String description;
 
   const NoteLink({
-    required this.id,
+    super.id,
     required this.aId,
     required this.bId,
     required this.description,
@@ -24,6 +24,7 @@ class NoteLink {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return _$NoteLinkToJson(
       this,

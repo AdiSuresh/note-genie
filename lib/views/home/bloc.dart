@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:note_maker/data/note/dao.dart';
-import 'package:note_maker/data/note_collection/dao.dart';
+import 'package:note_maker/models/note/dao.dart';
+import 'package:note_maker/models/note_collection/dao.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state.dart';
 

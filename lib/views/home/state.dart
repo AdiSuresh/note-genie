@@ -1,5 +1,5 @@
-import 'package:note_maker/models/note_collection/note_collection.dart';
-import 'package:note_maker/models/note/note.dart';
+import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/models/note/model.dart';
 
 class HomeState {
   final List<Note> notes;

@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
-import 'package:note_maker/models/note_collection/note_collection.dart';
+import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/boolean_list.dart';
 import 'package:note_maker/views/edit_note/view.dart';
 import 'package:note_maker/views/edit_note_collection/view.dart';
-import 'package:note_maker/models/note/note.dart';
+import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state.dart';
@@ -35,7 +35,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    HomeBloc.noteCollectionDao.streamFuture.then(
+    HomeBloc.noteCollectionDao
+        .getStream(
+      NoteCollection.fromJson,
+    )
+        .then(
       (value) {
         noteCollectionStream = value;
         bloc.add(
@@ -43,7 +47,11 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-    HomeBloc.noteDao.streamFuture.then(
+    HomeBloc.noteDao
+        .getStream(
+      Note.fromJson,
+    )
+        .then(
       (value) {
         noteStream = value;
         bloc.add(
@@ -61,7 +69,6 @@ class _HomePageState extends State<HomePage> {
           'Note Maker',
         ),
       ),
-      backgroundColor: Colors.grey.shade300,
       body: Column(
         children: [
           BlocBuilder<HomeBloc, HomeState>(
@@ -152,7 +159,8 @@ class _HomePageState extends State<HomePage> {
                     child: ListView(
                       children: <Widget>[
                         for (final note in notes)
-                          InkWell(
+                          NoteListTile(
+                            note: note,
                             onTap: () {
                               context.extra = note;
                               context.push(
@@ -162,9 +170,6 @@ class _HomePageState extends State<HomePage> {
                                 'push',
                               );
                             },
-                            child: NoteListTile(
-                              note: note,
-                            ),
                           ),
                       ],
                     ),
