@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note/dao.dart';
@@ -26,9 +27,7 @@ class _EditNoteState extends State<EditNote> {
   final titleCtrl = TextEditingController();
   late final QuillController contentCtrl;
   late final QuillConfigurations quillConfigs;
-
   final contentFocus = FocusNode();
-
   final contentScrollCtrl = ScrollController();
 
   @override
@@ -38,10 +37,12 @@ class _EditNoteState extends State<EditNote> {
     if (context.extra is Note) {
       note = context.extra;
       document = Document.fromJson(
-        note!.content,
+        note.content,
       );
+    } else {
+      note = Note.empty();
     }
-    titleCtrl.text = note?.title ?? '';
+    titleCtrl.text = note.title;
     contentCtrl = QuillController(
       document: document ?? Document(),
       selection: const TextSelection.collapsed(
@@ -51,7 +52,7 @@ class _EditNoteState extends State<EditNote> {
     contentCtrl.addListener(
       () {
         logger.d(
-          'change detected',
+          'updating document...',
         );
         saveDocument();
       },
@@ -69,12 +70,56 @@ class _EditNoteState extends State<EditNote> {
     super.dispose();
   }
 
-  void textField() {
-    TextField(
-      controller: titleCtrl,
-      decoration: const InputDecoration(
-        hintText: 'Title',
-      ),
+  Future<dynamic> showEditTitleDialog() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Rename document',
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(7.5),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleCtrl,
+                autofocus: true,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      saveDocument();
+                      context.pop();
+                    },
+                    child: const Text(
+                      'OK',
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    child: const Text(
+                      'Cancel',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -83,30 +128,26 @@ class _EditNoteState extends State<EditNote> {
     return titleTrimmed.isEmpty ? 'Untitled document' : titleTrimmed;
   }
 
-  Note? note;
+  late Note note;
 
   final noteDao = NoteDao();
 
   Future<void> saveDocument() async {
     final content = contentCtrl.document.toDelta().toJson();
-    note ??= Note(
+    note = note.copyWith(
       title: title,
       content: content,
-      collections: {},
     );
-    note = note?.copyWith(
-      content: content,
-    );
-    if (note?.id == null) {
+    if (note.id == null) {
       final id = await noteDao.create(
-        note!,
+        note,
       );
-      note = note?.copyWith(
+      note = note.copyWith(
         id: id,
       );
     } else {
       noteDao.update(
-        note!,
+        note,
       );
     }
   }
@@ -132,7 +173,9 @@ class _EditNoteState extends State<EditNote> {
                         bottom: 7.5,
                       ),
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          showEditTitleDialog();
+                        },
                         borderRadius: BorderRadius.circular(7.5),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(

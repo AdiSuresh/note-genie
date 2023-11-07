@@ -67,13 +67,13 @@ class DaoBase<T extends ModelBase> {
       (event) {
         return event.map(
           (e) {
-            final map = <String, dynamic>{}
+            final json = <String, dynamic>{}
               ..addAll(
                 e.value,
               )
               ..['id'] = e.key;
             return fromJson(
-              map,
+              json,
             );
           },
         ).toList();
