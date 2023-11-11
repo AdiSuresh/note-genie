@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note/dao.dart';
 import 'package:note_maker/models/note/model.dart';
-import 'package:note_maker/utils/extensions/state.dart';
+import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
+import 'package:note_maker/views/edit_note/bloc.dart';
+import 'package:note_maker/views/edit_note/event.dart';
+import 'package:note_maker/views/edit_note/state.dart';
 
 class EditNote extends StatefulWidget {
   static const routeName = '/edit-note';
@@ -30,27 +35,28 @@ class _EditNoteState extends State<EditNote> {
   final contentFocus = FocusNode();
   final contentScrollCtrl = ScrollController();
 
+  EditNoteBloc get bloc => context.read();
+
+  late final StreamSubscription<DocChange> subscription;
+
   @override
   void initState() {
     super.initState();
-    Document? document;
-    if (context.extra is Note) {
-      note = context.extra;
-      document = Document.fromJson(
-        note.content,
-      );
-    } else {
-      note = Note.empty();
-    }
+    final note = bloc.state.note;
     titleCtrl.text = note.title;
+    final document = note.content.isEmpty
+        ? Document()
+        : Document.fromJson(
+            note.content,
+          );
     contentCtrl = QuillController(
-      document: document ?? Document(),
+      document: document,
       selection: const TextSelection.collapsed(
         offset: 0,
       ),
     );
-    contentCtrl.addListener(
-      () {
+    subscription = document.changes.listen(
+      (event) {
         logger.d(
           'updating document...',
         );
@@ -64,9 +70,11 @@ class _EditNoteState extends State<EditNote> {
 
   @override
   void dispose() {
+    titleCtrl.dispose();
     contentCtrl.dispose();
     contentFocus.dispose();
     contentScrollCtrl.dispose();
+    subscription.cancel();
     super.dispose();
   }
 
@@ -128,26 +136,35 @@ class _EditNoteState extends State<EditNote> {
     return titleTrimmed.isEmpty ? 'Untitled document' : titleTrimmed;
   }
 
-  late Note note;
+  final notes = NoteDao();
 
-  final noteDao = NoteDao();
+  Note get note => bloc.state.note;
 
   Future<void> saveDocument() async {
     final content = contentCtrl.document.toDelta().toJson();
-    note = note.copyWith(
-      title: title,
-      content: content,
-    );
+    final note = this.note.copyWith(
+          title: title,
+          content: content,
+        );
     if (note.id == null) {
-      final id = await noteDao.create(
+      final id = await notes.add(
         note,
       );
-      note = note.copyWith(
-        id: id,
+      bloc.add(
+        UpdateNoteEvent(
+          note: note.copyWith(
+            id: id,
+          ),
+        ),
       );
     } else {
-      noteDao.update(
+      notes.update(
         note,
+      );
+      bloc.add(
+        UpdateNoteEvent(
+          note: note,
+        ),
       );
     }
   }
@@ -182,9 +199,18 @@ class _EditNoteState extends State<EditNote> {
                             vertical: 7.5,
                             horizontal: 15,
                           ),
-                          child: Text(
-                            title,
-                            style: themeData.textTheme.titleLarge,
+                          child: BlocBuilder<EditNoteBloc, EditNoteState>(
+                            buildWhen: (previous, current) {
+                              final t1 = previous.note.title;
+                              final t2 = current.note.title;
+                              return t1 != t2;
+                            },
+                            builder: (context, state) {
+                              return Text(
+                                title,
+                                style: context.themeData.textTheme.titleLarge,
+                              );
+                            },
                           ),
                         ),
                       ),

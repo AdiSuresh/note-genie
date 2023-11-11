@@ -1,14 +1,17 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'extra_variable/bloc.dart';
-import '../../models/note_collection/model.dart';
-import '../../views/edit_note_collection/bloc.dart';
-import '../../views/edit_note_collection/state.dart';
-import '../../views/edit_note_collection/view.dart';
-import '../../views/home/state.dart';
-import '../../views/edit_note/view.dart';
-import '../../views/home/bloc.dart';
-import '../../views/home/view.dart';
+import 'package:note_maker/app/router/extra_variable/bloc.dart';
+import 'package:note_maker/models/note/model.dart';
+import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/views/edit_note/bloc.dart';
+import 'package:note_maker/views/edit_note/state.dart';
+import 'package:note_maker/views/edit_note_collection/bloc.dart';
+import 'package:note_maker/views/edit_note_collection/state.dart';
+import 'package:note_maker/views/edit_note_collection/view.dart';
+import 'package:note_maker/views/home/state.dart';
+import 'package:note_maker/views/edit_note/view.dart';
+import 'package:note_maker/views/home/bloc.dart';
+import 'package:note_maker/views/home/view.dart';
 
 class AppRouter {
   AppRouter._();
@@ -33,7 +36,17 @@ class AppRouter {
         GoRoute(
           path: '/edit-note',
           builder: (context, state) {
-            return const EditNote();
+            final note = context.extra is Note ? context.extra : Note.empty();
+            return BlocProvider(
+              create: (context) {
+                return EditNoteBloc(
+                  EditNoteState(
+                    note: note,
+                  ),
+                );
+              },
+              child: const EditNote(),
+            );
           },
         ),
         GoRoute(

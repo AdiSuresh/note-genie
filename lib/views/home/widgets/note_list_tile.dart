@@ -18,9 +18,8 @@ class NoteListTile extends StatelessWidget {
       note.content,
     ).toPlainText().trim();
     content = content.isEmpty ? 'No content' : content;
-    final height = MediaQuery.of(context).size.height;
     final textTheme = Theme.of(context).textTheme;
-    final borderRadius = BorderRadius.circular(7.5);
+    final borderRadius = BorderRadius.circular(15);
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 7.5,
@@ -29,46 +28,49 @@ class NoteListTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: borderRadius,
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          constraints: BoxConstraints(
-            minHeight: height * .075,
+        child: Material(
+          elevation: 2.5,
+          color: const Color(
+            0xFFCBF0F8,
           ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: borderRadius,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade500,
-                offset: const Offset(2.5, 2.5),
-                blurRadius: 15,
-                spreadRadius: 1,
-              ),
-              /* const BoxShadow(
-                color: Colors.white,
-                offset: Offset(-2.5, -2.5),
-                blurRadius: 10,
-                spreadRadius: 1,
-              ), */
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                note.title,
-                style: textTheme.titleMedium,
-              ),
-              Text(
-                content,
-                style: textTheme.bodySmall?.copyWith(
-                  color: Colors.grey.shade600,
+          borderRadius: borderRadius,
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    'A minute ago',
+                    style: textTheme.bodySmall,
+                  ),
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 5,
+                  ),
+                  child: Text(
+                    note.title,
+                    style: textTheme.titleMedium,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 5,
+                  ),
+                  child: Text(
+                    content,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

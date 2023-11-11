@@ -23,8 +23,13 @@ class MyApp extends StatelessWidget {
         title: 'Note-maker',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          fontFamily: 'OpenSans',
           useMaterial3: true,
-          primaryColor: Colors.white,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(
+              0xFFCBF0F8,
+            ),
+          ),
           appBarTheme: const AppBarTheme(
             elevation: 2.5,
             scrolledUnderElevation: 2.5,

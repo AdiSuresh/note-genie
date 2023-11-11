@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:note_maker/models/note_collection/dao.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/views/edit_note_collection/bloc.dart';
-import 'package:note_maker/utils/extensions/state.dart';
+import 'package:note_maker/utils/extensions/build_context.dart';
 
 class EditNoteCollection extends StatefulWidget {
   static const routeName = '/edit-note-collection';
@@ -42,7 +42,7 @@ class _EditNoteCollectionState extends State<EditNoteCollection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: themeData.colorScheme.inversePrimary,
+        backgroundColor: context.themeData.colorScheme.inversePrimary,
         title: Text(
           '${isNew ? 'Add' : 'Edit'} Collection',
         ),
@@ -89,7 +89,7 @@ class _EditNoteCollectionState extends State<EditNoteCollection> {
           );
           if (isNew) {
             noteCollectionDao
-                .create(
+                .add(
               result,
             )
                 .then(

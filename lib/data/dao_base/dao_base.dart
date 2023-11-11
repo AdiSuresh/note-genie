@@ -17,7 +17,7 @@ class DaoBase<T extends ModelBase> {
           storeName,
         );
 
-  Future<int> create(
+  Future<int> add(
     T value,
   ) async {
     return store.add(

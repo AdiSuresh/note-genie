@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
-              return StreamBuilder<List<NoteCollection>>(
+              return StreamBuilder(
                 stream: noteCollectionStream,
                 builder: (context, snapshot) {
                   final showLoading = [
