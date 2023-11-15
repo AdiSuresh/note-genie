@@ -1,17 +1,18 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note_collection/model.dart';
-import 'package:note_maker/utils/extensions/boolean_list.dart';
+import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/edit_note/view.dart';
-import 'package:note_maker/views/edit_note_collection/view.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
-import 'package:note_maker/views/home/state.dart';
+import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/note_list_tile.dart';
+import 'package:note_maker/widgets/empty_footer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -23,12 +24,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final logger = AppLogger(
+  static final logger = AppLogger(
     HomePage,
   );
 
-  Stream<List<NoteCollection>>? noteCollectionStream;
-  Stream<List<Note>>? noteStream;
+  final collectionNameCtrl = TextEditingController();
+  final collectionNameFormKey = GlobalKey<FormState>();
+
+  StreamSubscription<List<NoteCollection>>? noteCollectionsSub;
+  StreamSubscription<List<Note>>? notesSub;
 
   HomeBloc get bloc => context.read();
 
@@ -37,20 +41,126 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     HomeBloc.noteCollectionDao.getStream.then(
       (value) {
-        noteCollectionStream = value;
-        bloc.add(
-          UpdatePageEvent(),
+        noteCollectionsSub = value.listen(
+          (event) {
+            logger.i(
+              'changes detected in note collections',
+            );
+            bloc.add(
+              UpdateNoteCollectionsEvent(
+                noteCollections: event,
+              ),
+            );
+          },
         );
       },
     );
     HomeBloc.noteDao.getStream.then(
       (value) {
-        noteStream = value;
-        bloc.add(
-          UpdatePageEvent(),
+        notesSub = value.listen(
+          (event) {
+            logger.i(
+              'changes detected in notes',
+            );
+            bloc.add(
+              UpdateNotesEvent(
+                notes: event,
+              ),
+            );
+          },
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    unawaited(
+      noteCollectionsSub?.cancel(),
+    );
+    unawaited(
+      notesSub?.cancel(),
+    );
+    logger.i(
+      'disposing',
+    );
+    collectionNameCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> editCollectionName(
+    NoteCollection collection,
+  ) async {
+    noteCollectionsSub?.pause();
+    collectionNameCtrl.clear();
+    collectionNameCtrl.text = collection.name;
+    collectionNameCtrl.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: collection.name.length,
+    );
+    await UiUtils.showEditTitleDialog(
+      title: 'Edit collection name',
+      context: context,
+      titleCtrl: collectionNameCtrl,
+      onOk: () {
+        final valid = collectionNameFormKey.currentState?.validate() ?? false;
+        if (!valid) {
+          return;
+        }
+        HomeBloc.noteCollectionDao.update(
+          collection.copyWith(
+            name: collectionNameCtrl.text,
+          ),
+        );
+        context.pop();
+      },
+      onCancel: () {
+        context.pop();
+      },
+      validator: (value) {
+        final text = value ?? '';
+        if (text.isEmpty) {
+          return 'This field cannot be empty';
+        }
+        return null;
+      },
+      formKey: collectionNameFormKey,
+    );
+    noteCollectionsSub?.resume();
+  }
+
+  Future<void> addCollection() async {
+    noteCollectionsSub?.pause();
+    collectionNameCtrl.clear();
+    await UiUtils.showEditTitleDialog(
+      title: 'New collection',
+      context: context,
+      titleCtrl: collectionNameCtrl,
+      onOk: () {
+        final valid = collectionNameFormKey.currentState?.validate() ?? false;
+        if (!valid) {
+          return;
+        }
+        HomeBloc.noteCollectionDao.add(
+          NoteCollection(
+            name: collectionNameCtrl.text,
+          ),
+        );
+        context.pop();
+      },
+      onCancel: () {
+        context.pop();
+      },
+      validator: (value) {
+        final text = value ?? '';
+        if (text.isEmpty) {
+          return 'This field cannot be empty';
+        }
+        return null;
+      },
+      formKey: collectionNameFormKey,
+    );
+    noteCollectionsSub?.resume();
   }
 
   @override
@@ -58,29 +168,33 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Note Maker',
+          'Home',
         ),
       ),
-      body: Column(
-        children: [
-          BlocBuilder<HomeBloc, HomeState>(
-            builder: (context, state) {
-              return StreamBuilder(
-                stream: noteCollectionStream,
-                builder: (context, snapshot) {
-                  final showLoading = [
-                    snapshot.connectionState == ConnectionState.waiting,
-                    noteCollectionStream == null,
-                  ].computeOR();
-                  if (showLoading) {
-                    return const Text(
-                      'Loading collections',
-                    );
-                  }
-                  final collections = snapshot.data ?? [];
-                  return Row(
-                    children: [
-                      Expanded(
+      body: SafeArea(
+        child: Column(
+          children: [
+            BlocBuilder<HomeBloc, HomeState>(
+              buildWhen: (previous, current) {
+                return previous.noteCollections != current.noteCollections;
+              },
+              builder: (context, state) {
+                if (noteCollectionsSub == null) {
+                  return const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.all(22.5),
+                      child: Text(
+                        'Loading collections...',
+                      ),
+                    ),
+                  );
+                }
+                final collections = state.noteCollections;
+                return Row(
+                  children: [
+                    Expanded(
+                      child: Scrollbar(
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.all(15),
@@ -97,9 +211,8 @@ class _HomePageState extends State<HomePage> {
                                 InkWell(
                                   focusColor: Colors.amber,
                                   onTap: () {
-                                    context.extra = collection;
-                                    context.push(
-                                      EditNoteCollection.routeName,
+                                    editCollectionName(
+                                      collection,
                                     );
                                   },
                                   child: Padding(
@@ -113,79 +226,67 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          context.extra = null;
-                          context.push(
-                            EditNoteCollection.routeName,
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.add,
-                        ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        addCollection();
+                      },
+                      icon: const Icon(
+                        Icons.add,
                       ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-          BlocBuilder<HomeBloc, HomeState>(
-            builder: (context, state) {
-              return StreamBuilder(
-                stream: noteStream,
-                builder: (context, snapshot) {
-                  final showLoading = [
-                    snapshot.connectionState == ConnectionState.waiting,
-                    noteStream == null,
-                  ].computeOR();
-                  final notes = snapshot.data ?? [];
-                  if (showLoading) {
-                    return const Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-                  return Expanded(
-                    child: ListView(
-                      children: <Widget>[
-                        for (final note in notes)
-                          NoteListTile(
-                            note: note,
-                            onTap: () {
-                              context.extra = note;
-                              context.push(
-                                EditNote.routeName,
-                              );
-                              logger.d(
-                                'push',
-                              );
-                            },
-                          ),
-                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+            BlocBuilder<HomeBloc, HomeState>(
+              buildWhen: (previous, current) {
+                return previous.notes != current.notes;
+              },
+              builder: (context, state) {
+                if (notesSub == null) {
+                  return const Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(),
                     ),
                   );
-                },
-              );
-            },
-          ),
-        ],
+                }
+                final notes = state.notes;
+                return Expanded(
+                  child: ListView(
+                    children: <Widget>[
+                      for (final note in notes)
+                        NoteListTile(
+                          note: note,
+                          viewNote: () async {
+                            notesSub?.pause();
+                            context.extra = note;
+                            await context.push(
+                              EditNote.routeName,
+                            );
+                            notesSub?.resume();
+                            logger.d(
+                              'push',
+                            );
+                          },
+                        ),
+                      const EmptyFooter(),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          notesSub?.pause();
           context.extra = null;
-          final result = await context.push(
+          await context.push(
             EditNote.routeName,
           );
-          logger.d(
-            'result: ${result.runtimeType}',
-          );
-          if (result is Note && context.mounted) {
-            bloc.add(
-              UpdatePageEvent(),
-            );
-          }
+          notesSub?.resume();
         },
         tooltip: 'Increment',
         child: const Icon(

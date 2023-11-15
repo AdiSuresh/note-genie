@@ -2,13 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note/model.dart';
-import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/state.dart';
-import 'package:note_maker/views/edit_note_collection/bloc.dart';
-import 'package:note_maker/views/edit_note_collection/state.dart';
-import 'package:note_maker/views/edit_note_collection/view.dart';
-import 'package:note_maker/views/home/state.dart';
+import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/edit_note/view.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/view.dart';
@@ -46,22 +42,6 @@ class AppRouter {
                 );
               },
               child: const EditNote(),
-            );
-          },
-        ),
-        GoRoute(
-          path: '/edit-note-collection',
-          builder: (context, state) {
-            final NoteCollection? extra = context.extra;
-            return BlocProvider(
-              create: (context) {
-                return EditNoteCollectionBloc(
-                  EditNoteCollectionState(
-                    collection: extra,
-                  ),
-                );
-              },
-              child: const EditNoteCollection(),
             );
           },
         ),

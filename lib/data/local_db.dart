@@ -25,7 +25,7 @@ class LocalDatabase {
     return _openDbCompleter!.future;
   }
 
-  Future<Database?> _openDatabase() async {
+  Future<Database> _openDatabase() async {
     final dir = await getApplicationDocumentsDirectory();
     final dbPath = join(
       dir.path,
@@ -37,6 +37,6 @@ class LocalDatabase {
     _openDbCompleter?.complete(
       database,
     );
-    return _openDbCompleter?.future;
+    return database;
   }
 }

@@ -3,6 +3,6 @@ import 'app/app.dart';
 
 void main() {
   runApp(
-    const MyApp(),
+    const NoteMaker(),
   );
 }

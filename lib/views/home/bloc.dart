@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/models/note/dao.dart';
 import 'package:note_maker/models/note_collection/dao.dart';
 import 'package:note_maker/views/home/event.dart';
-import 'package:note_maker/views/home/state.dart';
+import 'package:note_maker/views/home/state/state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   static final noteCollectionDao = NoteCollectionDao();
@@ -11,12 +11,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc(
     super.initialState,
   ) {
-    on<UpdatePageEvent>(
+    on<UpdateNoteCollectionsEvent>(
       (event, emit) {
         emit(
-          HomeState(
-            notes: state.notes,
-            noteCollections: state.noteCollections,
+          state.copyWith(
+            noteCollections: event.noteCollections,
+          ),
+        );
+      },
+    );
+    on<UpdateNotesEvent>(
+      (event, emit) {
+        emit(
+          state.copyWith(
+            notes: event.notes,
           ),
         );
       },

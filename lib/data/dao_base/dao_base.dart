@@ -26,7 +26,7 @@ class DaoBase<T extends ModelBase> {
     );
   }
 
-  Future<Map<String, Object?>?> update(
+  Future<T?> update(
     T value,
   ) async {
     if (value.id == null) {
@@ -39,7 +39,20 @@ class DaoBase<T extends ModelBase> {
         .update(
           await db,
           value.toJson(),
-        );
+        )
+        .then(
+      (value) {
+        T? result;
+        try {
+          result = fromJson(
+            value!,
+          );
+        } catch (e) {
+          // ignored
+        }
+        return result;
+      },
+    );
   }
 
   Future<int?> delete(

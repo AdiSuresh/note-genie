@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -29,6 +28,8 @@ class _EditNoteState extends State<EditNote> {
     EditNote,
   );
 
+  final notes = NoteDao();
+
   final titleCtrl = TextEditingController();
   late final QuillController contentCtrl;
   late final QuillConfigurations quillConfigs;
@@ -36,8 +37,9 @@ class _EditNoteState extends State<EditNote> {
   final contentScrollCtrl = ScrollController();
 
   EditNoteBloc get bloc => context.read();
+  Note get note => bloc.state.note;
 
-  late final StreamSubscription<DocChange> subscription;
+  StreamSubscription<DocChange>? changesSub;
 
   @override
   void initState() {
@@ -49,19 +51,19 @@ class _EditNoteState extends State<EditNote> {
         : Document.fromJson(
             note.content,
           );
-    contentCtrl = QuillController(
-      document: document,
-      selection: const TextSelection.collapsed(
-        offset: 0,
-      ),
-    );
-    subscription = document.changes.listen(
+    changesSub = document.changes.listen(
       (event) {
         logger.d(
           'updating document...',
         );
         saveDocument();
       },
+    );
+    contentCtrl = QuillController(
+      document: document,
+      selection: const TextSelection.collapsed(
+        offset: 0,
+      ),
     );
     quillConfigs = QuillConfigurations(
       controller: contentCtrl,
@@ -74,73 +76,19 @@ class _EditNoteState extends State<EditNote> {
     contentCtrl.dispose();
     contentFocus.dispose();
     contentScrollCtrl.dispose();
-    subscription.cancel();
-    super.dispose();
-  }
-
-  Future<dynamic> showEditTitleDialog() {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(
-            'Rename document',
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(7.5),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleCtrl,
-                autofocus: true,
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      saveDocument();
-                      context.pop();
-                    },
-                    child: const Text(
-                      'OK',
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: const Text(
-                      'Cancel',
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+    changesSub?.cancel().whenComplete(
+      () {
+        logger.i(
+          'changesSub disposed',
         );
       },
     );
+    super.dispose();
   }
 
-  String get title {
-    final titleTrimmed = titleCtrl.text.trim();
-    return titleTrimmed.isEmpty ? 'Untitled document' : titleTrimmed;
-  }
-
-  final notes = NoteDao();
-
-  Note get note => bloc.state.note;
-
-  Future<void> saveDocument() async {
+  Future<void> saveDocument({
+    String? title,
+  }) async {
     final content = contentCtrl.document.toDelta().toJson();
     final note = this.note.copyWith(
           title: title,
@@ -191,7 +139,25 @@ class _EditNoteState extends State<EditNote> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          showEditTitleDialog();
+                          titleCtrl.text = note.title;
+                          titleCtrl.selection = TextSelection(
+                            baseOffset: 0,
+                            extentOffset: titleCtrl.text.length,
+                          );
+                          UiUtils.showEditTitleDialog(
+                            title: 'Rename document',
+                            context: context,
+                            titleCtrl: titleCtrl,
+                            onOk: () {
+                              saveDocument(
+                                title: titleCtrl.text,
+                              );
+                              context.pop();
+                            },
+                            onCancel: () {
+                              context.pop();
+                            },
+                          );
                         },
                         borderRadius: BorderRadius.circular(7.5),
                         child: Padding(
@@ -207,7 +173,7 @@ class _EditNoteState extends State<EditNote> {
                             },
                             builder: (context, state) {
                               return Text(
-                                title,
+                                state.note.title,
                                 style: context.themeData.textTheme.titleLarge,
                               );
                             },
@@ -220,9 +186,6 @@ class _EditNoteState extends State<EditNote> {
                     child: Container(
                       padding: const EdgeInsets.all(7.5),
                       decoration: BoxDecoration(
-                        color: const Color(
-                          0xFFF5F5F4,
-                        ),
                         borderRadius: BorderRadius.circular(7.5),
                       ),
                       child: QuillEditor(

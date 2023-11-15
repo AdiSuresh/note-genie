@@ -4,12 +4,12 @@ import 'package:note_maker/models/note/model.dart';
 
 class NoteListTile extends StatelessWidget {
   final Note note;
-  final VoidCallback onTap;
+  final VoidCallback viewNote;
 
   const NoteListTile({
     super.key,
     required this.note,
-    required this.onTap,
+    required this.viewNote,
   });
 
   @override
@@ -25,19 +25,13 @@ class NoteListTile extends StatelessWidget {
         vertical: 7.5,
         horizontal: 15,
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: borderRadius,
-        child: Material(
-          elevation: 2.5,
-          color: const Color(
-            0xFFCBF0F8,
-          ),
+      child: Card(
+        child: InkWell(
+          onTap: viewNote,
           borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Align(
