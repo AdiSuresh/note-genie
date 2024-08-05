@@ -8,6 +8,7 @@ import 'package:note_maker/models/note/dao.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
+import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state.dart';
@@ -31,8 +32,10 @@ class _EditNoteState extends State<EditNote> {
   final notes = NoteDao();
 
   final titleCtrl = TextEditingController();
+  final titleFormKey = GlobalKey<FormState>();
+
   late final QuillController contentCtrl;
-  late final QuillConfigurations quillConfigs;
+  late final QuillEditorConfigurations quillConfigs;
   final contentFocus = FocusNode();
   final contentScrollCtrl = ScrollController();
 
@@ -52,11 +55,16 @@ class _EditNoteState extends State<EditNote> {
             note.content,
           );
     changesSub = document.changes.listen(
-      (event) {
+      (event) async {
         logger.d(
           'updating document...',
         );
-        saveDocument();
+        final note = await saveDocument();
+        bloc.add(
+          UpdateNoteEvent(
+            note: note,
+          ),
+        );
       },
     );
     contentCtrl = QuillController(
@@ -65,7 +73,7 @@ class _EditNoteState extends State<EditNote> {
         offset: 0,
       ),
     );
-    quillConfigs = QuillConfigurations(
+    quillConfigs = QuillEditorConfigurations(
       controller: contentCtrl,
     );
   }
@@ -86,7 +94,9 @@ class _EditNoteState extends State<EditNote> {
     super.dispose();
   }
 
-  Future<void> saveDocument({
+  Completer<int>? addNoteCompleter;
+
+  Future<Note> saveDocument({
     String? title,
   }) async {
     final content = contentCtrl.document.toDelta().toJson();
@@ -98,21 +108,46 @@ class _EditNoteState extends State<EditNote> {
       final id = await notes.add(
         note,
       );
-      bloc.add(
-        UpdateNoteEvent(
-          note: note.copyWith(
-            id: id,
-          ),
-        ),
+      addNoteCompleter ??= Completer();
+      addNoteCompleter?.complete(
+        id,
+      );
+      return note.copyWith(
+        id: id,
       );
     } else {
-      notes.update(
+      if (addNoteCompleter != null) {
+        await addNoteCompleter?.future;
+      }
+      await notes.update(
         note,
       );
-      bloc.add(
-        UpdateNoteEvent(
-          note: note,
-        ),
+      return note;
+    }
+  }
+
+  Future<void> deleteNote() async {
+    final id = await NoteDao().delete(
+      note,
+    );
+    final deleted = id != null;
+    if (deleted) {
+      logger.d(
+        'deleted note with id: $id',
+      );
+      changesSub?.pause();
+      if (mounted) {
+        context.pop();
+      }
+    }
+    final title = "'${note.title}'";
+    final content =
+        deleted ? "$title was deleted successfully" : 'Could not delete $title';
+    if (mounted) {
+      UiUtils.showSnackbar(
+        context,
+        content: content,
+        onClose: () {},
       );
     }
   }
@@ -127,79 +162,161 @@ class _EditNoteState extends State<EditNote> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(15),
-            child: QuillProvider(
-              configurations: quillConfigs,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 7.5,
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          titleCtrl.text = note.title;
-                          titleCtrl.selection = TextSelection(
-                            baseOffset: 0,
-                            extentOffset: titleCtrl.text.length,
-                          );
-                          UiUtils.showEditTitleDialog(
-                            title: 'Rename document',
-                            context: context,
-                            titleCtrl: titleCtrl,
-                            onOk: () {
-                              saveDocument(
-                                title: titleCtrl.text,
-                              );
-                              context.pop();
-                            },
-                            onCancel: () {
-                              context.pop();
-                            },
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(7.5),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 7.5,
-                            horizontal: 15,
-                          ),
-                          child: BlocBuilder<EditNoteBloc, EditNoteState>(
-                            buildWhen: (previous, current) {
-                              final t1 = previous.note.title;
-                              final t2 = current.note.title;
-                              return t1 != t2;
-                            },
-                            builder: (context, state) {
-                              return Text(
-                                state.note.title,
-                                style: context.themeData.textTheme.titleLarge,
-                              );
-                            },
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 7.5,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: InkWell(
+                          onTap: () {
+                            titleCtrl.text = note.title;
+                            titleCtrl.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset: titleCtrl.text.length,
+                            );
+                            UiUtils.showEditTitleDialog(
+                              title: 'Rename document',
+                              context: context,
+                              titleCtrl: titleCtrl,
+                              onOk: () async {
+                                final valid =
+                                    titleFormKey.currentState?.validate() ??
+                                        false;
+                                if (!valid) {
+                                  return;
+                                }
+                                final note = await saveDocument(
+                                  title: titleCtrl.text,
+                                );
+                                bloc.add(
+                                  UpdateNoteEvent(
+                                    note: note,
+                                  ),
+                                );
+                                if (mounted) {
+                                  context.pop();
+                                }
+                              },
+                              onCancel: () {
+                                context.pop();
+                              },
+                              validator: Validators.nonEmptyFieldValidator,
+                              formKey: titleFormKey,
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(7.5),
+                          child: Padding(
+                            padding: const EdgeInsets.all(7.5),
+                            child: BlocBuilder<EditNoteBloc, EditNoteState>(
+                              buildWhen: (previous, current) {
+                                final t1 = previous.note.title;
+                                final t2 = current.note.title;
+                                return t1 != t2;
+                              },
+                              builder: (context, state) {
+                                return Text(
+                                  state.note.title,
+                                  style: context.themeData.textTheme.titleLarge,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(
+                                left: 5,
+                              ),
+                              child: Text(
+                                '(Saving...)',
+                              ),
+                            ),
+                            PopupMenuButton(
+                              color: Colors.white,
+                              surfaceTintColor: Colors.white,
+                              itemBuilder: (context) {
+                                const style = TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                );
+                                return [
+                                  PopupMenuItem(
+                                    child: const Text(
+                                      'Colections',
+                                      style: style,
+                                    ),
+                                    onTap: () {},
+                                  ),
+                                  PopupMenuItem(
+                                    child: const Text(
+                                      'Linked notes',
+                                      style: style,
+                                    ),
+                                    onTap: () {},
+                                  ),
+                                  PopupMenuItem(
+                                    child: Text(
+                                      'Delete',
+                                      style: style.copyWith(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      UiUtils.showProceedDialog(
+                                        title: 'Delete note?',
+                                        message:
+                                            'You are about to delete this note.'
+                                            ' Once deleted its gone forever.'
+                                            ' Are you sure you want to proceed?',
+                                        context: context,
+                                        onYes: () {
+                                          context.pop();
+                                          deleteNote();
+                                        },
+                                        onNo: () {
+                                          context.pop();
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ];
+                              },
+                              /* child: IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    Icons.more_vert,
+                                  ),
+                                ), */
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: Container(
+                ),
+                Expanded(
+                  child: QuillEditor(
+                    configurations: QuillEditorConfigurations(
                       padding: const EdgeInsets.all(7.5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7.5),
-                      ),
-                      child: QuillEditor(
-                        configurations: const QuillEditorConfigurations(
-                          readOnly: false,
-                          padding: EdgeInsets.all(7.5),
-                          scrollPhysics: BouncingScrollPhysics(),
-                        ),
-                        focusNode: contentFocus,
-                        scrollController: contentScrollCtrl,
-                      ),
+                      scrollPhysics: const BouncingScrollPhysics(),
+                      controller: contentCtrl,
                     ),
+                    focusNode: contentFocus,
+                    scrollController: contentScrollCtrl,
                   ),
-                  const Padding(
+                ),
+                /* const Padding(
                     padding: EdgeInsets.only(
                       top: 15,
                     ),
@@ -208,9 +325,8 @@ class _EditNoteState extends State<EditNote> {
                         multiRowsDisplay: false,
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ), */
+              ],
             ),
           ),
         ),

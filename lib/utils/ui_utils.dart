@@ -28,8 +28,8 @@ class UiUtils {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(
-            'Rename document',
+          title: Text(
+            title,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(7.5),
@@ -70,6 +70,86 @@ class UiUtils {
             ],
           ),
         );
+      },
+    );
+  }
+
+  static Future showProceedDialog({
+    required String title,
+    required String message,
+    required BuildContext context,
+    required VoidCallback onYes,
+    required VoidCallback onNo,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            title,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(7.5),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: onYes,
+                    child: const Text(
+                      'Yes',
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  TextButton(
+                    onPressed: onNo,
+                    child: const Text(
+                      'No',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  static void showSnackbar(
+    BuildContext context, {
+    required String content,
+    required VoidCallback onClose,
+  }) {
+    ScaffoldMessenger.of(
+      context,
+    )
+        .showSnackBar(
+          SnackBar(
+            content: Text(
+              content,
+            ),
+            duration: const Duration(
+              seconds: 2,
+              milliseconds: 500,
+            ),
+          ),
+        )
+        .closed
+        .whenComplete(
+      () {
+        onClose();
       },
     );
   }

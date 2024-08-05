@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:note_maker/app/themes/color_schemes.dart';
 
 class Themes {
   static BorderRadius get borderRadius => BorderRadius.circular(15);
@@ -39,8 +38,9 @@ class Themes {
         color: Colors.white,
         surfaceTintColor: Colors.white,
       ),
-      cardTheme: const CardTheme(
+      cardTheme: CardTheme(
         elevation: 0,
+        shape: Themes.shape,
       ),
     );
     return theme;

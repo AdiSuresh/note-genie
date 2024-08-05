@@ -6,11 +6,13 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/ui_utils.dart';
+import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/view.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
+import 'package:note_maker/views/home/widgets/collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/note_list_tile.dart';
 import 'package:note_maker/widgets/empty_footer.dart';
 
@@ -117,13 +119,7 @@ class _HomePageState extends State<HomePage> {
       onCancel: () {
         context.pop();
       },
-      validator: (value) {
-        final text = value ?? '';
-        if (text.isEmpty) {
-          return 'This field cannot be empty';
-        }
-        return null;
-      },
+      validator: Validators.nonEmptyFieldValidator,
       formKey: collectionNameFormKey,
     );
     noteCollectionsSub?.resume();
@@ -151,13 +147,7 @@ class _HomePageState extends State<HomePage> {
       onCancel: () {
         context.pop();
       },
-      validator: (value) {
-        final text = value ?? '';
-        if (text.isEmpty) {
-          return 'This field cannot be empty';
-        }
-        return null;
-      },
+      validator: Validators.nonEmptyFieldValidator,
       formKey: collectionNameFormKey,
     );
     noteCollectionsSub?.resume();
@@ -166,11 +156,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Home',
-        ),
-      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -191,51 +176,49 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
                 final collections = state.noteCollections;
-                return Row(
-                  children: [
-                    Expanded(
-                      child: Scrollbar(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.all(15),
-                          child: Row(
-                            children: [
-                              if (collections.isEmpty)
-                                const Padding(
-                                  padding: EdgeInsets.all(7.5),
-                                  child: Text(
-                                    'No collections yet',
+                return Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                if (collections.isEmpty)
+                                  const Padding(
+                                    padding: EdgeInsets.all(7.5),
+                                    child: Text(
+                                      'No collections yet',
+                                    ),
                                   ),
-                                ),
-                              for (final collection in collections)
-                                InkWell(
-                                  focusColor: Colors.amber,
-                                  onTap: () {
-                                    editCollectionName(
-                                      collection,
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(7.5),
+                                for (final collection in collections)
+                                  CollectionListTile(
+                                    onTap: () {
+                                      editCollectionName(
+                                        collection,
+                                      );
+                                    },
                                     child: Text(
                                       collection.name,
                                     ),
                                   ),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        addCollection();
-                      },
-                      icon: const Icon(
-                        Icons.add,
+                      CollectionListTile(
+                        onTap: () {
+                          addCollection();
+                        },
+                        child: const Icon(
+                          Icons.create_new_folder,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),
@@ -265,9 +248,6 @@ class _HomePageState extends State<HomePage> {
                               EditNote.routeName,
                             );
                             notesSub?.resume();
-                            logger.d(
-                              'push',
-                            );
                           },
                         ),
                       const EmptyFooter(),
@@ -288,7 +268,7 @@ class _HomePageState extends State<HomePage> {
           );
           notesSub?.resume();
         },
-        tooltip: 'Increment',
+        tooltip: 'Add note',
         child: const Icon(
           Icons.add,
         ),

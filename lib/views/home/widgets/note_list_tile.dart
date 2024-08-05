@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 import 'package:note_maker/models/note/model.dart';
 
 class NoteListTile extends StatelessWidget {
@@ -14,10 +13,10 @@ class NoteListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var content = Document.fromJson(
-      note.content,
-    ).toPlainText().trim();
-    content = content.isEmpty ? 'No content' : content;
+    var content = note.contentAsText;
+    if (content.isEmpty) {
+      content = 'No content';
+    }
     final textTheme = Theme.of(context).textTheme;
     final borderRadius = BorderRadius.circular(15);
     return Padding(

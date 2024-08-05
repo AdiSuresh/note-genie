@@ -8,6 +8,9 @@ import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/edit_note/view.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/view.dart';
+import 'package:note_maker/views/note_info/bloc.dart';
+import 'package:note_maker/views/note_info/state.dart';
+import 'package:note_maker/views/note_info/view.dart';
 
 class AppRouter {
   AppRouter._();
@@ -42,6 +45,22 @@ class AppRouter {
                 );
               },
               child: const EditNote(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/note-info',
+          builder: (context, state) {
+            final note = context.extra is Note ? context.extra : Note.empty();
+            return BlocProvider(
+              create: (context) {
+                return NoteInfoBloc(
+                  NoteInfoState(
+                    note: note,
+                  ),
+                );
+              },
+              child: const NoteInfo(),
             );
           },
         ),

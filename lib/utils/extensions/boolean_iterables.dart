@@ -1,4 +1,4 @@
-extension BooleanListExtension on Iterable<bool> {
+extension BooleanIterablesExtension on Iterable<bool> {
   bool computeOR() {
     return any(
       (element) => element,

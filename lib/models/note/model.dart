@@ -1,4 +1,5 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:note_maker/models/model_base.dart';
 
@@ -20,7 +21,7 @@ class Note extends ModelBase {
 
   factory Note.empty() {
     return const Note(
-      title: '',
+      title: 'Untitled',
       content: [],
       collections: {},
     );
@@ -32,6 +33,12 @@ class Note extends ModelBase {
     return _$NoteFromJson(
       json,
     );
+  }
+
+  String get contentAsText {
+    return Document.fromJson(
+      content,
+    ).toPlainText().trim();
   }
 
   @override

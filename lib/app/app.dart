@@ -36,22 +36,8 @@ class _NoteMakerState extends State<NoteMaker> {
     super.dispose();
   }
 
-  /* static const c = Color(
-    0xFF0C0E0C,
-  ); */
-
   @override
   Widget build(BuildContext context) {
-    final defaultTheme = ThemeData(
-      useMaterial3: true,
-      appBarTheme: const AppBarTheme(
-        elevation: 2.5,
-        scrolledUnderElevation: 2.5,
-        shadowColor: Colors.black,
-        backgroundColor: Colors.white,
-      ),
-      scaffoldBackgroundColor: Colors.white,
-    );
     return MultiBlocProvider(
       providers: [
         BlocProvider(
