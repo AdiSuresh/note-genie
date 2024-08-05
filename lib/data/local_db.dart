@@ -9,7 +9,7 @@ class LocalDatabase {
 
   static LocalDatabase get instance => _singleton;
 
-  final Completer<Database> _openDbCompleter = Completer();
+  Completer<Database>? _openDbCompleter;
 
   LocalDatabase._();
 
@@ -18,11 +18,14 @@ class LocalDatabase {
   }
 
   Future<Database> get database async {
-    _openDatabase();
-    return _openDbCompleter.future;
+    if (_openDbCompleter == null) {
+      _openDbCompleter = Completer();
+      await _openDatabase();
+    }
+    return _openDbCompleter!.future;
   }
 
-  Future<Database?> _openDatabase() async {
+  Future<Database> _openDatabase() async {
     final dir = await getApplicationDocumentsDirectory();
     final dbPath = join(
       dir.path,
@@ -31,9 +34,9 @@ class LocalDatabase {
     final database = await databaseFactoryIo.openDatabase(
       dbPath,
     );
-    _openDbCompleter.complete(
+    _openDbCompleter?.complete(
       database,
     );
-    return _openDbCompleter.future;
+    return database;
   }
 }

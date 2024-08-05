@@ -1,14 +1,16 @@
+import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:note_maker/models/model_base.dart';
 
-part 'note_collection.g.dart';
+part 'model.g.dart';
 
 @JsonSerializable()
-class NoteCollection {
-  final int? id;
+@CopyWith()
+class NoteCollection extends ModelBase {
   final String name;
 
   const NoteCollection({
-    this.id,
+    super.id,
     required this.name,
   });
 
@@ -20,6 +22,7 @@ class NoteCollection {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return _$NoteCollectionToJson(
       this,
