@@ -245,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                             notesSub?.pause();
                             context.extra = note;
                             await context.push(
-                              EditNote.routeName,
+                              EditNote.path,
                             );
                             notesSub?.resume();
                           },
@@ -264,7 +264,7 @@ class _HomePageState extends State<HomePage> {
           notesSub?.pause();
           context.extra = null;
           await context.push(
-            EditNote.routeName,
+            EditNote.path,
           );
           notesSub?.resume();
         },

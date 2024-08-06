@@ -29,45 +29,49 @@ class DaoBase<T extends ModelBase> {
   Future<T?> update(
     T value,
   ) async {
-    if (value.id == null) {
-      return null;
+    switch (value.id) {
+      case final int id:
+        return store
+            .record(
+              id,
+            )
+            .update(
+              await db,
+              value.toJson(),
+            )
+            .then(
+          (value) {
+            T? result;
+            try {
+              result = fromJson(
+                value!,
+              );
+            } catch (e) {
+              // ignored
+            }
+            return result;
+          },
+        );
+      case _:
+        return null;
     }
-    return store
-        .record(
-          value.id!,
-        )
-        .update(
-          await db,
-          value.toJson(),
-        )
-        .then(
-      (value) {
-        T? result;
-        try {
-          result = fromJson(
-            value!,
-          );
-        } catch (e) {
-          // ignored
-        }
-        return result;
-      },
-    );
   }
 
   Future<int?> delete(
     T value,
   ) async {
-    if (value.id == null) {
-      return null;
+    switch (value.id) {
+      case final int id:
+        return store
+            .record(
+              id,
+            )
+            .delete(
+              await db,
+            );
+      case _:
+        return null;
     }
-    return store
-        .record(
-          value.id!,
-        )
-        .delete(
-          await db,
-        );
   }
 
   Future<Stream<List<T>>> get getStream async {

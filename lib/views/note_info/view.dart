@@ -13,7 +13,7 @@ import 'package:note_maker/views/note_info/bloc.dart';
 import 'package:note_maker/views/note_info/widgets/count_widget.dart';
 
 class NoteInfo extends StatefulWidget {
-  static const routeName = '/note-info';
+  static const path = '/note-info';
 
   const NoteInfo({
     super.key,
@@ -213,7 +213,7 @@ class _NoteInfoState extends State<NoteInfo> with TickerProviderStateMixin {
                       onPressed: () {
                         context.extra = note;
                         context.push(
-                          EditNote.routeName,
+                          EditNote.path,
                         );
                       },
                       child: const Row(

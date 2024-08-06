@@ -14,7 +14,7 @@ import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state.dart';
 
 class EditNote extends StatefulWidget {
-  static const routeName = '/edit-note';
+  static const path = '/edit-note';
 
   const EditNote({
     super.key,
