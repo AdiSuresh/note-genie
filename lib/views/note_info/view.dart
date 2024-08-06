@@ -126,30 +126,30 @@ class _NoteInfoState extends State<NoteInfo> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            /* Card(
+            Card(
               margin: const EdgeInsets.all(7.5),
               child: Padding(
                 padding: const EdgeInsets.all(15),
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    text: count.toString(),
-                    style: textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    text: 'count',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                     children: <TextSpan>[
                       TextSpan(
                         text: 'Last updated',
-                        style: textTheme.bodySmall?.copyWith(
-                          color: Colors.white,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white,
+                            ),
                       ),
                     ],
                   ),
                 ),
               ),
-            ), */
+            ),
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -185,7 +185,7 @@ class _NoteInfoState extends State<NoteInfo> with TickerProviderStateMixin {
                       ),
                       Tab(
                         child: Text(
-                          'Linked notes',
+                          'Linked Notes',
                         ),
                       ),
                     ],
@@ -220,10 +220,10 @@ class _NoteInfoState extends State<NoteInfo> with TickerProviderStateMixin {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Open document ',
+                            'Edit Note',
                           ),
                           Icon(
-                            Icons.open_in_new,
+                            Icons.edit_document,
                           ),
                         ],
                       ),
