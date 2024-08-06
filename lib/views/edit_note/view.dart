@@ -14,7 +14,7 @@ import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state.dart';
 
 class EditNote extends StatefulWidget {
-  static const routeName = '/edit-note';
+  static const path = '/edit-note';
 
   const EditNote({
     super.key,
@@ -35,7 +35,6 @@ class _EditNoteState extends State<EditNote> {
   final titleFormKey = GlobalKey<FormState>();
 
   late final QuillController contentCtrl;
-  late final QuillEditorConfigurations quillConfigs;
   final contentFocus = FocusNode();
   final contentScrollCtrl = ScrollController();
 
@@ -72,9 +71,6 @@ class _EditNoteState extends State<EditNote> {
       selection: const TextSelection.collapsed(
         offset: 0,
       ),
-    );
-    quillConfigs = QuillEditorConfigurations(
-      controller: contentCtrl,
     );
   }
 
@@ -260,7 +256,7 @@ class _EditNoteState extends State<EditNote> {
                                   ),
                                   PopupMenuItem(
                                     child: const Text(
-                                      'Linked notes',
+                                      'Linked Notes',
                                       style: style,
                                     ),
                                     onTap: () {},
