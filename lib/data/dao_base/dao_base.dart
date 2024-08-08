@@ -84,11 +84,9 @@ class DaoBase<T extends ModelBase> {
       (event) {
         return event.map(
           (e) {
-            final json = <String, dynamic>{}
-              ..addAll(
-                e.value,
-              )
-              ..['id'] = e.key;
+            final json = Map<String, Object?>.from(
+              e.value,
+            )..['id'] = e.key;
             return fromJson(
               json,
             );

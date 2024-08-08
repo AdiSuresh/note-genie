@@ -16,8 +16,7 @@ class Themes {
       colorScheme: ColorScheme.fromSeed(
         brightness: Brightness.light,
         seedColor: seedColor,
-        background: Colors.white,
-        surface: seedColor,
+        surface: Colors.white,
         onSurface: Colors.black,
         onSurfaceVariant: Colors.blueGrey,
         error: const Color(

@@ -29,5 +29,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
       },
     );
+    on<ViewCollectionEvent>(
+      (event, emit) {
+        emit(
+          state.copyWith(
+            currentCollection: event.collection,
+          ),
+        );
+      },
+    );
   }
 }
