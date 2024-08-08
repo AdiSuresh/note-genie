@@ -20,3 +20,11 @@ class UpdateNoteCollectionsEvent extends HomeEvent {
     required this.noteCollections,
   });
 }
+
+class ViewCollectionEvent extends HomeEvent {
+  final NoteCollection collection;
+
+  const ViewCollectionEvent({
+    required this.collection,
+  });
+}

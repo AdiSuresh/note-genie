@@ -38,6 +38,8 @@ class _HomePageState extends State<HomePage> {
 
   HomeBloc get bloc => context.read();
 
+  NoteCollection? currentCollection;
+
   @override
   void initState() {
     super.initState();
@@ -60,13 +62,13 @@ class _HomePageState extends State<HomePage> {
     HomeBloc.noteDao.getStream.then(
       (value) {
         notesSub = value.listen(
-          (event) {
+          (data) {
             logger.i(
               'changes detected in notes',
             );
             bloc.add(
               UpdateNotesEvent(
-                notes: event,
+                notes: data,
               ),
             );
           },
@@ -183,6 +185,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: Scrollbar(
                           child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               children: [
@@ -195,7 +198,17 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 for (final collection in collections)
                                   CollectionListTile(
+                                    key: GlobalObjectKey(
+                                      collection,
+                                    ),
                                     onTap: () {
+                                      bloc.add(
+                                        ViewCollectionEvent(
+                                          collection: collection,
+                                        ),
+                                      );
+                                      logger.i('scroll to collection');
+                                      return;
                                       editCollectionName(
                                         collection,
                                       );
