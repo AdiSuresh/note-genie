@@ -6,21 +6,15 @@ part 'state.g.dart';
 
 @CopyWith()
 class HomeState {
+  final bool showNotes;
   final List<Note> notes;
   final List<NoteCollection> noteCollections;
   final NoteCollection? currentCollection;
 
   const HomeState({
+    this.showNotes = true,
     required this.notes,
     required this.noteCollections,
     this.currentCollection,
-  });
-}
-
-class NotesLoaded extends HomeState {
-  NotesLoaded({
-    required super.notes,
-    required super.noteCollections,
-    super.currentCollection,
   });
 }
