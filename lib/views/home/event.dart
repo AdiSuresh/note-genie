@@ -28,3 +28,7 @@ class ViewCollectionEvent extends HomeEvent {
     required this.collection,
   });
 }
+
+class SwithViewEvent extends HomeEvent {
+  const SwithViewEvent();
+}

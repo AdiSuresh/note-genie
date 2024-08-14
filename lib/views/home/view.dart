@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -179,10 +180,40 @@ class _HomePageState extends State<HomePage> {
         // collections widget
       ],
     );
+    final tabs = [
+      const Icon(
+        Icons.folder,
+      ),
+      Transform.flip(
+        flipX: true,
+        child: Transform.rotate(
+          angle: -pi / 2,
+          child: const Icon(
+            Icons.note,
+          ),
+        ),
+      ),
+    ];
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
+            DefaultTabController(
+              length: 2,
+              child: TabBar(
+                tabAlignment: TabAlignment.center,
+                indicator: BoxDecoration(
+                  color: Colors.lightBlue,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                indicatorSize: TabBarIndicatorSize.label,
+                indicatorPadding: EdgeInsets.zero,
+                labelPadding: EdgeInsets.zero,
+                automaticIndicatorColorAdjustment: false,
+                isScrollable: true,
+                tabs: tabs,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(15).copyWith(
                 bottom: 7.5,
@@ -193,6 +224,38 @@ class _HomePageState extends State<HomePage> {
                   return previous.showNotes != current.showNotes;
                 },
                 builder: (context, state) {
+                  final tabs = [
+                    const Icon(
+                      Icons.folder,
+                    ),
+                    Transform.flip(
+                      flipX: true,
+                      child: Transform.rotate(
+                        angle: -pi / 2,
+                        child: const Icon(
+                          Icons.note,
+                        ),
+                      ),
+                    ),
+                  ];
+                  final icon = switch (state.showNotes) {
+                    true => const Icon(
+                        Icons.folder,
+                      ),
+                    _ => Transform.flip(
+                        flipX: true,
+                        child: Transform.rotate(
+                          angle: -pi / 2,
+                          child: const Icon(
+                            Icons.note,
+                          ),
+                        ),
+                      ),
+                  };
+                  final tabName = switch (state.showNotes) {
+                    true => 'collections',
+                    _ => 'notes',
+                  };
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -200,12 +263,31 @@ class _HomePageState extends State<HomePage> {
                         pageTitle,
                         style: context.themeData.textTheme.titleLarge,
                       ),
-                      CollectionListTile(
-                        onTap: () {
-                          addCollection();
-                        },
-                        child: const Icon(
-                          Icons.create_new_folder,
+                      Tooltip(
+                        message: 'View $tabName',
+                        child: CollectionListTile(
+                          onTap: () {
+                            bloc.add(
+                              const SwithViewEvent(),
+                            );
+                          },
+                          child: icon,
+                        ),
+                      ),
+                      Expanded(
+                        child: DefaultTabController(
+                          length: 2,
+                          child: TabBar(
+                            indicator: BoxDecoration(
+                              color: Colors.lightBlue,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            indicatorSize: TabBarIndicatorSize.label,
+                            indicatorPadding: EdgeInsets.zero,
+                            padding: EdgeInsets.zero,
+                            labelPadding: EdgeInsets.zero,
+                            tabs: tabs,
+                          ),
                         ),
                       ),
                     ],
