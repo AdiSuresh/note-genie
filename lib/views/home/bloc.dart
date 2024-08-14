@@ -38,5 +38,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
       },
     );
+    on<SwithViewEvent>(
+      (event, emit) {
+        emit(
+          state.copyWith(
+            showNotes: !state.showNotes,
+          ),
+        );
+      },
+    );
   }
 }
