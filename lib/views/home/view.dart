@@ -175,45 +175,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     IndexedStack(
       index: pageIndex,
-      children: [
+      children: const [
         // notes widget
         // collections widget
       ],
     );
-    final tabs = [
-      const Icon(
-        Icons.folder,
-      ),
-      Transform.flip(
-        flipX: true,
-        child: Transform.rotate(
-          angle: -pi / 2,
-          child: const Icon(
-            Icons.note,
-          ),
-        ),
-      ),
-    ];
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            DefaultTabController(
-              length: 2,
-              child: TabBar(
-                tabAlignment: TabAlignment.center,
-                indicator: BoxDecoration(
-                  color: Colors.lightBlue,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                indicatorSize: TabBarIndicatorSize.label,
-                indicatorPadding: EdgeInsets.zero,
-                labelPadding: EdgeInsets.zero,
-                automaticIndicatorColorAdjustment: false,
-                isScrollable: true,
-                tabs: tabs,
-              ),
-            ),
             Padding(
               padding: const EdgeInsets.all(15).copyWith(
                 bottom: 7.5,
@@ -224,10 +194,7 @@ class _HomePageState extends State<HomePage> {
                   return previous.showNotes != current.showNotes;
                 },
                 builder: (context, state) {
-                  final tabs = [
-                    const Icon(
-                      Icons.folder,
-                    ),
+                  final tabIcons = [
                     Transform.flip(
                       flipX: true,
                       child: Transform.rotate(
@@ -237,57 +204,78 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
+                    const Icon(
+                      Icons.folder,
+                    ),
                   ];
-                  final icon = switch (state.showNotes) {
-                    true => const Icon(
-                        Icons.folder,
-                      ),
-                    _ => Transform.flip(
-                        flipX: true,
-                        child: Transform.rotate(
-                          angle: -pi / 2,
-                          child: const Icon(
-                            Icons.note,
-                          ),
-                        ),
-                      ),
-                  };
-                  final tabName = switch (state.showNotes) {
-                    true => 'collections',
-                    _ => 'notes',
-                  };
                   return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        pageTitle,
-                        style: context.themeData.textTheme.titleLarge,
-                      ),
-                      Tooltip(
-                        message: 'View $tabName',
-                        child: CollectionListTile(
-                          onTap: () {
-                            bloc.add(
-                              const SwithViewEvent(),
-                            );
-                          },
-                          child: icon,
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 5,
+                        ),
+                        child: Text(
+                          pageTitle,
+                          style: context.themeData.textTheme.titleLarge,
                         ),
                       ),
                       Expanded(
-                        child: DefaultTabController(
-                          length: 2,
-                          child: TabBar(
-                            indicator: BoxDecoration(
-                              color: Colors.lightBlue,
-                              borderRadius: BorderRadius.circular(15),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: DefaultTabController(
+                            length: 2,
+                            child: Builder(
+                              builder: (context) {
+                                const padding = EdgeInsets.zero;
+                                final borderRadius = BorderRadius.circular(
+                                  15,
+                                );
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black12,
+                                    borderRadius: borderRadius,
+                                  ),
+                                  child: TabBar(
+                                    automaticIndicatorColorAdjustment: false,
+                                    tabAlignment: TabAlignment.center,
+                                    indicator: BoxDecoration(
+                                      borderRadius: borderRadius,
+                                      color:
+                                          context.themeData.primaryColorLight,
+                                    ),
+                                    overlayColor: WidgetStateProperty.all(
+                                      Colors.transparent,
+                                    ),
+                                    padding: padding,
+                                    indicatorPadding: padding,
+                                    labelPadding: padding,
+                                    dividerColor: Colors.transparent,
+                                    labelColor: Colors.white,
+                                    unselectedLabelColor: Colors.black,
+                                    tabs: [
+                                      ...tabIcons.map(
+                                        (e) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(15),
+                                            child: e,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
-                            indicatorSize: TabBarIndicatorSize.label,
-                            indicatorPadding: EdgeInsets.zero,
-                            padding: EdgeInsets.zero,
-                            labelPadding: EdgeInsets.zero,
-                            tabs: tabs,
                           ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.settings,
                         ),
                       ),
                     ],
@@ -331,25 +319,44 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           for (final collection in collections)
-                            CollectionListTile(
+                            Builder(
                               key: GlobalObjectKey(
                                 collection,
                               ),
-                              onTap: () {
-                                bloc.add(
-                                  ViewCollectionEvent(
-                                    collection: collection,
+                              builder: (context) {
+                                var padding = const EdgeInsets.symmetric(
+                                  horizontal: 7.5,
+                                );
+                                if (collection == collections.first) {
+                                  padding = padding.copyWith(
+                                    left: 0,
+                                  );
+                                } else if (collection == collections.last) {
+                                  padding = padding.copyWith(
+                                    right: 0,
+                                  );
+                                }
+                                return Padding(
+                                  padding: padding,
+                                  child: CollectionListTile(
+                                    onTap: () {
+                                      bloc.add(
+                                        ViewCollectionEvent(
+                                          collection: collection,
+                                        ),
+                                      );
+                                      logger.i('scroll to collection');
+                                      return;
+                                      editCollectionName(
+                                        collection,
+                                      );
+                                    },
+                                    child: Text(
+                                      collection.name,
+                                    ),
                                   ),
                                 );
-                                logger.i('scroll to collection');
-                                return;
-                                editCollectionName(
-                                  collection,
-                                );
                               },
-                              child: Text(
-                                collection.name,
-                              ),
                             ),
                         ],
                       ),
