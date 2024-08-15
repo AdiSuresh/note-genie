@@ -289,8 +289,7 @@ class _HomePageState extends State<HomePage> {
               },
               builder: (context, state) {
                 if (noteCollectionsSub == null) {
-                  return const Align(
-                    alignment: Alignment.centerLeft,
+                  return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(22.5),
                       child: Text(
