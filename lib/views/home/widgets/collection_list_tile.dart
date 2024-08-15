@@ -14,11 +14,12 @@ class CollectionListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      margin: EdgeInsets.zero,
       child: InkWell(
         customBorder: Themes.shape,
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12.5),
+          padding: const EdgeInsets.all(15),
           child: child,
         ),
       ),

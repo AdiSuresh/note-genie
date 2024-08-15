@@ -25,6 +25,7 @@ class NoteListTile extends StatelessWidget {
         horizontal: 15,
       ),
       child: Card(
+        margin: EdgeInsets.zero,
         child: InkWell(
           onTap: viewNote,
           borderRadius: borderRadius,
