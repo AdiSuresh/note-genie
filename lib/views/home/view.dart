@@ -27,7 +27,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   static final logger = AppLogger(
     HomePage,
   );
@@ -42,9 +42,15 @@ class _HomePageState extends State<HomePage> {
 
   NoteCollection? currentCollection;
 
+  late final TabController tabCtrl;
+
   @override
   void initState() {
     super.initState();
+    tabCtrl = TabController(
+      length: 2,
+      vsync: this,
+    );
     HomeBloc.noteCollectionDao.getStream.then(
       (value) {
         noteCollectionsSub = value.listen(
@@ -210,62 +216,54 @@ class _HomePageState extends State<HomePage> {
                   ];
                   return Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 5,
-                        ),
-                        child: Text(
-                          pageTitle,
-                          style: context.themeData.textTheme.titleLarge,
-                        ),
+                      Text(
+                        pageTitle,
+                        style: context.themeData.textTheme.titleLarge,
                       ),
                       Expanded(
                         child: Align(
                           alignment: Alignment.centerRight,
-                          child: DefaultTabController(
-                            length: 2,
-                            child: Builder(
-                              builder: (context) {
-                                const padding = EdgeInsets.zero;
-                                final borderRadius = BorderRadius.circular(
-                                  15,
-                                );
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black12,
+                          child: Builder(
+                            builder: (context) {
+                              const padding = EdgeInsets.zero;
+                              final borderRadius = BorderRadius.circular(
+                                15,
+                              );
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: borderRadius,
+                                ),
+                                child: TabBar(
+                                  controller: tabCtrl,
+                                  automaticIndicatorColorAdjustment: false,
+                                  tabAlignment: TabAlignment.center,
+                                  indicator: BoxDecoration(
                                     borderRadius: borderRadius,
+                                    color: context.themeData.primaryColorLight,
                                   ),
-                                  child: TabBar(
-                                    automaticIndicatorColorAdjustment: false,
-                                    tabAlignment: TabAlignment.center,
-                                    indicator: BoxDecoration(
-                                      borderRadius: borderRadius,
-                                      color:
-                                          context.themeData.primaryColorLight,
-                                    ),
-                                    overlayColor: WidgetStateProperty.all(
-                                      Colors.transparent,
-                                    ),
-                                    padding: padding,
-                                    indicatorPadding: padding,
-                                    labelPadding: padding,
-                                    dividerColor: Colors.transparent,
-                                    labelColor: Colors.white,
-                                    unselectedLabelColor: Colors.black,
-                                    tabs: [
-                                      ...tabIcons.map(
-                                        (e) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(15),
-                                            child: e,
-                                          );
-                                        },
-                                      ),
-                                    ],
+                                  overlayColor: WidgetStateProperty.all(
+                                    Colors.transparent,
                                   ),
-                                );
-                              },
-                            ),
+                                  padding: padding,
+                                  indicatorPadding: padding,
+                                  labelPadding: padding,
+                                  dividerColor: Colors.transparent,
+                                  labelColor: Colors.white,
+                                  unselectedLabelColor: Colors.black,
+                                  tabs: [
+                                    ...tabIcons.map(
+                                      (e) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(15),
+                                          child: e,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -289,8 +287,7 @@ class _HomePageState extends State<HomePage> {
               },
               builder: (context, state) {
                 if (noteCollectionsSub == null) {
-                  return const Align(
-                    alignment: Alignment.centerLeft,
+                  return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(22.5),
                       child: Text(
