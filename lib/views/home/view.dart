@@ -14,7 +14,7 @@ import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
-import 'package:note_maker/views/home/widgets/collection_list_tile.dart';
+import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/note_list_tile.dart';
 import 'package:note_maker/widgets/empty_footer.dart';
 
@@ -179,13 +179,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    IndexedStack(
-      index: pageIndex,
-      children: const [
-        // notes widget
-        // collections widget
-      ],
-    );
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -281,61 +274,172 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 },
               ),
             ),
-            BlocBuilder<HomeBloc, HomeState>(
-              buildWhen: (previous, current) {
-                return previous.noteCollections != current.noteCollections;
-              },
-              builder: (context, state) {
-                if (noteCollectionsSub == null) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(22.5),
-                      child: Text(
-                        'Loading...',
-                      ),
-                    ),
-                  );
-                }
-                final collections = state.noteCollections;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 7.5,
-                    horizontal: 15,
-                  ),
-                  child: Scrollbar(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          if (collections.isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.all(7.5),
+            Expanded(
+              child: TabBarView(
+                controller: tabCtrl,
+                children: [
+                  Column(
+                    children: [
+                      BlocBuilder<HomeBloc, HomeState>(
+                        buildWhen: (previous, current) {
+                          return previous.noteCollections !=
+                              current.noteCollections;
+                        },
+                        builder: (context, state) {
+                          if (noteCollectionsSub == null) {
+                            return const Center(
                               child: Text(
-                                'No collections yet',
+                                'Loading...',
+                              ),
+                            );
+                          }
+                          final collections = state.noteCollections;
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 7.5,
+                              horizontal: 15,
+                            ),
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  if (collections.isEmpty)
+                                    const Padding(
+                                      padding: EdgeInsets.all(7.5),
+                                      child: Text(
+                                        'No collections yet',
+                                      ),
+                                    ),
+                                  for (final collection in collections)
+                                    Builder(
+                                      key: GlobalObjectKey(
+                                        collection,
+                                      ),
+                                      builder: (context) {
+                                        var padding =
+                                            const EdgeInsets.symmetric(
+                                          horizontal: 7.5,
+                                        );
+                                        if (collection == collections.first) {
+                                          padding = padding.copyWith(
+                                            left: 0,
+                                          );
+                                        } else if (collection ==
+                                            collections.last) {
+                                          padding = padding.copyWith(
+                                            right: 0,
+                                          );
+                                        }
+                                        return Padding(
+                                          padding: padding,
+                                          child: CollectionChip(
+                                            onTap: () {
+                                              bloc.add(
+                                                ViewCollectionEvent(
+                                                  collection: collection,
+                                                ),
+                                              );
+                                              logger.i('scroll to collection');
+                                              return;
+                                              editCollectionName(
+                                                collection,
+                                              );
+                                            },
+                                            child: Text(
+                                              collection.name,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                ],
                               ),
                             ),
+                          );
+                        },
+                      ),
+                      Expanded(
+                        child: BlocBuilder<HomeBloc, HomeState>(
+                          buildWhen: (previous, current) {
+                            return previous.notes != current.notes;
+                          },
+                          builder: (context, state) {
+                            if (notesSub == null) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            final notes = state.notes;
+                            return ListView(
+                              children: <Widget>[
+                                for (final note in notes)
+                                  NoteListTile(
+                                    note: note,
+                                    viewNote: () async {
+                                      notesSub?.pause();
+                                      context.extra = note;
+                                      await context.push(
+                                        EditNote.path,
+                                      );
+                                      notesSub?.resume();
+                                    },
+                                  ),
+                                const EmptyFooter(),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  BlocBuilder<HomeBloc, HomeState>(
+                    buildWhen: (previous, current) {
+                      return previous.noteCollections !=
+                          current.noteCollections;
+                    },
+                    builder: (context, state) {
+                      if (noteCollectionsSub == null) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      final collections = state.noteCollections;
+                      switch (collections) {
+                        case []:
+                          const Padding(
+                            padding: EdgeInsets.all(7.5),
+                            child: Text(
+                              'No collections yet',
+                            ),
+                          );
+                        case _:
+                      }
+                      return ListView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                        ).copyWith(
+                          top: 7.5,
+                        ),
+                        children: [
                           for (final collection in collections)
                             Builder(
-                              key: GlobalObjectKey(
-                                collection,
-                              ),
                               builder: (context) {
                                 var padding = const EdgeInsets.symmetric(
-                                  horizontal: 7.5,
+                                  vertical: 7.5,
                                 );
                                 if (collection == collections.first) {
                                   padding = padding.copyWith(
-                                    left: 0,
+                                    top: 0,
                                   );
                                 } else if (collection == collections.last) {
                                   padding = padding.copyWith(
-                                    right: 0,
+                                    bottom: 0,
                                   );
                                 }
                                 return Padding(
                                   padding: padding,
-                                  child: CollectionListTile(
+                                  child: CollectionChip(
                                     onTap: () {
                                       bloc.add(
                                         ViewCollectionEvent(
@@ -356,45 +460,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               },
                             ),
                         ],
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-            BlocBuilder<HomeBloc, HomeState>(
-              buildWhen: (previous, current) {
-                return previous.notes != current.notes;
-              },
-              builder: (context, state) {
-                if (notesSub == null) {
-                  return const Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-                final notes = state.notes;
-                return Expanded(
-                  child: ListView(
-                    children: <Widget>[
-                      for (final note in notes)
-                        NoteListTile(
-                          note: note,
-                          viewNote: () async {
-                            notesSub?.pause();
-                            context.extra = note;
-                            await context.push(
-                              EditNote.path,
-                            );
-                            notesSub?.resume();
-                          },
-                        ),
-                      const EmptyFooter(),
-                    ],
-                  ),
-                );
-              },
+                ],
+              ),
             ),
           ],
         ),

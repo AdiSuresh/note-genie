@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app/app.dart';
+import 'package:note_maker/app/app.dart';
 
 void main() {
   runApp(
