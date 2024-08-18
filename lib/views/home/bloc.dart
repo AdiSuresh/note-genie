@@ -42,7 +42,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
       },
     );
-    on<SwithViewEvent>(
+    on<SwitchViewEvent>(
       (event, emit) {
         emit(
           state.copyWith(
