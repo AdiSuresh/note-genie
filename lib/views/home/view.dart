@@ -32,6 +32,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     HomePage,
   );
 
+  static const animationDuration = Duration(
+    milliseconds: 150,
+  );
+
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
@@ -48,6 +52,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     tabCtrl = TabController(
+      animationDuration: animationDuration,
       length: 2,
       vsync: this,
     );
@@ -87,6 +92,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    tabCtrl.dispose();
     unawaited(
       noteCollectionsSub?.cancel(),
     );
