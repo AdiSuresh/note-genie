@@ -7,6 +7,7 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
+import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/view.dart';
@@ -32,6 +33,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     HomePage,
   );
 
+  static const animationDuration = Duration(
+    milliseconds: 150,
+  );
+
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
@@ -48,6 +53,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     tabCtrl = TabController(
+      animationDuration: animationDuration,
       length: 2,
       vsync: this,
     );
@@ -87,6 +93,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    tabCtrl.dispose();
     unawaited(
       noteCollectionsSub?.cancel(),
     );
@@ -281,9 +288,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   Column(
                     children: [
                       BlocBuilder<HomeBloc, HomeState>(
-                        buildWhen: (previous, current) {
-                          return previous.noteCollections !=
-                              current.noteCollections;
+                        buildWhen: (prev, curr) {
+                          final result = [
+                            prev.noteCollections != curr.noteCollections,
+                            prev.currentCollection != curr.currentCollection,
+                          ].or();
+                          return result;
                         },
                         builder: (context, state) {
                           if (noteCollectionsSub == null) {
@@ -294,45 +304,52 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             );
                           }
                           final collections = state.noteCollections;
-                          return Padding(
+                          return SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
                             padding: const EdgeInsets.symmetric(
                               vertical: 7.5,
                               horizontal: 15,
                             ),
-                            child: SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  if (collections.isEmpty)
-                                    const Padding(
-                                      padding: EdgeInsets.all(7.5),
-                                      child: Text(
-                                        'No collections yet',
-                                      ),
+                            child: Row(
+                              children: [
+                                if (collections.isEmpty)
+                                  const Padding(
+                                    padding: EdgeInsets.all(7.5),
+                                    child: Text(
+                                      'No collections yet',
                                     ),
-                                  for (final collection in collections)
-                                    Builder(
-                                      key: GlobalObjectKey(
-                                        collection,
-                                      ),
-                                      builder: (context) {
-                                        var padding =
-                                            const EdgeInsets.symmetric(
-                                          horizontal: 7.5,
+                                  ),
+                                for (final collection in collections)
+                                  Builder(
+                                    key: GlobalObjectKey(
+                                      collection,
+                                    ),
+                                    builder: (context) {
+                                      var padding = const EdgeInsets.symmetric(
+                                        horizontal: 7.5,
+                                      );
+                                      if (collection == collections.first) {
+                                        padding = padding.copyWith(
+                                          left: 0,
                                         );
-                                        if (collection == collections.first) {
-                                          padding = padding.copyWith(
-                                            left: 0,
-                                          );
-                                        } else if (collection ==
-                                            collections.last) {
-                                          padding = padding.copyWith(
-                                            right: 0,
-                                          );
-                                        }
-                                        return Padding(
-                                          padding: padding,
+                                      } else if (collection ==
+                                          collections.last) {
+                                        padding = padding.copyWith(
+                                          right: 0,
+                                        );
+                                      }
+                                      const scale = 1.1;
+                                      final selected =
+                                          collection == state.currentCollection;
+                                      return Padding(
+                                        padding: padding,
+                                        child: AnimatedContainer(
+                                          duration: animationDuration,
+                                          transform: Transform.scale(
+                                            scale: selected ? scale : 1,
+                                          ).transform,
+                                          transformAlignment: Alignment.center,
                                           child: CollectionChip(
                                             onTap: () {
                                               bloc.add(
@@ -340,21 +357,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   collection: collection,
                                                 ),
                                               );
-                                              logger.i('scroll to collection');
-                                              return;
-                                              editCollectionName(
-                                                collection,
-                                              );
                                             },
                                             child: Text(
                                               collection.name,
                                             ),
                                           ),
-                                        );
-                                      },
-                                    ),
-                                ],
-                              ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                              ],
                             ),
                           );
                         },

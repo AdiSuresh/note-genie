@@ -29,6 +29,6 @@ class ViewCollectionEvent extends HomeEvent {
   });
 }
 
-class SwithViewEvent extends HomeEvent {
-  const SwithViewEvent();
+class SwitchViewEvent extends HomeEvent {
+  const SwitchViewEvent();
 }

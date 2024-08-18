@@ -31,14 +31,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<ViewCollectionEvent>(
       (event, emit) {
+        final collection = switch (state.currentCollection?.id) {
+          final id when id == event.collection.id => null,
+          _ => event.collection,
+        };
         emit(
           state.copyWith(
-            currentCollection: event.collection,
+            currentCollection: collection,
           ),
         );
       },
     );
-    on<SwithViewEvent>(
+    on<SwitchViewEvent>(
       (event, emit) {
         emit(
           state.copyWith(
