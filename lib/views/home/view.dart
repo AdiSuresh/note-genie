@@ -7,6 +7,7 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
+import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/view.dart';
@@ -287,9 +288,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   Column(
                     children: [
                       BlocBuilder<HomeBloc, HomeState>(
-                        buildWhen: (previous, current) {
-                          return previous.noteCollections !=
-                              current.noteCollections;
+                        buildWhen: (prev, curr) {
+                          final result = [
+                            prev.noteCollections != curr.noteCollections,
+                            prev.currentCollection != curr.currentCollection,
+                          ].or();
+                          return result;
                         },
                         builder: (context, state) {
                           if (noteCollectionsSub == null) {
@@ -345,11 +349,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 ViewCollectionEvent(
                                                   collection: collection,
                                                 ),
-                                              );
-                                              logger.i('scroll to collection');
-                                              return;
-                                              editCollectionName(
-                                                collection,
                                               );
                                             },
                                             child: Text(

@@ -1,18 +1,18 @@
 extension BooleanIterablesExtension on Iterable<bool> {
-  bool computeOR() {
+  bool or() {
     return any(
       (element) => element,
     );
   }
 
-  bool computeAND() {
+  bool and() {
     return fold(
       true,
       (previousValue, element) => previousValue && element,
     );
   }
 
-  bool computeXOR() {
+  bool xor() {
     return fold(
       false,
       (previousValue, element) => previousValue ^ element,
