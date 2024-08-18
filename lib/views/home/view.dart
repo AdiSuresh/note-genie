@@ -28,7 +28,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   static final logger = AppLogger(
     HomePage,
   );
@@ -44,8 +45,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   StreamSubscription<List<Note>>? notesSub;
 
   HomeBloc get bloc => context.read();
-
-  NoteCollection? currentCollection;
 
   late final TabController tabCtrl;
 
@@ -106,6 +105,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     collectionNameCtrl.dispose();
     super.dispose();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   Future<void> editCollectionName(
     NoteCollection collection,
@@ -186,6 +188,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -288,6 +291,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   Column(
                     children: [
                       BlocBuilder<HomeBloc, HomeState>(
+                        bloc: context.watch<HomeBloc>(),
                         buildWhen: (prev, curr) {
                           final result = [
                             prev.noteCollections != curr.noteCollections,
@@ -305,11 +309,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           }
                           final collections = state.noteCollections;
                           return SingleChildScrollView(
+                            key: const PageStorageKey(
+                              'note-collections-list-1',
+                            ),
                             physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
                             padding: const EdgeInsets.symmetric(
                               vertical: 7.5,
-                              horizontal: 15,
                             ),
                             child: Row(
                               children: [
@@ -331,12 +337,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       );
                                       if (collection == collections.first) {
                                         padding = padding.copyWith(
-                                          left: 0,
+                                          left: 15,
                                         );
                                       } else if (collection ==
                                           collections.last) {
                                         padding = padding.copyWith(
-                                          right: 0,
+                                          right: 15,
                                         );
                                       }
                                       const scale = 1.1;
@@ -373,6 +379,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       Expanded(
                         child: BlocBuilder<HomeBloc, HomeState>(
+                          bloc: context.watch<HomeBloc>(),
                           buildWhen: (previous, current) {
                             return previous.notes != current.notes;
                           },
@@ -384,6 +391,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             }
                             final notes = state.notes;
                             return ListView(
+                              key: const PageStorageKey(
+                                'notes-list',
+                              ),
                               children: <Widget>[
                                 for (final note in notes)
                                   NoteListTile(
@@ -406,6 +416,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ],
                   ),
                   BlocBuilder<HomeBloc, HomeState>(
+                    bloc: context.watch<HomeBloc>(),
                     buildWhen: (previous, current) {
                       return previous.noteCollections !=
                           current.noteCollections;
@@ -428,6 +439,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         case _:
                       }
                       return ListView(
+                        key: const PageStorageKey(
+                          'note-collections-list-2',
+                        ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 15,
                         ).copyWith(
@@ -452,17 +466,34 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 return Padding(
                                   padding: padding,
                                   child: CollectionChip(
-                                    onTap: () {
-                                      bloc.add(
-                                        ViewCollectionEvent(
-                                          collection: collection,
-                                        ),
+                                    onTap: () async {
+                                      if (state.currentCollection !=
+                                          collection) {
+                                        bloc.add(
+                                          ViewCollectionEvent(
+                                            collection: collection,
+                                          ),
+                                        );
+                                      }
+                                      tabCtrl.animateTo(
+                                        0,
                                       );
-                                      logger.i('scroll to collection');
-                                      return;
-                                      editCollectionName(
+                                      await Future.delayed(
+                                        animationDuration,
+                                      );
+                                      final key = GlobalObjectKey(
                                         collection,
                                       );
+                                      switch (key.currentContext) {
+                                        case final BuildContext context
+                                            when context.mounted:
+                                          Scrollable.ensureVisible(
+                                            context,
+                                            alignment: .5,
+                                            duration: animationDuration,
+                                          );
+                                        case _:
+                                      }
                                     },
                                     child: Text(
                                       collection.name,
