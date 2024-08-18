@@ -304,45 +304,52 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             );
                           }
                           final collections = state.noteCollections;
-                          return Padding(
+                          return SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
                             padding: const EdgeInsets.symmetric(
                               vertical: 7.5,
                               horizontal: 15,
                             ),
-                            child: SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  if (collections.isEmpty)
-                                    const Padding(
-                                      padding: EdgeInsets.all(7.5),
-                                      child: Text(
-                                        'No collections yet',
-                                      ),
+                            child: Row(
+                              children: [
+                                if (collections.isEmpty)
+                                  const Padding(
+                                    padding: EdgeInsets.all(7.5),
+                                    child: Text(
+                                      'No collections yet',
                                     ),
-                                  for (final collection in collections)
-                                    Builder(
-                                      key: GlobalObjectKey(
-                                        collection,
-                                      ),
-                                      builder: (context) {
-                                        var padding =
-                                            const EdgeInsets.symmetric(
-                                          horizontal: 7.5,
+                                  ),
+                                for (final collection in collections)
+                                  Builder(
+                                    key: GlobalObjectKey(
+                                      collection,
+                                    ),
+                                    builder: (context) {
+                                      var padding = const EdgeInsets.symmetric(
+                                        horizontal: 7.5,
+                                      );
+                                      if (collection == collections.first) {
+                                        padding = padding.copyWith(
+                                          left: 0,
                                         );
-                                        if (collection == collections.first) {
-                                          padding = padding.copyWith(
-                                            left: 0,
-                                          );
-                                        } else if (collection ==
-                                            collections.last) {
-                                          padding = padding.copyWith(
-                                            right: 0,
-                                          );
-                                        }
-                                        return Padding(
-                                          padding: padding,
+                                      } else if (collection ==
+                                          collections.last) {
+                                        padding = padding.copyWith(
+                                          right: 0,
+                                        );
+                                      }
+                                      const scale = 1.1;
+                                      final selected =
+                                          collection == state.currentCollection;
+                                      return Padding(
+                                        padding: padding,
+                                        child: AnimatedContainer(
+                                          duration: animationDuration,
+                                          transform: Transform.scale(
+                                            scale: selected ? scale : 1,
+                                          ).transform,
+                                          transformAlignment: Alignment.center,
                                           child: CollectionChip(
                                             onTap: () {
                                               bloc.add(
@@ -355,11 +362,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               collection.name,
                                             ),
                                           ),
-                                        );
-                                      },
-                                    ),
-                                ],
-                              ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                              ],
                             ),
                           );
                         },
