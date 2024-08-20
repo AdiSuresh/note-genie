@@ -345,17 +345,33 @@ class _HomePageState extends State<HomePage>
                                           right: 15,
                                         );
                                       }
-                                      const scale = 1.1;
                                       final selected =
                                           collection == state.currentCollection;
+                                      final scale = selected ? 1.05 : 1.0;
+                                      final borderColor = switch (selected) {
+                                        true => Colors.blueGrey.withOpacity(
+                                            .5,
+                                          ),
+                                        _ => Colors.transparent,
+                                      };
                                       return Padding(
                                         padding: padding,
                                         child: AnimatedContainer(
                                           duration: animationDuration,
                                           transform: Transform.scale(
-                                            scale: selected ? scale : 1,
+                                            scale: scale,
                                           ).transform,
                                           transformAlignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: borderColor,
+                                              strokeAlign:
+                                                  BorderSide.strokeAlignOutside,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              15,
+                                            ),
+                                          ),
                                           child: CollectionChip(
                                             onTap: () {
                                               bloc.add(
@@ -467,6 +483,12 @@ class _HomePageState extends State<HomePage>
                                   padding: padding,
                                   child: CollectionChip(
                                     onTap: () async {
+                                      tabCtrl.animateTo(
+                                        0,
+                                      );
+                                      await Future.delayed(
+                                        animationDuration,
+                                      );
                                       if (state.currentCollection !=
                                           collection) {
                                         bloc.add(
@@ -475,12 +497,6 @@ class _HomePageState extends State<HomePage>
                                           ),
                                         );
                                       }
-                                      tabCtrl.animateTo(
-                                        0,
-                                      );
-                                      await Future.delayed(
-                                        animationDuration,
-                                      );
                                       final key = GlobalObjectKey(
                                         collection,
                                       );
