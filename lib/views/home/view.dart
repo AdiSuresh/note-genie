@@ -48,6 +48,8 @@ class _HomePageState extends State<HomePage>
 
   late final TabController tabCtrl;
 
+  void setNotesSub() {}
+
   @override
   void initState() {
     super.initState();
@@ -446,7 +448,7 @@ class _HomePageState extends State<HomePage>
                       final collections = state.noteCollections;
                       switch (collections) {
                         case []:
-                          const Padding(
+                          return const Padding(
                             padding: EdgeInsets.all(7.5),
                             child: Text(
                               'No collections yet',
