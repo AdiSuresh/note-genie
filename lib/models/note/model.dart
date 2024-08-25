@@ -1,19 +1,22 @@
+import 'dart:convert';
+
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:note_maker/models/model_base.dart';
+import 'package:note_maker/models/base_entity.dart';
+import 'package:note_maker/models/note_collection/model.dart';
+import 'package:objectbox/objectbox.dart' as ob;
 
 part 'model.g.dart';
 
 @JsonSerializable()
 @CopyWith()
-class Note extends ModelBase {
+class Note {
   final String title;
   final List<dynamic> content;
   final Set<int> collections;
 
   const Note({
-    super.id,
     required this.title,
     required this.content,
     required this.collections,
@@ -40,11 +43,43 @@ class Note extends ModelBase {
       content,
     ).toPlainText().trim();
   }
+}
 
+@ob.Entity()
+class NoteEntity implements BaseEntity<Note> {
+  @ob.Id(
+    assignable: true,
+  )
   @override
-  Map<String, dynamic> toJson() {
-    return _$NoteToJson(
-      this,
+  final int id;
+
+  @ob.Transient()
+  @override
+  Note get data {
+    return Note(
+      title: title,
+      content: jsonDecode(
+        content,
+      ),
+      collections: collections.map(
+        (element) {
+          return element.id;
+        },
+      ).toSet(),
     );
   }
+
+  final String title;
+
+  final String content;
+
+  @ob.Backlink()
+  final ob.ToMany<NoteCollectionEntity> collections;
+
+  NoteEntity({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.collections,
+  });
 }

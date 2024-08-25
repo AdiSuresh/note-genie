@@ -12,13 +12,13 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
   ) {
     on<UpdateTitleEvent>(
       (event, emit) {
-        emit(
+        /* emit(
           EditNoteState(
             note: state.note.copyWith(
               title: event.title,
             ),
           ),
-        );
+        ); */
       },
     );
     on<UpdateNoteEvent>(

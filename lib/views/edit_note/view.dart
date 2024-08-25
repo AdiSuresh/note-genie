@@ -29,8 +29,6 @@ class _EditNoteState extends State<EditNote> {
     EditNote,
   );
 
-  final notes = NoteDao();
-
   final titleCtrl = TextEditingController();
   final titleFormKey = GlobalKey<FormState>();
 
@@ -58,12 +56,12 @@ class _EditNoteState extends State<EditNote> {
         logger.d(
           'updating document...',
         );
-        final note = await saveDocument();
+        /* final note = await saveDocument();
         bloc.add(
           UpdateNoteEvent(
             note: note,
           ),
-        );
+        ); */
       },
     );
     contentCtrl = QuillController(
@@ -92,7 +90,7 @@ class _EditNoteState extends State<EditNote> {
 
   Completer<int>? addNoteCompleter;
 
-  Future<Note> saveDocument({
+  /* Future<Note> saveDocument({
     String? title,
   }) async {
     final content = contentCtrl.document.toDelta().toJson();
@@ -120,7 +118,7 @@ class _EditNoteState extends State<EditNote> {
       );
       return note;
     }
-  }
+  } */
 
   Future<void> deleteNote() async {
     final id = await NoteDao().delete(
@@ -187,14 +185,14 @@ class _EditNoteState extends State<EditNote> {
                                 if (!valid) {
                                   return;
                                 }
-                                final note = await saveDocument(
+                                /* final note = await saveDocument(
                                   title: titleCtrl.text,
                                 );
                                 bloc.add(
                                   UpdateNoteEvent(
                                     note: note,
                                   ),
-                                );
+                                ); */
                                 if (mounted) {
                                   context.pop();
                                 }
