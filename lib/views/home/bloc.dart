@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/models/note/dao.dart';
-import 'package:note_maker/models/note_collection/dao.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  static final noteCollectionDao = NoteCollectionDao();
   static final noteDao = NoteDao();
 
   HomeBloc(
@@ -31,7 +29,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<ViewCollectionEvent>(
       (event, emit) {
-        final collection = switch (state.currentCollection?.id) {
+        /* final collection = switch (state.currentCollection?.id) {
           final id when id == event.collection.id => null,
           _ => event.collection,
         };
@@ -39,7 +37,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           state.copyWith(
             currentCollection: collection,
           ),
-        );
+        ); */
       },
     );
     on<SwitchViewEvent>(

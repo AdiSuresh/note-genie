@@ -60,7 +60,7 @@ class NoteEntity implements BaseEntity<Note> {
       title: title,
       content: jsonDecode(
         content,
-      ),
+      ) as List,
       collections: collections.map(
         (element) {
           return element.id;

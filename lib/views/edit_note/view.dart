@@ -4,13 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/models/note/dao.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
-import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state.dart';
 
 class EditNote extends StatefulWidget {
@@ -120,7 +118,7 @@ class _EditNoteState extends State<EditNote> {
     }
   } */
 
-  Future<void> deleteNote() async {
+  /* Future<void> deleteNote() async {
     final id = await NoteDao().delete(
       note,
     );
@@ -146,7 +144,7 @@ class _EditNoteState extends State<EditNote> {
         onClose: () {},
       );
     }
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +276,7 @@ class _EditNoteState extends State<EditNote> {
                                         context: context,
                                         onYes: () {
                                           context.pop();
-                                          deleteNote();
+                                          // deleteNote();
                                         },
                                         onNo: () {
                                           context.pop();
