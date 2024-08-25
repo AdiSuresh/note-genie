@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
+import 'package:note_maker/models/note/sample_model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
@@ -74,7 +75,7 @@ class _HomePageState extends State<HomePage>
         );
       },
     );
-    HomeBloc.noteDao.getStream.then(
+    /* HomeBloc.noteDao.getStream.then(
       (value) {
         notesSub = value.listen(
           (data) {
@@ -89,7 +90,7 @@ class _HomePageState extends State<HomePage>
           },
         );
       },
-    );
+    ); */
   }
 
   @override
@@ -532,6 +533,12 @@ class _HomePageState extends State<HomePage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          SampleModel(
+            id: 0,
+            name: 'name',
+            dob: 'dob',
+          );
+          return;
           notesSub?.pause();
           context.extra = null;
           await context.push(
