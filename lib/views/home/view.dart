@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage>
         );
       },
     );
-    HomeBloc.noteDao.getStream.then(
+    /* HomeBloc.noteDao.getStream.then(
       (value) {
         notesSub = value.listen(
           (data) {
@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage>
           },
         );
       },
-    );
+    ); */
   }
 
   @override

@@ -135,8 +135,10 @@ class _EditNoteState extends State<EditNote> {
       }
     }
     final title = "'${note.title}'";
-    final content =
-        deleted ? "$title was deleted successfully" : 'Could not delete $title';
+    final content = switch (deleted) {
+      true => '$title was deleted successfully',
+      _ => 'Could not delete $title',
+    };
     if (mounted) {
       UiUtils.showSnackbar(
         context,
