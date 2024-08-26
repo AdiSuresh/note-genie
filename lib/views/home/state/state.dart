@@ -7,9 +7,9 @@ part 'state.g.dart';
 @CopyWith()
 class HomeState {
   final bool showNotes;
-  final List<Note> notes;
-  final List<NoteCollection> noteCollections;
-  final NoteCollection? currentCollection;
+  final List<NoteEntity> notes;
+  final List<NoteCollectionEntity> noteCollections;
+  final NoteCollectionEntity? currentCollection;
 
   const HomeState({
     this.showNotes = true,

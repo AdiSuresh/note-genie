@@ -6,6 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:note_maker/models/base_entity.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:objectbox/objectbox.dart' as ob;
+import 'package:objectbox/objectbox.dart';
 
 part 'model.g.dart';
 
@@ -46,28 +47,13 @@ class Note {
 }
 
 @ob.Entity()
-class NoteEntity implements BaseEntity<Note> {
+@CopyWith()
+class NoteEntity implements BaseEntity {
   @ob.Id(
     assignable: true,
   )
   @override
   final int id;
-
-  @ob.Transient()
-  @override
-  Note get data {
-    return Note(
-      title: title,
-      content: jsonDecode(
-        content,
-      ) as List,
-      collections: collections.map(
-        (element) {
-          return element.id;
-        },
-      ).toSet(),
-    );
-  }
 
   final String title;
 
@@ -76,10 +62,28 @@ class NoteEntity implements BaseEntity<Note> {
   @ob.Backlink()
   final ob.ToMany<NoteCollectionEntity> collections;
 
+  List<dynamic> get contentAsJson {
+    var result = [];
+    try {
+      result = jsonDecode(
+        content,
+      );
+    } catch (e) {
+      // ignored
+    }
+    return result;
+  }
+
   NoteEntity({
-    required this.id,
+    this.id = BaseEntity.idPlaceholder,
     required this.title,
     required this.content,
     required this.collections,
   });
+
+  String get contentAsText {
+    return Document.fromJson(
+      contentAsJson,
+    ).toPlainText().trim();
+  }
 }

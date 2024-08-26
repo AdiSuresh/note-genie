@@ -15,27 +15,19 @@ class NoteCollection {
 }
 
 @ob.Entity()
-class NoteCollectionEntity implements BaseEntity<NoteCollection> {
+class NoteCollectionEntity implements BaseEntity {
   @ob.Id(
     assignable: true,
   )
   @override
   final int id;
 
-  @ob.Transient()
-  @override
-  NoteCollection get data {
-    return NoteCollection(
-      name: name,
-    );
-  }
-
   final String name;
 
   final ob.ToMany<NoteEntity> notes;
 
   NoteCollectionEntity({
-    required this.id,
+    this.id = BaseEntity.idPlaceholder,
     required this.name,
     required this.notes,
   });

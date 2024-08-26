@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/data/objectbox_db.dart';
-import 'package:note_maker/models/note/sample_model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
@@ -43,8 +42,8 @@ class _HomePageState extends State<HomePage>
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
-  StreamSubscription<List<NoteCollection>>? noteCollectionsSub;
-  StreamSubscription<List<Note>>? notesSub;
+  StreamSubscription<List<NoteCollectionEntity>>? noteCollectionsSub;
+  StreamSubscription<List<NoteEntity>>? notesSub;
 
   HomeBloc get bloc => context.read();
 
@@ -70,11 +69,7 @@ class _HomePageState extends State<HomePage>
             )
             .map(
           (query) {
-            return query.find().map(
-              (e) {
-                return e.data;
-              },
-            ).toList();
+            return query.find();
           },
         ).listen(
           (event) {
@@ -98,7 +93,7 @@ class _HomePageState extends State<HomePage>
           (query) {
             return query.find().map(
               (e) {
-                return e.data;
+                return e;
               },
             ).toList();
           },
@@ -558,10 +553,6 @@ class _HomePageState extends State<HomePage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final db1 = ObjectBoxDB();
-          final db2 = ObjectBoxDB();
-          logger.i(db1 == db2);
-          return;
           notesSub?.pause();
           context.extra = null;
           await context.push(
