@@ -48,11 +48,9 @@ class Note {
 @ob.Entity()
 @CopyWith()
 class NoteEntity implements BaseEntity {
-  @ob.Id(
-    assignable: true,
-  )
+  @ob.Id()
   @override
-  final int id;
+  int id = BaseEntity.idPlaceholder;
 
   final String title;
 

@@ -52,9 +52,12 @@ class _EditNoteState extends State<EditNote> {
     final note = this.note;
     titleCtrl.text = note.title;
     documentJson = note.contentAsJson;
-    final document = Document.fromJson(
-      documentJson,
-    );
+    final document = switch (documentJson) {
+      [] => Document(),
+      _ => Document.fromJson(
+          documentJson,
+        ),
+    };
     changesSub = document.changes.listen(
       (event) async {
         logger.d(
@@ -105,7 +108,7 @@ class _EditNoteState extends State<EditNote> {
     return db.store.then(
       (value) {
         return note.copyWith(
-          id: value.box().put(
+          id: value.box<NoteEntity>().put(
                 note,
               ),
         );
