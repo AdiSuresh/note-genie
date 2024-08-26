@@ -1,10 +1,8 @@
-abstract class BaseEntity<T extends Object> {
+abstract class BaseEntity {
+  static const idPlaceholder = 0;
   final int id;
-
-  final T data;
 
   BaseEntity({
     required this.id,
-    required this.data,
   });
 }

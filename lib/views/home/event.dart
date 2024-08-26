@@ -6,7 +6,7 @@ abstract class HomeEvent {
 }
 
 class UpdateNotesEvent extends HomeEvent {
-  final List<Note> notes;
+  final List<NoteEntity> notes;
 
   const UpdateNotesEvent({
     required this.notes,
@@ -14,7 +14,7 @@ class UpdateNotesEvent extends HomeEvent {
 }
 
 class UpdateNoteCollectionsEvent extends HomeEvent {
-  final List<NoteCollection> noteCollections;
+  final List<NoteCollectionEntity> noteCollections;
 
   const UpdateNoteCollectionsEvent({
     required this.noteCollections,
@@ -22,7 +22,7 @@ class UpdateNoteCollectionsEvent extends HomeEvent {
 }
 
 class ViewCollectionEvent extends HomeEvent {
-  final NoteCollection collection;
+  final NoteCollectionEntity collection;
 
   const ViewCollectionEvent({
     required this.collection,

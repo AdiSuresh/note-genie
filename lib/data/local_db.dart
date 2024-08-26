@@ -18,10 +18,12 @@ class LocalDatabase {
   }
 
   Future<Database> get database async {
-    if (_openDbCompleter == null) {
-      _openDbCompleter = Completer();
-      await _openDatabase();
-    }
+    final future = _openDatabase();
+    _openDbCompleter ??= Completer<Database>()
+      ..complete(
+        future,
+      );
+    await future;
     return _openDbCompleter!.future;
   }
 

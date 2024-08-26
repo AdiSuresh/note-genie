@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
-import 'package:note_maker/models/note/sample_model.dart';
+import 'package:note_maker/data/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
@@ -42,8 +42,8 @@ class _HomePageState extends State<HomePage>
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
-  StreamSubscription<List<NoteCollection>>? noteCollectionsSub;
-  StreamSubscription<List<Note>>? notesSub;
+  StreamSubscription<List<NoteCollectionEntity>>? noteCollectionsSub;
+  StreamSubscription<List<NoteEntity>>? notesSub;
 
   HomeBloc get bloc => context.read();
 
@@ -59,12 +59,48 @@ class _HomePageState extends State<HomePage>
       length: 2,
       vsync: this,
     );
-    HomeBloc.noteCollectionDao.getStream.then(
-      (value) {
-        noteCollectionsSub = value.listen(
+    ObjectBoxDB().store.then(
+      (store) {
+        notesSub = store
+            .box<NoteEntity>()
+            .query()
+            .watch(
+              triggerImmediately: true,
+            )
+            .map(
+          (query) {
+            return query.find();
+          },
+        ).listen(
           (event) {
             logger.i(
-              'changes detected in note collections',
+              'changes detected in notes',
+            );
+            bloc.add(
+              UpdateNotesEvent(
+                notes: event,
+              ),
+            );
+          },
+        );
+        noteCollectionsSub = store
+            .box<NoteCollectionEntity>()
+            .query()
+            .watch(
+              triggerImmediately: true,
+            )
+            .map(
+          (query) {
+            return query.find().map(
+              (e) {
+                return e;
+              },
+            ).toList();
+          },
+        ).listen(
+          (event) {
+            logger.i(
+              'changes detected in notes',
             );
             bloc.add(
               UpdateNoteCollectionsEvent(
@@ -75,22 +111,6 @@ class _HomePageState extends State<HomePage>
         );
       },
     );
-    /* HomeBloc.noteDao.getStream.then(
-      (value) {
-        notesSub = value.listen(
-          (data) {
-            logger.i(
-              'changes detected in notes',
-            );
-            bloc.add(
-              UpdateNotesEvent(
-                notes: data,
-              ),
-            );
-          },
-        );
-      },
-    ); */
   }
 
   @override
@@ -131,11 +151,11 @@ class _HomePageState extends State<HomePage>
         if (!valid) {
           return;
         }
-        HomeBloc.noteCollectionDao.update(
+        /* HomeBloc.noteCollectionDao.update(
           collection.copyWith(
             name: collectionNameCtrl.text,
           ),
-        );
+        ); */
         context.pop();
       },
       onCancel: () {
@@ -159,11 +179,11 @@ class _HomePageState extends State<HomePage>
         if (!valid) {
           return;
         }
-        HomeBloc.noteCollectionDao.add(
+        /* HomeBloc.noteCollectionDao.add(
           NoteCollection(
             name: collectionNameCtrl.text,
           ),
-        );
+        ); */
         context.pop();
       },
       onCancel: () {
@@ -533,12 +553,6 @@ class _HomePageState extends State<HomePage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          SampleModel(
-            id: 0,
-            name: 'name',
-            dob: 'dob',
-          );
-          return;
           notesSub?.pause();
           context.extra = null;
           await context.push(

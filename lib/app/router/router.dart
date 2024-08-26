@@ -35,7 +35,10 @@ class AppRouter {
         GoRoute(
           path: '/edit-note',
           builder: (context, state) {
-            final note = context.extra is Note ? context.extra : Note.empty();
+            final note = switch (context.extra) {
+              NoteEntity note => note,
+              _ => NoteEntity.empty(),
+            };
             return BlocProvider(
               create: (context) {
                 return EditNoteBloc(

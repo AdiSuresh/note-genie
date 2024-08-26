@@ -13,7 +13,7 @@ class UpdateTitleEvent extends EditNoteEvent {
 }
 
 class UpdateNoteEvent extends EditNoteEvent {
-  final Note note;
+  final NoteEntity note;
 
   const UpdateNoteEvent({
     required this.note,

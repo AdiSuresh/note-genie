@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/models/note/dao.dart';
+import 'package:note_maker/data/objectbox_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
@@ -37,31 +38,37 @@ class _EditNoteState extends State<EditNote> {
   final contentScrollCtrl = ScrollController();
 
   EditNoteBloc get bloc => context.read();
-  Note get note => bloc.state.note;
+  NoteEntity get note => bloc.state.note;
 
   StreamSubscription<DocChange>? changesSub;
+
+  var documentJson = <dynamic>[];
+
+  final db = ObjectBoxDB();
 
   @override
   void initState() {
     super.initState();
-    final note = bloc.state.note;
+    final note = this.note;
     titleCtrl.text = note.title;
-    final document = note.content.isEmpty
-        ? Document()
-        : Document.fromJson(
-            note.content,
-          );
+    documentJson = note.contentAsJson;
+    final document = switch (documentJson) {
+      [] => Document(),
+      _ => Document.fromJson(
+          documentJson,
+        ),
+    };
     changesSub = document.changes.listen(
       (event) async {
         logger.d(
           'updating document...',
         );
-        /* final note = await saveDocument();
+        final note = await saveDocument();
         bloc.add(
           UpdateNoteEvent(
             note: note,
           ),
-        ); */
+        );
       },
     );
     contentCtrl = QuillController(
@@ -88,39 +95,28 @@ class _EditNoteState extends State<EditNote> {
     super.dispose();
   }
 
-  Completer<int>? addNoteCompleter;
-
-  /* Future<Note> saveDocument({
+  Future<NoteEntity> saveDocument({
     String? title,
   }) async {
     final content = contentCtrl.document.toDelta().toJson();
     final note = this.note.copyWith(
           title: title,
-          content: content,
+          content: jsonEncode(
+            content,
+          ),
         );
-    if (note.id == null) {
-      final id = await notes.add(
-        note,
-      );
-      addNoteCompleter ??= Completer();
-      addNoteCompleter?.complete(
-        id,
-      );
-      return note.copyWith(
-        id: id,
-      );
-    } else {
-      if (addNoteCompleter != null) {
-        await addNoteCompleter?.future;
-      }
-      await notes.update(
-        note,
-      );
-      return note;
-    }
-  } */
+    return db.store.then(
+      (value) {
+        return note.copyWith(
+          id: value.box<NoteEntity>().put(
+                note,
+              ),
+        );
+      },
+    );
+  }
 
-  Future<void> deleteNote() async {
+  /* Future<void> deleteNote() async {
     final id = await NoteDao().delete(
       note,
     );
@@ -146,7 +142,7 @@ class _EditNoteState extends State<EditNote> {
         onClose: () {},
       );
     }
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +274,7 @@ class _EditNoteState extends State<EditNote> {
                                         context: context,
                                         onYes: () {
                                           context.pop();
-                                          deleteNote();
+                                          // deleteNote();
                                         },
                                         onNo: () {
                                           context.pop();
