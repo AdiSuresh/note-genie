@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -80,6 +79,14 @@ class NoteEntity implements BaseEntity {
     required this.content,
     required this.collections,
   });
+
+  factory NoteEntity.empty() {
+    return NoteEntity(
+      title: 'Untitled',
+      content: '',
+      collections: ob.ToMany(),
+    );
+  }
 
   String get contentAsText {
     return Document.fromJson(
