@@ -37,7 +37,7 @@ class _EditNoteState extends State<EditNote> {
   final contentFocus = FocusNode();
   final contentScrollCtrl = ScrollController();
 
-  EditNoteBloc get bloc => context.read();
+  EditNoteBloc get bloc => context.read<EditNoteBloc>();
   NoteEntity get note => bloc.state.note;
 
   StreamSubscription<DocChange>? changesSub;
@@ -63,7 +63,7 @@ class _EditNoteState extends State<EditNote> {
         logger.d(
           'updating document...',
         );
-        final note = await saveDocument();
+        final note = await saveContent();
         bloc.add(
           UpdateNoteEvent(
             note: note,
@@ -95,25 +95,25 @@ class _EditNoteState extends State<EditNote> {
     super.dispose();
   }
 
-  Future<NoteEntity> saveDocument({
-    String? title,
-  }) async {
+  Future<NoteEntity> saveContent() async {
     final content = contentCtrl.document.toDelta().toJson();
     final note = this.note.copyWith(
-          title: title,
           content: jsonEncode(
             content,
           ),
         );
-    return db.store.then(
-      (value) {
-        return note.copyWith(
-          id: value.box<NoteEntity>().put(
-                note,
-              ),
-        );
-      },
+    final store = await db.store;
+    final result = note.copyWith(
+      id: store.box<NoteEntity>().put(
+            note,
+          ),
     );
+    final plainText = Document.fromJson(
+      result.contentAsJson,
+    ).toPlainText();
+    logger.i('plainText: ${result.id}');
+    logger.i('plainText: $plainText');
+    return result;
   }
 
   /* Future<void> deleteNote() async {

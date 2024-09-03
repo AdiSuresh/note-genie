@@ -7,6 +7,7 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/data/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/objectbox.g.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/utils/ui_utils.dart';
@@ -49,7 +50,45 @@ class _HomePageState extends State<HomePage>
 
   late final TabController tabCtrl;
 
-  void setNotesSub() {}
+  Query<NoteEntity>? query;
+
+  Future<void> startNotesSub() async {
+    stopNotesSub();
+    final store = await ObjectBoxDB().store;
+    final builder = store.box<NoteEntity>().query();
+    final collection = bloc.state.currentCollection;
+    final query = switch (collection) {
+      NoteCollectionEntity c when c.id > 0 => builder
+        ..backlinkMany(
+          NoteCollectionEntity_.notes,
+        ),
+      _ => builder,
+    };
+    notesSub = query
+        .watch(
+          triggerImmediately: true,
+        )
+        .map(
+          (query) => query.find(),
+        )
+        .listen(
+      (notes) {
+        logger.i(
+          'changes detected in notes',
+        );
+        bloc.add(
+          UpdateNotesEvent(
+            notes: notes,
+          ),
+        );
+      },
+    );
+  }
+
+  void stopNotesSub() {
+    notesSub?.cancel();
+    notesSub = null;
+  }
 
   @override
   void initState() {
@@ -59,30 +98,9 @@ class _HomePageState extends State<HomePage>
       length: 2,
       vsync: this,
     );
+    startNotesSub();
     ObjectBoxDB().store.then(
       (store) {
-        notesSub = store
-            .box<NoteEntity>()
-            .query()
-            .watch(
-              triggerImmediately: true,
-            )
-            .map(
-          (query) {
-            return query.find();
-          },
-        ).listen(
-          (event) {
-            logger.i(
-              'changes detected in notes',
-            );
-            bloc.add(
-              UpdateNotesEvent(
-                notes: event,
-              ),
-            );
-          },
-        );
         noteCollectionsSub = store
             .box<NoteCollectionEntity>()
             .query()
@@ -132,67 +150,49 @@ class _HomePageState extends State<HomePage>
   @override
   bool get wantKeepAlive => true;
 
-  Future<void> editCollectionName(
-    NoteCollection collection,
+  Future<void> putCollection(
+    NoteCollectionEntity collection,
   ) async {
-    noteCollectionsSub?.pause();
     collectionNameCtrl.clear();
-    collectionNameCtrl.text = collection.name;
-    collectionNameCtrl.selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: collection.name.length,
-    );
-    await UiUtils.showEditTitleDialog(
-      title: 'Edit collection name',
-      context: context,
-      titleCtrl: collectionNameCtrl,
-      onOk: () {
-        final valid = collectionNameFormKey.currentState?.validate() ?? false;
-        if (!valid) {
-          return;
-        }
-        /* HomeBloc.noteCollectionDao.update(
-          collection.copyWith(
-            name: collectionNameCtrl.text,
-          ),
-        ); */
-        context.pop();
-      },
-      onCancel: () {
-        context.pop();
-      },
-      validator: Validators.nonEmptyFieldValidator,
-      formKey: collectionNameFormKey,
-    );
-    noteCollectionsSub?.resume();
-  }
-
-  Future<void> addCollection() async {
-    noteCollectionsSub?.pause();
-    collectionNameCtrl.clear();
-    await UiUtils.showEditTitleDialog(
-      title: 'New collection',
-      context: context,
-      titleCtrl: collectionNameCtrl,
-      onOk: () {
-        final valid = collectionNameFormKey.currentState?.validate() ?? false;
-        if (!valid) {
-          return;
-        }
-        /* HomeBloc.noteCollectionDao.add(
-          NoteCollection(
-            name: collectionNameCtrl.text,
-          ),
-        ); */
-        context.pop();
-      },
-      onCancel: () {
-        context.pop();
-      },
-      validator: Validators.nonEmptyFieldValidator,
-      formKey: collectionNameFormKey,
-    );
-    noteCollectionsSub?.resume();
+    final title = switch (collection) {
+      NoteCollectionEntity collection when collection.id > 0 => () {
+          collectionNameCtrl
+            ..text = collection.name
+            ..selection = TextSelection(
+              baseOffset: 0,
+              extentOffset: collection.name.length,
+            );
+          return 'Edit title';
+        },
+      _ => () {
+          return 'New collection';
+        },
+    }();
+    final store = await ObjectBoxDB().store;
+    if (mounted) {
+      await UiUtils.showEditTitleDialog(
+        title: title,
+        context: context,
+        titleCtrl: collectionNameCtrl,
+        onOk: () {
+          switch (collectionNameFormKey.currentState?.validate()) {
+            case true:
+              store.box<NoteCollectionEntity>().put(
+                    collection.copyWith(
+                      name: collectionNameCtrl.text,
+                    ),
+                  );
+              context.pop();
+            case _:
+          }
+        },
+        onCancel: () {
+          context.pop();
+        },
+        validator: Validators.nonEmptyFieldValidator,
+        formKey: collectionNameFormKey,
+      );
+    }
   }
 
   int get pageIndex {
@@ -297,7 +297,10 @@ class _HomePageState extends State<HomePage>
                         width: 15,
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          logger.i('query: $query');
+                          query?.close();
+                        },
                         icon: const Icon(
                           Icons.settings,
                         ),
@@ -331,20 +334,21 @@ class _HomePageState extends State<HomePage>
                             );
                           }
                           final collections = state.noteCollections;
-                          return SingleChildScrollView(
+                          final scrollView = SingleChildScrollView(
                             key: const PageStorageKey(
                               'note-collections-list-1',
                             ),
                             physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 7.5,
-                            ),
+                            padding: const EdgeInsets.all(7.5),
                             child: Row(
                               children: [
                                 if (collections.isEmpty)
                                   const Padding(
-                                    padding: EdgeInsets.all(7.5),
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 15,
+                                      horizontal: 7.5,
+                                    ),
                                     child: Text(
                                       'No collections yet',
                                     ),
@@ -402,6 +406,7 @@ class _HomePageState extends State<HomePage>
                                                   collection: collection,
                                                 ),
                                               );
+                                              startNotesSub();
                                             },
                                             child: Text(
                                               collection.name,
@@ -413,6 +418,28 @@ class _HomePageState extends State<HomePage>
                                   ),
                               ],
                             ),
+                          );
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: scrollView,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  right: 15,
+                                ),
+                                child: CollectionChip(
+                                  onTap: () {
+                                    putCollection(
+                                      NoteCollectionEntity.untitled(),
+                                    );
+                                  },
+                                  child: const Icon(
+                                    Icons.create_new_folder,
+                                  ),
+                                ),
+                              ),
+                            ],
                           );
                         },
                       ),
@@ -443,7 +470,19 @@ class _HomePageState extends State<HomePage>
                                       await context.push(
                                         EditNote.path,
                                       );
+                                      logger.i('resume');
                                       notesSub?.resume();
+                                      ObjectBoxDB().store.then(
+                                        (value) {
+                                          bloc.add(
+                                            UpdateNotesEvent(
+                                              notes: value
+                                                  .box<NoteEntity>()
+                                                  .getAll(),
+                                            ),
+                                          );
+                                        },
+                                      );
                                     },
                                   ),
                                 const EmptyFooter(),
@@ -512,14 +551,11 @@ class _HomePageState extends State<HomePage>
                                       await Future.delayed(
                                         animationDuration,
                                       );
-                                      if (state.currentCollection !=
-                                          collection) {
-                                        bloc.add(
-                                          ViewCollectionEvent(
-                                            collection: collection,
-                                          ),
-                                        );
-                                      }
+                                      bloc.add(
+                                        ViewCollectionEvent(
+                                          collection: collection,
+                                        ),
+                                      );
                                       final key = GlobalObjectKey(
                                         collection,
                                       );
@@ -559,6 +595,7 @@ class _HomePageState extends State<HomePage>
             EditNote.path,
           );
           notesSub?.resume();
+          startNotesSub();
         },
         tooltip: 'Add note',
         child: const Icon(

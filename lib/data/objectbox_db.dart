@@ -24,7 +24,6 @@ class ObjectBoxDB {
   }
 
   static Future<Store> _init() async {
-    print('_init on ${DateTime.now()}');
     final docsDir = await getApplicationDocumentsDirectory();
     return Store(
       getObjectBoxModel(),

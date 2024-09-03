@@ -22,7 +22,7 @@ class UpdateNoteCollectionsEvent extends HomeEvent {
 }
 
 class ViewCollectionEvent extends HomeEvent {
-  final NoteCollectionEntity collection;
+  final NoteCollectionEntity? collection;
 
   const ViewCollectionEvent({
     required this.collection,

@@ -29,15 +29,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<ViewCollectionEvent>(
       (event, emit) {
-        /* final collection = switch (state.currentCollection?.id) {
-          final id when id == event.collection.id => null,
+        final collection = switch (state.currentCollection?.id) {
+          final id when id == event.collection?.id => null,
           _ => event.collection,
         };
         emit(
           state.copyWith(
             currentCollection: collection,
           ),
-        ); */
+        );
       },
     );
     on<SwitchViewEvent>(
