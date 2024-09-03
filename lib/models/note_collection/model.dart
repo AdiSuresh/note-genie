@@ -15,6 +15,7 @@ class NoteCollection {
 }
 
 @ob.Entity()
+@CopyWith()
 class NoteCollectionEntity implements BaseEntity {
   @ob.Id()
   @override
@@ -22,11 +23,16 @@ class NoteCollectionEntity implements BaseEntity {
 
   final String name;
 
-  final ob.ToMany<NoteEntity> notes;
+  final notes = ob.ToMany<NoteEntity>();
 
   NoteCollectionEntity({
     this.id = BaseEntity.idPlaceholder,
     required this.name,
-    required this.notes,
   });
+
+  factory NoteCollectionEntity.untitled() {
+    return NoteCollectionEntity(
+      name: '',
+    );
+  }
 }
