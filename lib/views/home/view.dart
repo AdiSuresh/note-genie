@@ -50,46 +50,6 @@ class _HomePageState extends State<HomePage>
 
   late final TabController tabCtrl;
 
-  Query<NoteEntity>? query;
-
-  Future<void> startNotesSub() async {
-    stopNotesSub();
-    final store = await ObjectBoxDB().store;
-    final builder = store.box<NoteEntity>().query();
-    final collection = bloc.state.currentCollection;
-    final query = switch (collection) {
-      NoteCollectionEntity c when c.id > 0 => builder
-        ..backlinkMany(
-          NoteCollectionEntity_.notes,
-        ),
-      _ => builder,
-    };
-    notesSub = query
-        .watch(
-          triggerImmediately: true,
-        )
-        .map(
-          (query) => query.find(),
-        )
-        .listen(
-      (notes) {
-        logger.i(
-          'changes detected in notes',
-        );
-        bloc.add(
-          UpdateNotesEvent(
-            notes: notes,
-          ),
-        );
-      },
-    );
-  }
-
-  void stopNotesSub() {
-    notesSub?.cancel();
-    notesSub = null;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -150,6 +110,43 @@ class _HomePageState extends State<HomePage>
   @override
   bool get wantKeepAlive => true;
 
+  Future<void> startNotesSub() async {
+    stopNotesSub();
+    final store = await ObjectBoxDB().store;
+    final builder = store.box<NoteEntity>().query();
+    final query = switch (bloc.state.currentCollection) {
+      NoteCollectionEntity c when c.id > 0 => builder
+        ..backlinkMany(
+          NoteCollectionEntity_.notes,
+        ),
+      _ => builder,
+    };
+    notesSub = query
+        .watch(
+          triggerImmediately: true,
+        )
+        .map(
+          (query) => query.find(),
+        )
+        .listen(
+      (notes) {
+        logger.i(
+          'changes detected in notes',
+        );
+        bloc.add(
+          UpdateNotesEvent(
+            notes: notes,
+          ),
+        );
+      },
+    );
+  }
+
+  void stopNotesSub() {
+    notesSub?.cancel();
+    notesSub = null;
+  }
+
   Future<void> putCollection(
     NoteCollectionEntity collection,
   ) async {
@@ -168,31 +165,34 @@ class _HomePageState extends State<HomePage>
           return 'New collection';
         },
     }();
-    final store = await ObjectBoxDB().store;
-    if (mounted) {
-      await UiUtils.showEditTitleDialog(
-        title: title,
-        context: context,
-        titleCtrl: collectionNameCtrl,
-        onOk: () {
-          switch (collectionNameFormKey.currentState?.validate()) {
-            case true:
-              store.box<NoteCollectionEntity>().put(
-                    collection.copyWith(
-                      name: collectionNameCtrl.text,
-                    ),
-                  );
+    await UiUtils.showEditTitleDialog(
+      title: title,
+      context: context,
+      titleCtrl: collectionNameCtrl,
+      onOk: () async {
+        switch (collectionNameFormKey.currentState?.validate()) {
+          case true:
+            await ObjectBoxDB().store.then(
+              (value) {
+                value.box<NoteCollectionEntity>().put(
+                      collection.copyWith(
+                        name: collectionNameCtrl.text,
+                      ),
+                    );
+              },
+            );
+            if (mounted) {
               context.pop();
-            case _:
-          }
-        },
-        onCancel: () {
-          context.pop();
-        },
-        validator: Validators.nonEmptyFieldValidator,
-        formKey: collectionNameFormKey,
-      );
-    }
+            }
+          case _:
+        }
+      },
+      onCancel: () {
+        context.pop();
+      },
+      validator: Validators.nonEmptyFieldValidator,
+      formKey: collectionNameFormKey,
+    );
   }
 
   int get pageIndex {
@@ -297,10 +297,7 @@ class _HomePageState extends State<HomePage>
                         width: 15,
                       ),
                       IconButton(
-                        onPressed: () {
-                          logger.i('query: $query');
-                          query?.close();
-                        },
+                        onPressed: () {},
                         icon: const Icon(
                           Icons.settings,
                         ),
@@ -470,19 +467,8 @@ class _HomePageState extends State<HomePage>
                                       await context.push(
                                         EditNote.path,
                                       );
-                                      logger.i('resume');
                                       notesSub?.resume();
-                                      ObjectBoxDB().store.then(
-                                        (value) {
-                                          bloc.add(
-                                            UpdateNotesEvent(
-                                              notes: value
-                                                  .box<NoteEntity>()
-                                                  .getAll(),
-                                            ),
-                                          );
-                                        },
-                                      );
+                                      startNotesSub();
                                     },
                                   ),
                                 const EmptyFooter(),
