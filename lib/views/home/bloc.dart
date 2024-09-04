@@ -30,7 +30,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<ViewCollectionEvent>(
       (event, emit) {
         final collection = switch (state.currentCollection?.id) {
-          final id when id == event.collection?.id => null,
+          final int id when id == event.collection?.id => null,
           _ => event.collection,
         };
         emit(

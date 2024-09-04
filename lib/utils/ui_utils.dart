@@ -130,7 +130,7 @@ class UiUtils {
   static void showSnackbar(
     BuildContext context, {
     required String content,
-    required VoidCallback onClose,
+    VoidCallback? onClose,
   }) {
     ScaffoldMessenger.of(
       context,
@@ -149,7 +149,7 @@ class UiUtils {
         .closed
         .whenComplete(
       () {
-        onClose();
+        onClose?.call();
       },
     );
   }

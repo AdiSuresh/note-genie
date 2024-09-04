@@ -96,53 +96,71 @@ class _EditNoteState extends State<EditNote> {
   }
 
   Future<NoteEntity> saveContent() async {
-    final content = contentCtrl.document.toDelta().toJson();
-    final note = this.note.copyWith(
-          content: jsonEncode(
-            content,
-          ),
-        );
-    final store = await db.store;
-    final result = note.copyWith(
-      id: store.box<NoteEntity>().put(
-            note,
-          ),
+    return saveNote(
+      note.copyWith(
+        content: jsonEncode(
+          contentCtrl.document.toDelta().toJson(),
+        ),
+      ),
     );
-    final plainText = Document.fromJson(
-      result.contentAsJson,
-    ).toPlainText();
-    logger.i('plainText: ${result.id}');
-    logger.i('plainText: $plainText');
-    return result;
   }
 
-  /* Future<void> deleteNote() async {
-    final id = await NoteDao().delete(
-      note,
+  Future<NoteEntity> saveTitle() async {
+    return saveNote(
+      note.copyWith(
+        title: titleCtrl.text,
+      ),
     );
-    final deleted = id != null;
-    if (deleted) {
-      logger.d(
-        'deleted note with id: $id',
-      );
-      changesSub?.pause();
-      if (mounted) {
-        context.pop();
-      }
-    }
+  }
+
+  Future<NoteEntity> saveNote(
+    NoteEntity note,
+  ) async {
+    return db.store.then(
+      (value) {
+        return note.copyWith(
+          id: value.box<NoteEntity>().put(
+                note,
+              ),
+        );
+      },
+    );
+  }
+
+  Future<void> deleteNote() async {
+    final deleted = await db.store.then(
+      (value) {
+        return value.box<NoteEntity>().remove(
+              note.id,
+            );
+      },
+    );
+
     final title = "'${note.title}'";
     final content = switch (deleted) {
-      true => '$title was deleted successfully',
-      _ => 'Could not delete $title',
-    };
+      true => () {
+          logger.d(
+            'deleted note with id: ${note.id}',
+          );
+          changesSub?.pause();
+          return '$title was deleted successfully';
+        },
+      _ => () {
+          return 'Could not delete $title';
+        },
+    }();
     if (mounted) {
       UiUtils.showSnackbar(
         context,
         content: content,
-        onClose: () {},
+        onClose: () {
+          if (deleted) {
+            context.pop();
+          }
+        },
       );
     }
-  } */
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,22 +195,16 @@ class _EditNoteState extends State<EditNote> {
                               context: context,
                               titleCtrl: titleCtrl,
                               onOk: () async {
-                                final valid =
-                                    titleFormKey.currentState?.validate() ??
-                                        false;
-                                if (!valid) {
-                                  return;
-                                }
-                                /* final note = await saveDocument(
-                                  title: titleCtrl.text,
-                                );
-                                bloc.add(
-                                  UpdateNoteEvent(
-                                    note: note,
-                                  ),
-                                ); */
-                                if (mounted) {
-                                  context.pop();
+                                switch (titleFormKey.currentState?.validate()) {
+                                  case true:
+                                    saveTitle();
+                                    context.pop();
+                                    bloc.add(
+                                      UpdateTitleEvent(
+                                        title: titleCtrl.text,
+                                      ),
+                                    );
+                                  case _:
                                 }
                               },
                               onCancel: () {
@@ -209,6 +221,7 @@ class _EditNoteState extends State<EditNote> {
                               buildWhen: (previous, current) {
                                 final t1 = previous.note.title;
                                 final t2 = current.note.title;
+                                logger.i('t1 != t2: ${t1 != t2}');
                                 return t1 != t2;
                               },
                               builder: (context, state) {
@@ -270,11 +283,11 @@ class _EditNoteState extends State<EditNote> {
                                         message:
                                             'You are about to delete this note.'
                                             ' Once deleted its gone forever.'
-                                            ' Are you sure you want to proceed?',
+                                            '\n\nAre you sure you want to proceed?',
                                         context: context,
                                         onYes: () {
                                           context.pop();
-                                          // deleteNote();
+                                          deleteNote();
                                         },
                                         onNo: () {
                                           context.pop();

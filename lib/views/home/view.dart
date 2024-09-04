@@ -50,14 +50,64 @@ class _HomePageState extends State<HomePage>
 
   late final TabController tabCtrl;
 
-  Query<NoteEntity>? query;
+  @override
+  void initState() {
+    super.initState();
+    tabCtrl = TabController(
+      animationDuration: animationDuration,
+      length: 2,
+      vsync: this,
+    );
+    startNotesSub();
+    ObjectBoxDB().store.then(
+      (store) {
+        noteCollectionsSub = store
+            .box<NoteCollectionEntity>()
+            .query()
+            .watch(
+              triggerImmediately: true,
+            )
+            .map(
+              (query) => query.find(),
+            )
+            .listen(
+          (event) {
+            logger.i(
+              'changes detected in note collections',
+            );
+            bloc.add(
+              UpdateNoteCollectionsEvent(
+                noteCollections: event,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    tabCtrl.dispose();
+    unawaited(
+      noteCollectionsSub?.cancel(),
+    );
+    stopNotesSub();
+    logger.i(
+      'disposing',
+    );
+    collectionNameCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 
   Future<void> startNotesSub() async {
     stopNotesSub();
     final store = await ObjectBoxDB().store;
     final builder = store.box<NoteEntity>().query();
-    final collection = bloc.state.currentCollection;
-    final query = switch (collection) {
+    final query = switch (bloc.state.currentCollection) {
       NoteCollectionEntity c when c.id > 0 => builder
         ..backlinkMany(
           NoteCollectionEntity_.notes,
@@ -90,66 +140,6 @@ class _HomePageState extends State<HomePage>
     notesSub = null;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    tabCtrl = TabController(
-      animationDuration: animationDuration,
-      length: 2,
-      vsync: this,
-    );
-    startNotesSub();
-    ObjectBoxDB().store.then(
-      (store) {
-        noteCollectionsSub = store
-            .box<NoteCollectionEntity>()
-            .query()
-            .watch(
-              triggerImmediately: true,
-            )
-            .map(
-          (query) {
-            return query.find().map(
-              (e) {
-                return e;
-              },
-            ).toList();
-          },
-        ).listen(
-          (event) {
-            logger.i(
-              'changes detected in notes',
-            );
-            bloc.add(
-              UpdateNoteCollectionsEvent(
-                noteCollections: event,
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    tabCtrl.dispose();
-    unawaited(
-      noteCollectionsSub?.cancel(),
-    );
-    unawaited(
-      notesSub?.cancel(),
-    );
-    logger.i(
-      'disposing',
-    );
-    collectionNameCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-
   Future<void> putCollection(
     NoteCollectionEntity collection,
   ) async {
@@ -168,38 +158,34 @@ class _HomePageState extends State<HomePage>
           return 'New collection';
         },
     }();
-    final store = await ObjectBoxDB().store;
-    if (mounted) {
-      await UiUtils.showEditTitleDialog(
-        title: title,
-        context: context,
-        titleCtrl: collectionNameCtrl,
-        onOk: () {
-          switch (collectionNameFormKey.currentState?.validate()) {
-            case true:
-              store.box<NoteCollectionEntity>().put(
-                    collection.copyWith(
-                      name: collectionNameCtrl.text,
-                    ),
-                  );
+    await UiUtils.showEditTitleDialog(
+      title: title,
+      context: context,
+      titleCtrl: collectionNameCtrl,
+      onOk: () async {
+        switch (collectionNameFormKey.currentState?.validate()) {
+          case true:
+            await ObjectBoxDB().store.then(
+              (value) {
+                value.box<NoteCollectionEntity>().put(
+                      collection.copyWith(
+                        name: collectionNameCtrl.text,
+                      ),
+                    );
+              },
+            );
+            if (mounted) {
               context.pop();
-            case _:
-          }
-        },
-        onCancel: () {
-          context.pop();
-        },
-        validator: Validators.nonEmptyFieldValidator,
-        formKey: collectionNameFormKey,
-      );
-    }
-  }
-
-  int get pageIndex {
-    return switch (bloc.state.showNotes) {
-      true => 0,
-      _ => 1,
-    };
+            }
+          case _:
+        }
+      },
+      onCancel: () {
+        context.pop();
+      },
+      validator: Validators.nonEmptyFieldValidator,
+      formKey: collectionNameFormKey,
+    );
   }
 
   String get pageTitle {
@@ -297,10 +283,7 @@ class _HomePageState extends State<HomePage>
                         width: 15,
                       ),
                       IconButton(
-                        onPressed: () {
-                          logger.i('query: $query');
-                          query?.close();
-                        },
+                        onPressed: () {},
                         icon: const Icon(
                           Icons.settings,
                         ),
@@ -340,7 +323,9 @@ class _HomePageState extends State<HomePage>
                             ),
                             physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.all(7.5),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 7.5,
+                            ),
                             child: Row(
                               children: [
                                 if (collections.isEmpty)
@@ -369,7 +354,7 @@ class _HomePageState extends State<HomePage>
                                       } else if (collection ==
                                           collections.last) {
                                         padding = padding.copyWith(
-                                          right: 15,
+                                          right: 7.5,
                                         );
                                       }
                                       final selected =
@@ -426,6 +411,7 @@ class _HomePageState extends State<HomePage>
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(
+                                  left: 7.5,
                                   right: 15,
                                 ),
                                 child: CollectionChip(
@@ -470,19 +456,8 @@ class _HomePageState extends State<HomePage>
                                       await context.push(
                                         EditNote.path,
                                       );
-                                      logger.i('resume');
                                       notesSub?.resume();
-                                      ObjectBoxDB().store.then(
-                                        (value) {
-                                          bloc.add(
-                                            UpdateNotesEvent(
-                                              notes: value
-                                                  .box<NoteEntity>()
-                                                  .getAll(),
-                                            ),
-                                          );
-                                        },
-                                      );
+                                      startNotesSub();
                                     },
                                   ),
                                 const EmptyFooter(),
@@ -525,18 +500,18 @@ class _HomePageState extends State<HomePage>
                         ).copyWith(
                           top: 7.5,
                         ),
-                        children: [
-                          for (final collection in collections)
-                            Builder(
+                        children: collections.map(
+                          (e) {
+                            return Builder(
                               builder: (context) {
                                 var padding = const EdgeInsets.symmetric(
                                   vertical: 7.5,
                                 );
-                                if (collection == collections.first) {
+                                if (e == collections.first) {
                                   padding = padding.copyWith(
                                     top: 0,
                                   );
-                                } else if (collection == collections.last) {
+                                } else if (e == collections.last) {
                                   padding = padding.copyWith(
                                     bottom: 0,
                                   );
@@ -551,33 +526,38 @@ class _HomePageState extends State<HomePage>
                                       await Future.delayed(
                                         animationDuration,
                                       );
-                                      bloc.add(
-                                        ViewCollectionEvent(
-                                          collection: collection,
-                                        ),
-                                      );
+                                      if (state.currentCollection != e) {
+                                        bloc.add(
+                                          ViewCollectionEvent(
+                                            collection: e,
+                                          ),
+                                        );
+                                        startNotesSub();
+                                      }
                                       final key = GlobalObjectKey(
-                                        collection,
+                                        e,
                                       );
                                       switch (key.currentContext) {
-                                        case final BuildContext context
-                                            when context.mounted:
-                                          Scrollable.ensureVisible(
-                                            context,
-                                            alignment: .5,
-                                            duration: animationDuration,
-                                          );
+                                        case final BuildContext context:
+                                          if (context.mounted) {
+                                            Scrollable.ensureVisible(
+                                              context,
+                                              alignment: .5,
+                                              duration: animationDuration,
+                                            );
+                                          }
                                         case _:
                                       }
                                     },
                                     child: Text(
-                                      collection.name,
+                                      e.name,
                                     ),
                                   ),
                                 );
                               },
-                            ),
-                        ],
+                            );
+                          },
+                        ).toList(),
                       );
                     },
                   ),
@@ -590,7 +570,13 @@ class _HomePageState extends State<HomePage>
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           notesSub?.pause();
-          context.extra = null;
+          context.extra = switch (bloc.state.currentCollection) {
+            NoteCollectionEntity collection => NoteEntity.empty()
+              ..collections.add(
+                collection,
+              ),
+            _ => null,
+          };
           await context.push(
             EditNote.path,
           );
