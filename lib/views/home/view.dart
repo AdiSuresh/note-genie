@@ -500,18 +500,18 @@ class _HomePageState extends State<HomePage>
                         ).copyWith(
                           top: 7.5,
                         ),
-                        children: [
-                          for (final collection in collections)
-                            Builder(
+                        children: collections.map(
+                          (e) {
+                            return Builder(
                               builder: (context) {
                                 var padding = const EdgeInsets.symmetric(
                                   vertical: 7.5,
                                 );
-                                if (collection == collections.first) {
+                                if (e == collections.first) {
                                   padding = padding.copyWith(
                                     top: 0,
                                   );
-                                } else if (collection == collections.last) {
+                                } else if (e == collections.last) {
                                   padding = padding.copyWith(
                                     bottom: 0,
                                   );
@@ -526,33 +526,38 @@ class _HomePageState extends State<HomePage>
                                       await Future.delayed(
                                         animationDuration,
                                       );
-                                      bloc.add(
-                                        ViewCollectionEvent(
-                                          collection: collection,
-                                        ),
-                                      );
+                                      if (state.currentCollection != e) {
+                                        bloc.add(
+                                          ViewCollectionEvent(
+                                            collection: e,
+                                          ),
+                                        );
+                                        startNotesSub();
+                                      }
                                       final key = GlobalObjectKey(
-                                        collection,
+                                        e,
                                       );
                                       switch (key.currentContext) {
-                                        case final BuildContext context
-                                            when context.mounted:
-                                          Scrollable.ensureVisible(
-                                            context,
-                                            alignment: .5,
-                                            duration: animationDuration,
-                                          );
+                                        case final BuildContext context:
+                                          if (context.mounted) {
+                                            Scrollable.ensureVisible(
+                                              context,
+                                              alignment: .5,
+                                              duration: animationDuration,
+                                            );
+                                          }
                                         case _:
                                       }
                                     },
                                     child: Text(
-                                      collection.name,
+                                      e.name,
                                     ),
                                   ),
                                 );
                               },
-                            ),
-                        ],
+                            );
+                          },
+                        ).toList(),
                       );
                     },
                   ),
