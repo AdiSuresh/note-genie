@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage>
   );
 
   static const animationDuration = Duration(
-    milliseconds: 250,
+    milliseconds: 150,
   );
 
   final collectionNameCtrl = TextEditingController();
@@ -68,17 +68,12 @@ class _HomePageState extends State<HomePage>
               triggerImmediately: true,
             )
             .map(
-          (query) {
-            return query.find().map(
-              (e) {
-                return e;
-              },
-            ).toList();
-          },
-        ).listen(
+              (query) => query.find(),
+            )
+            .listen(
           (event) {
             logger.i(
-              'changes detected in notes',
+              'changes detected in note collections',
             );
             bloc.add(
               UpdateNoteCollectionsEvent(
@@ -97,9 +92,7 @@ class _HomePageState extends State<HomePage>
     unawaited(
       noteCollectionsSub?.cancel(),
     );
-    unawaited(
-      notesSub?.cancel(),
-    );
+    stopNotesSub();
     logger.i(
       'disposing',
     );
@@ -193,13 +186,6 @@ class _HomePageState extends State<HomePage>
       validator: Validators.nonEmptyFieldValidator,
       formKey: collectionNameFormKey,
     );
-  }
-
-  int get pageIndex {
-    return switch (bloc.state.showNotes) {
-      true => 0,
-      _ => 1,
-    };
   }
 
   String get pageTitle {
@@ -576,7 +562,13 @@ class _HomePageState extends State<HomePage>
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           notesSub?.pause();
-          context.extra = null;
+          context.extra = switch (bloc.state.currentCollection) {
+            NoteCollectionEntity collection => NoteEntity.empty()
+              ..collections.add(
+                collection,
+              ),
+            _ => null,
+          };
           await context.push(
             EditNote.path,
           );
