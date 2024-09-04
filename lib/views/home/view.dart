@@ -323,7 +323,9 @@ class _HomePageState extends State<HomePage>
                             ),
                             physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.all(7.5),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 7.5,
+                            ),
                             child: Row(
                               children: [
                                 if (collections.isEmpty)
@@ -352,7 +354,7 @@ class _HomePageState extends State<HomePage>
                                       } else if (collection ==
                                           collections.last) {
                                         padding = padding.copyWith(
-                                          right: 15,
+                                          right: 7.5,
                                         );
                                       }
                                       final selected =
@@ -409,6 +411,7 @@ class _HomePageState extends State<HomePage>
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(
+                                  left: 7.5,
                                   right: 15,
                                 ),
                                 child: CollectionChip(
