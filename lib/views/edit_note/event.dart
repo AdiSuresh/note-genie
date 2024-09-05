@@ -1,6 +1,6 @@
 import 'package:note_maker/models/note/model.dart';
 
-abstract class EditNoteEvent {
+sealed class EditNoteEvent {
   const EditNoteEvent();
 }
 

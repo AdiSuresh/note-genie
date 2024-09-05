@@ -1,7 +1,7 @@
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 
-abstract class HomeEvent {
+sealed class HomeEvent {
   const HomeEvent();
 }
 
@@ -21,11 +21,17 @@ class UpdateNoteCollectionsEvent extends HomeEvent {
   });
 }
 
-class ViewCollectionEvent extends HomeEvent {
+class ToggleCollectionEvent extends HomeEvent {
   final NoteCollectionEntity? collection;
 
-  const ViewCollectionEvent({
+  const ToggleCollectionEvent({
     required this.collection,
+  });
+}
+
+class SelectCollectionEvent extends ToggleCollectionEvent {
+  const SelectCollectionEvent({
+    required super.collection,
   });
 }
 

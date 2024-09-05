@@ -33,7 +33,7 @@ class AppRouter {
           },
         ),
         GoRoute(
-          path: '/edit-note',
+          path: EditNote.path,
           builder: (context, state) {
             final note = switch (context.extra) {
               NoteEntity note => note,

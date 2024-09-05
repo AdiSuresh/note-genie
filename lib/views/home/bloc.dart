@@ -27,7 +27,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
       },
     );
-    on<ViewCollectionEvent>(
+    on<ToggleCollectionEvent>(
       (event, emit) {
         final collection = switch (state.currentCollection?.id) {
           final int id when id == event.collection?.id => null,
@@ -38,6 +38,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             currentCollection: collection,
           ),
         );
+      },
+    );
+    on<SelectCollectionEvent>(
+      (event, emit) {
+        switch (state.currentCollection?.id) {
+          case final id when id != event.collection?.id || id == null:
+            emit(
+              state.copyWith(
+                currentCollection: event.collection,
+              ),
+            );
+          default:
+        }
       },
     );
     on<SwitchViewEvent>(

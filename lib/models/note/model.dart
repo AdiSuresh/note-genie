@@ -4,7 +4,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:note_maker/models/base_entity.dart';
 import 'package:note_maker/models/note_collection/model.dart';
-import 'package:objectbox/objectbox.dart' as ob;
+import 'package:objectbox/objectbox.dart';
 
 part 'model.g.dart';
 
@@ -44,10 +44,10 @@ class Note {
   }
 }
 
-@ob.Entity()
+@Entity()
 @CopyWith()
 class NoteEntity implements BaseEntity {
-  @ob.Id()
+  @Id()
   @override
   int id = BaseEntity.idPlaceholder;
 
@@ -55,8 +55,10 @@ class NoteEntity implements BaseEntity {
 
   final String content;
 
-  @ob.Backlink()
-  final collections = ob.ToMany<NoteCollectionEntity>();
+  @Backlink(
+    'notes',
+  )
+  final ToMany<NoteCollectionEntity> collections;
 
   List<dynamic> get contentAsJson {
     var result = [];
@@ -74,18 +76,24 @@ class NoteEntity implements BaseEntity {
     this.id = BaseEntity.idPlaceholder,
     required this.title,
     required this.content,
+    required this.collections,
   });
 
   factory NoteEntity.empty() {
     return NoteEntity(
       title: 'Untitled',
       content: '',
+      collections: ToMany<NoteCollectionEntity>(),
     );
   }
 
   String get contentAsText {
-    return Document.fromJson(
-      contentAsJson,
-    ).toPlainText().trim();
+    try {
+      return Document.fromJson(
+        contentAsJson,
+      ).toPlainText().trim();
+    } catch (e) {
+      return '';
+    }
   }
 }
