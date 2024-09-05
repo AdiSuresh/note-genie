@@ -135,7 +135,6 @@ class _EditNoteState extends State<EditNote> {
             );
       },
     );
-
     final title = "'${note.title}'";
     final content = switch (deleted) {
       true => () {
@@ -312,13 +311,13 @@ class _EditNoteState extends State<EditNote> {
                 ),
                 Expanded(
                   child: QuillEditor(
-                    configurations: QuillEditorConfigurations(
-                      padding: const EdgeInsets.all(7.5),
-                      scrollPhysics: const BouncingScrollPhysics(),
-                      controller: contentCtrl,
+                    configurations: const QuillEditorConfigurations(
+                      padding: EdgeInsets.all(7.5),
+                      scrollPhysics: BouncingScrollPhysics(),
                     ),
                     focusNode: contentFocus,
                     scrollController: contentScrollCtrl,
+                    controller: contentCtrl,
                   ),
                 ),
                 /* const Padding(

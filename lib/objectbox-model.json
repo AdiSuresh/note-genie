@@ -4,30 +4,6 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "1:8364127727432778301",
-      "lastPropertyId": "3:5275489889519347988",
-      "name": "SampleModel",
-      "properties": [
-        {
-          "id": "1:4212975126538931785",
-          "name": "id",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:3185643637875408809",
-          "name": "name",
-          "type": 9
-        },
-        {
-          "id": "3:5275489889519347988",
-          "name": "dob",
-          "type": 9
-        }
-      ],
-      "relations": []
-    },
-    {
       "id": "4:922451992140683980",
       "lastPropertyId": "2:5828308653770855057",
       "name": "NoteCollectionEntity",
@@ -79,21 +55,27 @@
   ],
   "lastEntityId": "5:2029345825433370339",
   "lastIndexId": "0:0",
-  "lastRelationId": "1:3502603551878811218",
+  "lastRelationId": "2:6763854289092379882",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [
     812557832985932975,
-    8226735987929767859
+    8226735987929767859,
+    8364127727432778301
   ],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
     5512688334029755254,
     8254476000790336822,
     7417044830896192115,
-    5310536665201186087
+    5310536665201186087,
+    4212975126538931785,
+    3185643637875408809,
+    5275489889519347988
   ],
-  "retiredRelationUids": [],
+  "retiredRelationUids": [
+    6763854289092379882
+  ],
   "version": 1
 }

@@ -111,6 +111,9 @@ class _HomePageState extends State<HomePage>
       NoteCollectionEntity c when c.id > 0 => builder
         ..backlinkMany(
           NoteCollectionEntity_.notes,
+          NoteCollectionEntity_.id.equals(
+            c.id,
+          ),
         ),
       _ => builder,
     };
@@ -387,7 +390,7 @@ class _HomePageState extends State<HomePage>
                                           child: CollectionChip(
                                             onTap: () {
                                               bloc.add(
-                                                ViewCollectionEvent(
+                                                ToggleCollectionEvent(
                                                   collection: collection,
                                                 ),
                                               );
@@ -528,7 +531,7 @@ class _HomePageState extends State<HomePage>
                                       );
                                       if (state.currentCollection != e) {
                                         bloc.add(
-                                          ViewCollectionEvent(
+                                          SelectCollectionEvent(
                                             collection: e,
                                           ),
                                         );
@@ -571,7 +574,7 @@ class _HomePageState extends State<HomePage>
         onPressed: () async {
           notesSub?.pause();
           context.extra = switch (bloc.state.currentCollection) {
-            NoteCollectionEntity collection => NoteEntity.empty()
+            final NoteCollectionEntity collection => NoteEntity.empty()
               ..collections.add(
                 collection,
               ),
