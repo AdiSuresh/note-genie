@@ -295,12 +295,6 @@ class _EditNoteState extends State<EditNote> {
                                   ),
                                 ];
                               },
-                              /* child: IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.more_vert,
-                                  ),
-                                ), */
                             ),
                           ],
                         ),

@@ -474,8 +474,8 @@ class _HomePageState extends State<HomePage>
                                     );
                                   }
                                   return ListView(
-                                    key: const PageStorageKey(
-                                      'notes-list',
+                                    key: PageStorageKey(
+                                      state.currentCollection,
                                     ),
                                     children: <Widget>[
                                       for (final note in notes)
