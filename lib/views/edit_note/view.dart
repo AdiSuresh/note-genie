@@ -220,7 +220,6 @@ class _EditNoteState extends State<EditNote> {
                               buildWhen: (previous, current) {
                                 final t1 = previous.note.title;
                                 final t2 = current.note.title;
-                                logger.i('t1 != t2: ${t1 != t2}');
                                 return t1 != t2;
                               },
                               builder: (context, state) {
@@ -257,7 +256,7 @@ class _EditNoteState extends State<EditNote> {
                                 return [
                                   PopupMenuItem(
                                     child: const Text(
-                                      'Colections',
+                                      'Collections',
                                       style: style,
                                     ),
                                     onTap: () {},

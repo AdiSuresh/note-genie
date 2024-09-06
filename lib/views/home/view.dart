@@ -439,32 +439,63 @@ class _HomePageState extends State<HomePage>
                             return previous.notes != current.notes;
                           },
                           builder: (context, state) {
-                            if (notesSub == null) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            final notes = state.notes;
-                            return ListView(
-                              key: const PageStorageKey(
-                                'notes-list',
-                              ),
-                              children: <Widget>[
-                                for (final note in notes)
-                                  NoteListTile(
-                                    note: note,
-                                    viewNote: () async {
-                                      notesSub?.pause();
-                                      context.extra = note;
-                                      await context.push(
-                                        EditNote.path,
-                                      );
-                                      notesSub?.resume();
-                                      startNotesSub();
-                                    },
+                            return AnimatedSwitcher(
+                              duration: animationDuration,
+                              transitionBuilder: (child, animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: ScaleTransition(
+                                    scale: Tween(
+                                      begin: 0.975,
+                                      end: 1.0,
+                                    ).animate(
+                                      animation,
+                                    ),
+                                    child: child,
                                   ),
-                                const EmptyFooter(),
-                              ],
+                                );
+                              },
+                              child: Builder(
+                                key: ValueKey(
+                                  state.currentCollection,
+                                ),
+                                builder: (context) {
+                                  if (notesSub == null) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                  final notes = state.notes;
+                                  if (notes.isEmpty) {
+                                    return const Center(
+                                      child: Text(
+                                        'No notes yet',
+                                      ),
+                                    );
+                                  }
+                                  return ListView(
+                                    key: const PageStorageKey(
+                                      'notes-list',
+                                    ),
+                                    children: <Widget>[
+                                      for (final note in notes)
+                                        NoteListTile(
+                                          note: note,
+                                          viewNote: () async {
+                                            notesSub?.pause();
+                                            context.extra = note;
+                                            await context.push(
+                                              EditNote.path,
+                                            );
+                                            notesSub?.resume();
+                                            startNotesSub();
+                                          },
+                                        ),
+                                      const EmptyFooter(),
+                                    ],
+                                  );
+                                },
+                              ),
                             );
                           },
                         ),
