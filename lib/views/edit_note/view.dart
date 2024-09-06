@@ -13,6 +13,7 @@ import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state.dart';
+import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class EditNote extends StatefulWidget {
   static const path = '/edit-note';
@@ -163,10 +164,7 @@ class _EditNoteState extends State<EditNote> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        UiUtils.dismissKeyboard(context);
-      },
+    return DismissKeyboard(
       child: Scaffold(
         body: SafeArea(
           child: Padding(
@@ -178,126 +176,127 @@ class _EditNoteState extends State<EditNote> {
                     bottom: 7.5,
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        flex: 2,
-                        child: InkWell(
-                          onTap: () {
-                            titleCtrl.text = note.title;
-                            titleCtrl.selection = TextSelection(
-                              baseOffset: 0,
-                              extentOffset: titleCtrl.text.length,
-                            );
-                            UiUtils.showEditTitleDialog(
-                              title: 'Rename document',
-                              context: context,
-                              titleCtrl: titleCtrl,
-                              onOk: () async {
-                                switch (titleFormKey.currentState?.validate()) {
-                                  case true:
-                                    saveTitle();
-                                    context.pop();
-                                    bloc.add(
-                                      UpdateTitleEvent(
-                                        title: titleCtrl.text,
-                                      ),
-                                    );
-                                  case _:
-                                }
-                              },
-                              onCancel: () {
-                                context.pop();
-                              },
-                              validator: Validators.nonEmptyFieldValidator,
-                              formKey: titleFormKey,
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(7.5),
-                          child: Padding(
-                            padding: const EdgeInsets.all(7.5),
-                            child: BlocBuilder<EditNoteBloc, EditNoteState>(
-                              buildWhen: (previous, current) {
-                                final t1 = previous.note.title;
-                                final t2 = current.note.title;
-                                return t1 != t2;
-                              },
-                              builder: (context, state) {
-                                return Text(
-                                  state.note.title,
-                                  style: context.themeData.textTheme.titleLarge,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                );
-                              },
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: InkWell(
+                            onTap: () {
+                              titleCtrl.text = note.title;
+                              titleCtrl.selection = TextSelection(
+                                baseOffset: 0,
+                                extentOffset: titleCtrl.text.length,
+                              );
+                              UiUtils.showEditTitleDialog(
+                                title: 'Rename document',
+                                context: context,
+                                titleCtrl: titleCtrl,
+                                onOk: () async {
+                                  switch (
+                                      titleFormKey.currentState?.validate()) {
+                                    case true:
+                                      saveTitle();
+                                      context.pop();
+                                      bloc.add(
+                                        UpdateTitleEvent(
+                                          title: titleCtrl.text,
+                                        ),
+                                      );
+                                    case _:
+                                  }
+                                },
+                                onCancel: () {
+                                  context.pop();
+                                },
+                                validator: Validators.nonEmptyFieldValidator,
+                                formKey: titleFormKey,
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(7.5),
+                            child: Padding(
+                              padding: const EdgeInsets.all(7.5),
+                              child: BlocBuilder<EditNoteBloc, EditNoteState>(
+                                buildWhen: (previous, current) {
+                                  final t1 = previous.note.title;
+                                  final t2 = current.note.title;
+                                  return t1 != t2;
+                                },
+                                builder: (context, state) {
+                                  return Text(
+                                    state.note.title,
+                                    style:
+                                        context.themeData.textTheme.titleLarge,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(
-                                left: 5,
-                              ),
-                              child: Text(
-                                '(Saving...)',
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(
+                              left: 5,
                             ),
-                            PopupMenuButton(
-                              color: Colors.white,
-                              surfaceTintColor: Colors.white,
-                              itemBuilder: (context) {
-                                const style = TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                );
-                                return [
-                                  PopupMenuItem(
-                                    child: const Text(
-                                      'Collections',
-                                      style: style,
-                                    ),
-                                    onTap: () {},
-                                  ),
-                                  PopupMenuItem(
-                                    child: const Text(
-                                      'Linked Notes',
-                                      style: style,
-                                    ),
-                                    onTap: () {},
-                                  ),
-                                  PopupMenuItem(
-                                    child: Text(
-                                      'Delete',
-                                      style: style.copyWith(
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    onTap: () {
-                                      UiUtils.showProceedDialog(
-                                        title: 'Delete note?',
-                                        message:
-                                            'You are about to delete this note.'
-                                            ' Once deleted its gone forever.'
-                                            '\n\nAre you sure you want to proceed?',
-                                        context: context,
-                                        onYes: () {
-                                          context.pop();
-                                          deleteNote();
-                                        },
-                                        onNo: () {
-                                          context.pop();
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ];
-                              },
+                            child: Text(
+                              'Saving...',
                             ),
-                          ],
-                        ),
+                          ),
+                          PopupMenuButton(
+                            color: Colors.white,
+                            surfaceTintColor: Colors.white,
+                            itemBuilder: (context) {
+                              const style = TextStyle(
+                                fontWeight: FontWeight.normal,
+                              );
+                              return [
+                                PopupMenuItem(
+                                  child: const Text(
+                                    'Collections',
+                                    style: style,
+                                  ),
+                                  onTap: () {},
+                                ),
+                                PopupMenuItem(
+                                  child: const Text(
+                                    'Linked Notes',
+                                    style: style,
+                                  ),
+                                  onTap: () {},
+                                ),
+                                PopupMenuItem(
+                                  child: Text(
+                                    'Delete',
+                                    style: style.copyWith(
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    UiUtils.showProceedDialog(
+                                      title: 'Delete note?',
+                                      message:
+                                          'You are about to delete this note.'
+                                          ' Once deleted its gone forever.'
+                                          '\n\nAre you sure you want to proceed?',
+                                      context: context,
+                                      onYes: () {
+                                        context.pop();
+                                        deleteNote();
+                                      },
+                                      onNo: () {
+                                        context.pop();
+                                      },
+                                    );
+                                  },
+                                ),
+                              ];
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
