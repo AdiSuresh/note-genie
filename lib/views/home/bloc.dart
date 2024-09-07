@@ -1,11 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:note_maker/models/note/dao.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  static final noteDao = NoteDao();
-
   HomeBloc(
     super.initialState,
   ) {
