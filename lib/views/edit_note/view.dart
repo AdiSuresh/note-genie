@@ -107,9 +107,13 @@ class _EditNoteState extends State<EditNote> {
   }
 
   Future<NoteEntity> saveTitle() async {
+    final title = switch (titleCtrl.text.trim()) {
+      '' => 'Untitled',
+      final s => s,
+    };
     return saveNote(
       note.copyWith(
-        title: titleCtrl.text,
+        title: title,
       ),
     );
   }
@@ -125,6 +129,39 @@ class _EditNoteState extends State<EditNote> {
               ),
         );
       },
+    );
+  }
+
+  void renameNote() {
+    titleCtrl.text = note.title;
+    titleCtrl.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: titleCtrl.text.length,
+    );
+    UiUtils.showEditTitleDialog(
+      title: 'Rename document',
+      context: context,
+      titleCtrl: titleCtrl,
+      onOk: () async {
+        switch (titleFormKey.currentState?.validate()) {
+          case true:
+            final note = await saveTitle();
+            if (mounted) {
+              context.pop();
+            }
+            bloc.add(
+              UpdateNoteEvent(
+                note: note,
+              ),
+            );
+          case _:
+        }
+      },
+      onCancel: () {
+        context.pop();
+      },
+      validator: Validators.nonEmptyFieldValidator,
+      formKey: titleFormKey,
     );
   }
 
@@ -181,37 +218,7 @@ class _EditNoteState extends State<EditNote> {
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: InkWell(
-                            onTap: () {
-                              titleCtrl.text = note.title;
-                              titleCtrl.selection = TextSelection(
-                                baseOffset: 0,
-                                extentOffset: titleCtrl.text.length,
-                              );
-                              UiUtils.showEditTitleDialog(
-                                title: 'Rename document',
-                                context: context,
-                                titleCtrl: titleCtrl,
-                                onOk: () async {
-                                  switch (
-                                      titleFormKey.currentState?.validate()) {
-                                    case true:
-                                      saveTitle();
-                                      context.pop();
-                                      bloc.add(
-                                        UpdateTitleEvent(
-                                          title: titleCtrl.text,
-                                        ),
-                                      );
-                                    case _:
-                                  }
-                                },
-                                onCancel: () {
-                                  context.pop();
-                                },
-                                validator: Validators.nonEmptyFieldValidator,
-                                formKey: titleFormKey,
-                              );
-                            },
+                            onTap: renameNote,
                             borderRadius: BorderRadius.circular(7.5),
                             child: Padding(
                               padding: const EdgeInsets.all(7.5),
