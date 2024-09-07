@@ -7,12 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/data/objectbox_db.dart';
 import 'package:note_maker/models/note/model.dart';
+import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/objectbox.g.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
-import 'package:note_maker/views/edit_note/state.dart';
+import 'package:note_maker/views/edit_note/state/state.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class EditNote extends StatefulWidget {
@@ -41,7 +43,41 @@ class _EditNoteState extends State<EditNote> {
   EditNoteBloc get bloc => context.read<EditNoteBloc>();
   NoteEntity get note => bloc.state.note;
 
-  StreamSubscription<DocChange>? changesSub;
+  StreamSubscription<DocChange>? docChangesSub;
+  StreamSubscription<List<NoteCollectionEntity>>? noteCollectionsSub;
+
+  void startNoteCollectionsSub() {
+    final note = bloc.state.note;
+    if (note.id > 0 && noteCollectionsSub == null) {
+      db.store.then(
+        (value) {
+          final builder = value.box<NoteCollectionEntity>().query()
+            ..linkMany(
+              NoteCollectionEntity_.notes,
+              NoteEntity_.id.equals(
+                note.id,
+              ),
+            );
+          noteCollectionsSub = builder
+              .watch(
+                triggerImmediately: true,
+              )
+              .map(
+                (query) => query.find(),
+              )
+              .listen(
+            (noteCollections) {
+              bloc.add(
+                UpdateNoteCollectionsEvent(
+                  noteCollections: noteCollections,
+                ),
+              );
+            },
+          );
+        },
+      );
+    }
+  }
 
   var documentJson = <dynamic>[];
 
@@ -59,7 +95,8 @@ class _EditNoteState extends State<EditNote> {
           documentJson,
         ),
     };
-    changesSub = document.changes.listen(
+    startNoteCollectionsSub();
+    docChangesSub = document.changes.listen(
       (event) async {
         logger.d(
           'updating document...',
@@ -70,6 +107,7 @@ class _EditNoteState extends State<EditNote> {
             note: note,
           ),
         );
+        startNoteCollectionsSub();
       },
     );
     contentCtrl = QuillController(
@@ -86,7 +124,7 @@ class _EditNoteState extends State<EditNote> {
     contentCtrl.dispose();
     contentFocus.dispose();
     contentScrollCtrl.dispose();
-    changesSub?.cancel().whenComplete(
+    docChangesSub?.cancel().whenComplete(
       () {
         logger.i(
           'changesSub disposed',
@@ -107,9 +145,13 @@ class _EditNoteState extends State<EditNote> {
   }
 
   Future<NoteEntity> saveTitle() async {
+    final title = switch (titleCtrl.text.trim()) {
+      '' => 'Untitled',
+      final s => s,
+    };
     return saveNote(
       note.copyWith(
-        title: titleCtrl.text,
+        title: title,
       ),
     );
   }
@@ -128,6 +170,39 @@ class _EditNoteState extends State<EditNote> {
     );
   }
 
+  void renameNote() {
+    titleCtrl.text = note.title;
+    titleCtrl.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: titleCtrl.text.length,
+    );
+    UiUtils.showEditTitleDialog(
+      title: 'Rename document',
+      context: context,
+      titleCtrl: titleCtrl,
+      onOk: () async {
+        switch (titleFormKey.currentState?.validate()) {
+          case true:
+            final note = await saveTitle();
+            if (mounted) {
+              context.pop();
+            }
+            bloc.add(
+              UpdateNoteEvent(
+                note: note,
+              ),
+            );
+          case _:
+        }
+      },
+      onCancel: () {
+        context.pop();
+      },
+      validator: Validators.nonEmptyFieldValidator,
+      formKey: titleFormKey,
+    );
+  }
+
   Future<void> deleteNote() async {
     final deleted = await db.store.then(
       (value) {
@@ -142,7 +217,7 @@ class _EditNoteState extends State<EditNote> {
           logger.d(
             'deleted note with id: ${note.id}',
           );
-          changesSub?.pause();
+          docChangesSub?.pause();
           return '$title was deleted successfully';
         },
       _ => () {
@@ -181,37 +256,7 @@ class _EditNoteState extends State<EditNote> {
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: InkWell(
-                            onTap: () {
-                              titleCtrl.text = note.title;
-                              titleCtrl.selection = TextSelection(
-                                baseOffset: 0,
-                                extentOffset: titleCtrl.text.length,
-                              );
-                              UiUtils.showEditTitleDialog(
-                                title: 'Rename document',
-                                context: context,
-                                titleCtrl: titleCtrl,
-                                onOk: () async {
-                                  switch (
-                                      titleFormKey.currentState?.validate()) {
-                                    case true:
-                                      saveTitle();
-                                      context.pop();
-                                      bloc.add(
-                                        UpdateTitleEvent(
-                                          title: titleCtrl.text,
-                                        ),
-                                      );
-                                    case _:
-                                  }
-                                },
-                                onCancel: () {
-                                  context.pop();
-                                },
-                                validator: Validators.nonEmptyFieldValidator,
-                                formKey: titleFormKey,
-                              );
-                            },
+                            onTap: renameNote,
                             borderRadius: BorderRadius.circular(7.5),
                             child: Padding(
                               padding: const EdgeInsets.all(7.5),

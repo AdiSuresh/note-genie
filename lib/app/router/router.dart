@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
-import 'package:note_maker/views/edit_note/state.dart';
+import 'package:note_maker/views/edit_note/state/state.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/edit_note/view.dart';
 import 'package:note_maker/views/home/bloc.dart';
@@ -44,6 +44,7 @@ class AppRouter {
                 return EditNoteBloc(
                   EditNoteState(
                     note: note,
+                    noteCollections: [],
                   ),
                 );
               },
