@@ -51,13 +51,13 @@ class _EditNoteState extends State<EditNote> {
     if (note.id > 0 && noteCollectionsSub == null) {
       db.store.then(
         (value) {
-          final builder = value.box<NoteCollectionEntity>().query();
-          builder.linkMany(
-            NoteCollectionEntity_.notes,
-            NoteEntity_.id.equals(
-              note.id,
-            ),
-          );
+          final builder = value.box<NoteCollectionEntity>().query()
+            ..linkMany(
+              NoteCollectionEntity_.notes,
+              NoteEntity_.id.equals(
+                note.id,
+              ),
+            );
           noteCollectionsSub = builder
               .watch(
                 triggerImmediately: true,
@@ -107,6 +107,7 @@ class _EditNoteState extends State<EditNote> {
             note: note,
           ),
         );
+        startNoteCollectionsSub();
       },
     );
     contentCtrl = QuillController(
