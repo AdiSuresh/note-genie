@@ -4,7 +4,6 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/router.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/app/themes/themes.dart';
-import 'package:note_maker/data/local_db.dart';
 
 class NoteMaker extends StatefulWidget {
   const NoteMaker({
@@ -22,17 +21,7 @@ class _NoteMakerState extends State<NoteMaker> {
 
   @override
   void dispose() {
-    LocalDatabase.instance.database.then(
-      (value) {
-        value.close().whenComplete(
-          () {
-            logger.i(
-              'Local DB was closed',
-            );
-          },
-        );
-      },
-    );
+    logger.i('dispose');
     super.dispose();
   }
 
