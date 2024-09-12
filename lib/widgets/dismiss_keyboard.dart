@@ -3,10 +3,12 @@ import 'package:note_maker/utils/ui_utils.dart';
 
 class DismissKeyboard extends StatelessWidget {
   final Widget child;
+  final VoidCallback? onTap;
 
   const DismissKeyboard({
     super.key,
     required this.child,
+    this.onTap,
   });
 
   @override
@@ -16,6 +18,7 @@ class DismissKeyboard extends StatelessWidget {
         UiUtils.dismissKeyboard(
           context,
         );
+        onTap?.call();
       },
       child: child,
     );
