@@ -603,19 +603,27 @@ class _HomePageState extends State<HomePage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          notesSub?.pause();
-          context.extra = switch (bloc.state.currentCollection) {
-            final NoteCollectionEntity collection => NoteEntity.empty()
-              ..collections.add(
-                collection,
-              ),
-            _ => null,
-          };
-          await context.push(
-            EditNote.path,
-          );
-          notesSub?.resume();
-          startNotesSub();
+          switch (tabCtrl.index) {
+            case 0:
+              notesSub?.pause();
+              context.extra = switch (bloc.state.currentCollection) {
+                final NoteCollectionEntity collection => NoteEntity.empty()
+                  ..collections.add(
+                    collection,
+                  ),
+                _ => null,
+              };
+              await context.push(
+                EditNote.path,
+              );
+              notesSub?.resume();
+              startNotesSub();
+            case 1:
+              putCollection(
+                NoteCollectionEntity.untitled(),
+              );
+            case _:
+          }
         },
         tooltip: 'Add note',
         child: const Icon(
