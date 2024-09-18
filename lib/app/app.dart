@@ -42,7 +42,15 @@ class _NoteMakerState extends State<NoteMaker> {
         themeMode: ThemeMode.light,
         theme: Themes.lightTheme,
         darkTheme: Themes.darkTheme,
+        scrollBehavior: CustomScrollBehavior(),
       ),
     );
+  }
+}
+
+class CustomScrollBehavior extends ScrollBehavior {
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const BouncingScrollPhysics();
   }
 }

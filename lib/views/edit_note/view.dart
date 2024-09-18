@@ -279,6 +279,9 @@ class _EditNoteState extends State<EditNote> {
             PopupMenuButton(
               color: Colors.white,
               surfaceTintColor: Colors.white,
+              onOpened: () {
+                contentFocus.unfocus();
+              },
               itemBuilder: (context) {
                 const style = TextStyle(
                   fontWeight: FontWeight.normal,
