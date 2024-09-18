@@ -20,6 +20,7 @@ import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 import 'package:note_maker/views/home/widgets/note_list_tile.dart';
+import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/empty_footer.dart';
 
 class HomePage extends StatefulWidget {
@@ -449,22 +450,7 @@ class _HomePageState extends State<HomePage>
                             return previous.notes != current.notes;
                           },
                           builder: (context, state) {
-                            return AnimatedSwitcher(
-                              duration: animationDuration,
-                              transitionBuilder: (child, animation) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: ScaleTransition(
-                                    scale: Tween(
-                                      begin: 0.975,
-                                      end: 1.0,
-                                    ).animate(
-                                      animation,
-                                    ),
-                                    child: child,
-                                  ),
-                                );
-                              },
+                            return CustomAnimatedSwitcher(
                               child: Builder(
                                 key: ValueKey(
                                   switch (state.currentCollection) {
