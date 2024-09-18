@@ -53,15 +53,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<SwitchTabEvent>(
       (event, emit) {
         final showNotes = switch (event.index) {
-          0 => true,
-          1 => false,
+          0 || 1 => event.index == 0,
           _ => null,
         };
         switch (showNotes) {
           case final bool showNotes when showNotes != state.showNotes:
             emit(
               state.copyWith(
-                showNotes: !state.showNotes,
+                showNotes: showNotes,
               ),
             );
           case _:
