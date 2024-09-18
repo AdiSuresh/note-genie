@@ -35,6 +35,10 @@ class SelectCollectionEvent extends ToggleCollectionEvent {
   });
 }
 
-class SwitchViewEvent extends HomeEvent {
-  const SwitchViewEvent();
+class SwitchTabEvent extends HomeEvent {
+  final int index;
+
+  const SwitchTabEvent({
+    required this.index,
+  });
 }

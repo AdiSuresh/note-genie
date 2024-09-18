@@ -50,13 +50,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
-    on<SwitchViewEvent>(
+    on<SwitchTabEvent>(
       (event, emit) {
-        emit(
-          state.copyWith(
-            showNotes: !state.showNotes,
-          ),
-        );
+        final showNotes = switch (event.index) {
+          0 => true,
+          1 => false,
+          _ => null,
+        };
+        if (showNotes != null && state.showNotes != showNotes) {
+          emit(
+            state.copyWith(
+              showNotes: !state.showNotes,
+            ),
+          );
+        }
       },
     );
   }

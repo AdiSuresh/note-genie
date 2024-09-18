@@ -66,6 +66,16 @@ class _HomePageState extends State<HomePage>
 
   late final TabController tabCtrl;
 
+  void handleSwitchTabEvent() {
+    if (mounted) {
+      bloc.add(
+        SwitchTabEvent(
+          index: tabCtrl.index,
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +83,9 @@ class _HomePageState extends State<HomePage>
       animationDuration: animationDuration,
       length: 2,
       vsync: this,
+    );
+    tabCtrl.addListener(
+      handleSwitchTabEvent,
     );
     startNotesSub();
     ObjectBoxDB().store.then(
@@ -104,6 +117,9 @@ class _HomePageState extends State<HomePage>
 
   @override
   void dispose() {
+    tabCtrl.removeListener(
+      handleSwitchTabEvent,
+    );
     tabCtrl.dispose();
     unawaited(
       noteCollectionsSub?.cancel(),
