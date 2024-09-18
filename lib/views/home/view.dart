@@ -201,6 +201,14 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    const noCollectionsWidget = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 15,
+      ),
+      child: Text(
+        'No collections yet',
+      ),
+    );
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -331,16 +339,7 @@ class _HomePageState extends State<HomePage>
                             ),
                             child: Row(
                               children: [
-                                if (collections.isEmpty)
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 15,
-                                      horizontal: 7.5,
-                                    ),
-                                    child: Text(
-                                      'No collections yet',
-                                    ),
-                                  ),
+                                if (collections.isEmpty) noCollectionsWidget,
                                 for (final collection in collections)
                                   Builder(
                                     key: GlobalObjectKey(
@@ -517,11 +516,8 @@ class _HomePageState extends State<HomePage>
                       final collections = state.noteCollections;
                       switch (collections) {
                         case []:
-                          return const Padding(
-                            padding: EdgeInsets.all(7.5),
-                            child: Text(
-                              'No collections yet',
-                            ),
+                          return const Center(
+                            child: noCollectionsWidget,
                           );
                         case _:
                       }
