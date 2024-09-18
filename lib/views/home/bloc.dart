@@ -57,12 +57,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           1 => false,
           _ => null,
         };
-        if (showNotes != null && state.showNotes != showNotes) {
-          emit(
-            state.copyWith(
-              showNotes: !state.showNotes,
-            ),
-          );
+        switch (showNotes) {
+          case final bool showNotes when showNotes != state.showNotes:
+            emit(
+              state.copyWith(
+                showNotes: !state.showNotes,
+              ),
+            );
+          case _:
         }
       },
     );
