@@ -450,14 +450,17 @@ class _HomePageState extends State<HomePage>
                             return previous.notes != current.notes;
                           },
                           builder: (context, state) {
+                            final key = switch (state.currentCollection) {
+                              null => const ValueKey(
+                                  'notes-list-switcher',
+                                ),
+                              final c => ObjectKey(
+                                  c,
+                                ),
+                            };
                             return CustomAnimatedSwitcher(
                               child: Builder(
-                                key: ValueKey(
-                                  switch (state.currentCollection) {
-                                    null => 'collection',
-                                    final c => c,
-                                  },
-                                ),
+                                key: key,
                                 builder: (context) {
                                   if (notesSub == null) {
                                     return const Center(
