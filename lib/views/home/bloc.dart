@@ -40,29 +40,30 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<SelectCollectionEvent>(
       (event, emit) {
         switch (state.currentCollection?.id) {
-          case final id when id != event.collection?.id || id == null:
+          case final int id when id != event.collection?.id:
             emit(
               state.copyWith(
                 currentCollection: event.collection,
               ),
             );
-          default:
+          case _:
         }
       },
     );
     on<SwitchTabEvent>(
       (event, emit) {
         final showNotes = switch (event.index) {
-          0 => true,
-          1 => false,
+          0 || 1 => event.index == 0,
           _ => null,
         };
-        if (showNotes != null && state.showNotes != showNotes) {
-          emit(
-            state.copyWith(
-              showNotes: !state.showNotes,
-            ),
-          );
+        switch (showNotes) {
+          case final bool showNotes when showNotes ^ state.showNotes:
+            emit(
+              state.copyWith(
+                showNotes: showNotes,
+              ),
+            );
+          case _:
         }
       },
     );

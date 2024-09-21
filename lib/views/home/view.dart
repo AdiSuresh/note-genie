@@ -18,8 +18,11 @@ import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
+import 'package:note_maker/views/home/widgets/collection_list_tile.dart';
+import 'package:note_maker/views/home/widgets/home_fab.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 import 'package:note_maker/views/home/widgets/note_list_tile.dart';
+import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/empty_footer.dart';
 
 class HomePage extends StatefulWidget {
@@ -56,25 +59,17 @@ class _HomePageState extends State<HomePage>
     ),
   ];
 
+  final db = ObjectBoxDB();
+
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
   StreamSubscription<List<NoteCollectionEntity>>? noteCollectionsSub;
   StreamSubscription<List<NoteEntity>>? notesSub;
 
-  HomeBloc get bloc => context.read();
-
   late final TabController tabCtrl;
 
-  void handleSwitchTabEvent() {
-    if (mounted) {
-      bloc.add(
-        SwitchTabEvent(
-          index: tabCtrl.index,
-        ),
-      );
-    }
-  }
+  HomeBloc get bloc => context.read();
 
   @override
   void initState() {
@@ -88,7 +83,7 @@ class _HomePageState extends State<HomePage>
       handleSwitchTabEvent,
     );
     startNotesSub();
-    ObjectBoxDB().store.then(
+    db.store.then(
       (store) {
         noteCollectionsSub = store
             .box<NoteCollectionEntity>()
@@ -135,9 +130,19 @@ class _HomePageState extends State<HomePage>
   @override
   bool get wantKeepAlive => true;
 
+  void handleSwitchTabEvent() {
+    if (mounted) {
+      bloc.add(
+        SwitchTabEvent(
+          index: tabCtrl.index,
+        ),
+      );
+    }
+  }
+
   Future<void> startNotesSub() async {
     stopNotesSub();
-    final store = await ObjectBoxDB().store;
+    final store = await db.store;
     final builder = store.box<NoteEntity>().query();
     final query = switch (bloc.state.currentCollection) {
       NoteCollectionEntity c when c.id > 0 => builder
@@ -200,11 +205,11 @@ class _HomePageState extends State<HomePage>
       onOk: () async {
         switch (collectionNameFormKey.currentState?.validate()) {
           case true:
-            await ObjectBoxDB().store.then(
+            await db.store.then(
               (value) {
                 value.box<NoteCollectionEntity>().put(
                       collection.copyWith(
-                        name: collectionNameCtrl.text,
+                        name: collectionNameCtrl.text.trim(),
                       ),
                     );
               },
@@ -223,11 +228,58 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+  Future<void> deleteCollection(
+    NoteCollectionEntity collection,
+  ) async {
+    final deleted = await db.store.then(
+      (value) {
+        return value.box<NoteCollectionEntity>().remove(
+              collection.id,
+            );
+      },
+    );
+    final title = "'${collection.name}'";
+    final content = switch (deleted) {
+      true => '$title was deleted successfully',
+      _ => 'Could not delete $title',
+    };
+    if (mounted) {
+      UiUtils.showSnackbar(
+        context,
+        content: content,
+      );
+    }
+  }
+
   String get pageTitle {
     return switch (bloc.state.showNotes) {
       true => 'Notes',
       _ => 'Collections',
     };
+  }
+
+  void fabOnPressed() async {
+    switch (tabCtrl.index) {
+      case 0:
+        notesSub?.pause();
+        context.extra = switch (bloc.state.currentCollection) {
+          final NoteCollectionEntity collection => NoteEntity.empty()
+            ..collections.add(
+              collection,
+            ),
+          _ => null,
+        };
+        await context.push(
+          EditNote.path,
+        );
+        notesSub?.resume();
+        startNotesSub();
+      case 1:
+        putCollection(
+          NoteCollectionEntity.untitled(),
+        );
+      case _:
+    }
   }
 
   @override
@@ -449,29 +501,17 @@ class _HomePageState extends State<HomePage>
                             return previous.notes != current.notes;
                           },
                           builder: (context, state) {
-                            return AnimatedSwitcher(
-                              duration: animationDuration,
-                              transitionBuilder: (child, animation) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: ScaleTransition(
-                                    scale: Tween(
-                                      begin: 0.975,
-                                      end: 1.0,
-                                    ).animate(
-                                      animation,
-                                    ),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: Builder(
-                                key: ValueKey(
-                                  switch (state.currentCollection) {
-                                    null => 'collection',
-                                    final c => c,
-                                  },
+                            final key = switch (state.currentCollection) {
+                              null => const ValueKey(
+                                  'notes-list-switcher',
                                 ),
+                              final c => ObjectKey(
+                                  c,
+                                ),
+                            };
+                            return CustomAnimatedSwitcher(
+                              child: Builder(
+                                key: key,
                                 builder: (context) {
                                   if (notesSub == null) {
                                     return const Center(
@@ -562,7 +602,8 @@ class _HomePageState extends State<HomePage>
                                 }
                                 return Padding(
                                   padding: padding,
-                                  child: CollectionChip(
+                                  child: CollectionListTile(
+                                    collection: e,
                                     onTap: () async {
                                       tabCtrl.animateTo(
                                         0,
@@ -582,20 +623,44 @@ class _HomePageState extends State<HomePage>
                                         e,
                                       );
                                       switch (key.currentContext) {
-                                        case final BuildContext context:
-                                          if (context.mounted) {
-                                            Scrollable.ensureVisible(
-                                              context,
-                                              alignment: .5,
-                                              duration: animationDuration,
-                                            );
-                                          }
+                                        case final BuildContext context
+                                            when context.mounted:
+                                          Scrollable.ensureVisible(
+                                            context,
+                                            alignment: .5,
+                                            duration: animationDuration,
+                                          );
                                         case _:
                                       }
                                     },
-                                    child: Text(
-                                      e.name,
-                                    ),
+                                    onEdit: () {
+                                      putCollection(
+                                        e,
+                                      );
+                                    },
+                                    onDelete: () {
+                                      final context = this.context;
+                                      UiUtils.showProceedDialog(
+                                        title: 'Delete collection?',
+                                        message:
+                                            'You are about to delete this collection.'
+                                            ' Once deleted its gone forever.'
+                                            '\n\nAre you sure you want to proceed?',
+                                        context: context,
+                                        onYes: () {
+                                          context.pop();
+                                          deleteCollection(
+                                            e,
+                                          );
+                                        },
+                                        onNo: () {
+                                          context.pop();
+                                        },
+                                      );
+                                    },
+                                    // child: Text(
+                                    //   e.name,
+                                    // ),
                                   ),
                                 );
                               },
@@ -611,34 +676,8 @@ class _HomePageState extends State<HomePage>
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          switch (tabCtrl.index) {
-            case 0:
-              notesSub?.pause();
-              context.extra = switch (bloc.state.currentCollection) {
-                final NoteCollectionEntity collection => NoteEntity.empty()
-                  ..collections.add(
-                    collection,
-                  ),
-                _ => null,
-              };
-              await context.push(
-                EditNote.path,
-              );
-              notesSub?.resume();
-              startNotesSub();
-            case 1:
-              putCollection(
-                NoteCollectionEntity.untitled(),
-              );
-            case _:
-          }
-        },
-        tooltip: 'Add note',
-        child: const Icon(
-          Icons.add,
-        ),
+      floatingActionButton: HomeFab(
+        onPressed: fabOnPressed,
       ),
     );
   }
