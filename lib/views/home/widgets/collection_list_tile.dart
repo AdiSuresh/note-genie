@@ -3,12 +3,16 @@ import 'package:note_maker/models/note_collection/model.dart';
 
 class CollectionListTile extends StatelessWidget {
   final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
   final NoteCollectionEntity collection;
 
   const CollectionListTile({
     super.key,
     required this.onTap,
     required this.collection,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -36,14 +40,14 @@ class CollectionListTile extends StatelessWidget {
                   children: [
                     IconButton(
                       tooltip: 'Edit title',
-                      onPressed: () {},
+                      onPressed: onEdit,
                       icon: const Icon(
                         Icons.edit_outlined,
                       ),
                     ),
                     IconButton(
                       tooltip: 'Delete collection',
-                      onPressed: () {},
+                      onPressed: onDelete,
                       icon: const Icon(
                         Icons.delete_outlined,
                       ),

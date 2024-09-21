@@ -59,25 +59,17 @@ class _HomePageState extends State<HomePage>
     ),
   ];
 
+  final db = ObjectBoxDB();
+
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
   StreamSubscription<List<NoteCollectionEntity>>? noteCollectionsSub;
   StreamSubscription<List<NoteEntity>>? notesSub;
 
-  HomeBloc get bloc => context.read();
-
   late final TabController tabCtrl;
 
-  void handleSwitchTabEvent() {
-    if (mounted) {
-      bloc.add(
-        SwitchTabEvent(
-          index: tabCtrl.index,
-        ),
-      );
-    }
-  }
+  HomeBloc get bloc => context.read();
 
   @override
   void initState() {
@@ -91,7 +83,7 @@ class _HomePageState extends State<HomePage>
       handleSwitchTabEvent,
     );
     startNotesSub();
-    ObjectBoxDB().store.then(
+    db.store.then(
       (store) {
         noteCollectionsSub = store
             .box<NoteCollectionEntity>()
@@ -138,9 +130,19 @@ class _HomePageState extends State<HomePage>
   @override
   bool get wantKeepAlive => true;
 
+  void handleSwitchTabEvent() {
+    if (mounted) {
+      bloc.add(
+        SwitchTabEvent(
+          index: tabCtrl.index,
+        ),
+      );
+    }
+  }
+
   Future<void> startNotesSub() async {
     stopNotesSub();
-    final store = await ObjectBoxDB().store;
+    final store = await db.store;
     final builder = store.box<NoteEntity>().query();
     final query = switch (bloc.state.currentCollection) {
       NoteCollectionEntity c when c.id > 0 => builder
@@ -203,11 +205,11 @@ class _HomePageState extends State<HomePage>
       onOk: () async {
         switch (collectionNameFormKey.currentState?.validate()) {
           case true:
-            await ObjectBoxDB().store.then(
+            await db.store.then(
               (value) {
                 value.box<NoteCollectionEntity>().put(
                       collection.copyWith(
-                        name: collectionNameCtrl.text,
+                        name: collectionNameCtrl.text.trim(),
                       ),
                     );
               },
@@ -224,6 +226,29 @@ class _HomePageState extends State<HomePage>
       validator: Validators.nonEmptyFieldValidator,
       formKey: collectionNameFormKey,
     );
+  }
+
+  Future<void> deleteCollection(
+    NoteCollectionEntity collection,
+  ) async {
+    final deleted = await db.store.then(
+      (value) {
+        return value.box<NoteCollectionEntity>().remove(
+              collection.id,
+            );
+      },
+    );
+    final title = "'${collection.name}'";
+    final content = switch (deleted) {
+      true => '$title was deleted successfully',
+      _ => 'Could not delete $title',
+    };
+    if (mounted) {
+      UiUtils.showSnackbar(
+        context,
+        content: content,
+      );
+    }
   }
 
   String get pageTitle {
@@ -607,6 +632,31 @@ class _HomePageState extends State<HomePage>
                                           );
                                         case _:
                                       }
+                                    },
+                                    onEdit: () {
+                                      putCollection(
+                                        e,
+                                      );
+                                    },
+                                    onDelete: () {
+                                      final context = this.context;
+                                      UiUtils.showProceedDialog(
+                                        title: 'Delete collection?',
+                                        message:
+                                            'You are about to delete this collection.'
+                                            ' Once deleted its gone forever.'
+                                            '\n\nAre you sure you want to proceed?',
+                                        context: context,
+                                        onYes: () {
+                                          context.pop();
+                                          deleteCollection(
+                                            e,
+                                          );
+                                        },
+                                        onNo: () {
+                                          context.pop();
+                                        },
+                                      );
                                     },
                                     // child: Text(
                                     //   e.name,
