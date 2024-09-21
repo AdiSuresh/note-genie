@@ -40,13 +40,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<SelectCollectionEvent>(
       (event, emit) {
         switch (state.currentCollection?.id) {
-          case final id when id != event.collection?.id || id == null:
+          case final int id when id != event.collection?.id:
             emit(
               state.copyWith(
                 currentCollection: event.collection,
               ),
             );
-          default:
+          case _:
         }
       },
     );
@@ -57,7 +57,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           _ => null,
         };
         switch (showNotes) {
-          case final bool showNotes when showNotes != state.showNotes:
+          case final bool showNotes when showNotes ^ state.showNotes:
             emit(
               state.copyWith(
                 showNotes: showNotes,
