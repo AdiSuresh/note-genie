@@ -15,6 +15,8 @@ import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
+import 'package:note_maker/views/home/widgets/no_collections_message.dart';
+import 'package:note_maker/widgets/collection_list_tile.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class EditNote extends StatefulWidget {
@@ -33,15 +35,14 @@ class _EditNoteState extends State<EditNote> {
     EditNote,
   );
 
+  final db = ObjectBoxDB();
+
   final titleCtrl = TextEditingController();
   final titleFormKey = GlobalKey<FormState>();
 
   late final QuillController contentCtrl;
   final contentFocus = FocusNode();
   final contentScrollCtrl = ScrollController();
-
-  EditNoteBloc get bloc => context.read<EditNoteBloc>();
-  NoteEntity get note => bloc.state.note;
 
   StreamSubscription<DocChange>? docChangesSub;
   StreamSubscription<List<NoteCollectionEntity>>? noteCollectionsSub;
@@ -50,7 +51,8 @@ class _EditNoteState extends State<EditNote> {
 
   var documentJson = <dynamic>[];
 
-  final db = ObjectBoxDB();
+  EditNoteBloc get bloc => context.read<EditNoteBloc>();
+  NoteEntity get note => bloc.state.note;
 
   @override
   void initState() {
@@ -100,36 +102,33 @@ class _EditNoteState extends State<EditNote> {
         );
       },
     );
+    noteCollectionsSub?.cancel();
     super.dispose();
   }
 
-  void startNoteCollectionsSub() {
-    final note = bloc.state.note;
+  Future<void> startNoteCollectionsSub() async {
     if (note.id > 0 && noteCollectionsSub == null) {
-      db.store.then(
-        (value) {
-          final builder = value.box<NoteCollectionEntity>().query()
-            ..linkMany(
-              NoteCollectionEntity_.notes,
-              NoteEntity_.id.equals(
-                note.id,
-              ),
-            );
-          noteCollectionsSub = builder
-              .watch(
-                triggerImmediately: true,
-              )
-              .map(
-                (query) => query.find(),
-              )
-              .listen(
-            (noteCollections) {
-              bloc.add(
-                UpdateNoteCollectionsEvent(
-                  noteCollections: noteCollections,
-                ),
-              );
-            },
+      final store = await db.store;
+      final builder = store.box<NoteCollectionEntity>().query()
+        ..linkMany(
+          NoteCollectionEntity_.notes,
+          NoteEntity_.id.equals(
+            note.id,
+          ),
+        );
+      noteCollectionsSub = builder
+          .watch(
+            triggerImmediately: true,
+          )
+          .map(
+            (query) => query.find(),
+          )
+          .listen(
+        (noteCollections) {
+          bloc.add(
+            UpdateNoteCollectionsEvent(
+              noteCollections: noteCollections,
+            ),
           );
         },
       );
@@ -235,6 +234,32 @@ class _EditNoteState extends State<EditNote> {
             context.pop();
           }
         },
+      );
+    }
+  }
+
+  Future<void> removeFromCollection(
+    NoteCollectionEntity collection,
+  ) async {
+    note.collections
+      ..removeWhere(
+        (element) {
+          return element.id == collection.id;
+        },
+      )
+      ..applyToDb();
+    bloc.add(
+      UpdateNoteEvent(
+        note: note,
+      ),
+    );
+    final noteTitle = "'${note.title}'";
+    final collectionTitle = "'${collection.name}'";
+    final content = '$noteTitle was removed from $collectionTitle';
+    if (mounted) {
+      UiUtils.showSnackbar(
+        context,
+        content: content,
       );
     }
   }
@@ -367,21 +392,88 @@ class _EditNoteState extends State<EditNote> {
                 ],
                 snap: true,
                 builder: (context, scrollController) {
-                  return ListView(
-                    controller: scrollController,
-                    children: List.generate(
-                      10,
-                      (index) {
-                        return Text(
-                          'Index $index',
+                  return BlocBuilder<EditNoteBloc, EditNoteState>(
+                    buildWhen: (previous, current) {
+                      return true;
+                    },
+                    builder: (context, state) {
+                      final collections = state.note.collections;
+                      final children = <Widget>[
+                        ListView(
+                          controller: scrollController,
+                          padding: const EdgeInsets.all(15),
+                          children: collections.map(
+                            (collection) {
+                              return CollectionListTile(
+                                collection: collection,
+                                onRemoveNote: () {
+                                  final collectionTitle =
+                                      "'${collection.name}'";
+                                  // final context = this.context;
+                                  UiUtils.showProceedDialog(
+                                    title: 'Remove note from collection?',
+                                    message: 'You are about to this note from'
+                                        ' $collectionTitle.'
+                                        '\n\nAre you sure you want to proceed?',
+                                    context: context,
+                                    onYes: () {
+                                      context.pop();
+                                      removeFromCollection(
+                                        collection,
+                                      );
+                                    },
+                                    onNo: () {
+                                      context.pop();
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ).toList(),
+                        )
+                      ];
+                      if (collections case []) {
+                        children.add(
+                          const Center(
+                            child: NoCollectionsMessage(),
+                          ),
                         );
-                      },
-                    ),
+                      }
+                      return Container(
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(15),
+                          ),
+                        ),
+                        child: Stack(
+                          children: children,
+                        ),
+                      );
+                    },
                   );
                 },
               ),
             ],
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            final store = await db.store;
+            store.box<NoteCollectionEntity>().getAll().forEach(
+              (element) {
+                note.collections
+                  ..add(
+                    element,
+                  )
+                  ..applyToDb();
+              },
+            );
+            bloc.add(
+              UpdateNoteEvent(
+                note: note,
+              ),
+            );
+          },
         ),
       ),
     );
