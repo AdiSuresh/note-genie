@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 
 class CollectionListTile extends StatelessWidget {
-  final VoidCallback onTap;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
   final NoteCollectionEntity collection;
+  final VoidCallback? onTap;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onRemoveNote;
 
   const CollectionListTile({
     super.key,
-    required this.onTap,
     required this.collection,
-    required this.onEdit,
-    required this.onDelete,
+    this.onTap,
+    this.onEdit,
+    this.onDelete,
+    this.onRemoveNote,
   });
 
   @override
@@ -38,20 +40,30 @@ class CollectionListTile extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    IconButton(
-                      tooltip: 'Edit title',
-                      onPressed: onEdit,
-                      icon: const Icon(
-                        Icons.edit_outlined,
+                    if (onEdit != null)
+                      IconButton(
+                        tooltip: 'Edit title',
+                        onPressed: onEdit,
+                        icon: const Icon(
+                          Icons.edit_outlined,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      tooltip: 'Delete collection',
-                      onPressed: onDelete,
-                      icon: const Icon(
-                        Icons.delete_outlined,
+                    if (onDelete != null)
+                      IconButton(
+                        tooltip: 'Delete collection',
+                        onPressed: onDelete,
+                        icon: const Icon(
+                          Icons.delete_outlined,
+                        ),
                       ),
-                    ),
+                    if (onRemoveNote != null)
+                      IconButton(
+                        tooltip: 'Remove from collection',
+                        onPressed: onRemoveNote,
+                        icon: const Icon(
+                          Icons.remove_circle_outline,
+                        ),
+                      ),
                   ],
                 ),
               ],

@@ -18,7 +18,7 @@ import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
-import 'package:note_maker/views/home/widgets/collection_list_tile.dart';
+import 'package:note_maker/widgets/collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/home_fab.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 import 'package:note_maker/views/home/widgets/note_list_tile.dart';
