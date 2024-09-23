@@ -8,15 +8,13 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/data/objectbox_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
-import 'package:note_maker/objectbox.g.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
-import 'package:note_maker/views/home/widgets/no_collections_message.dart';
-import 'package:note_maker/widgets/collection_list_tile.dart';
+import 'package:note_maker/views/edit_note/widgets/note_collection_list_sheet.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class EditNote extends StatefulWidget {
@@ -45,7 +43,6 @@ class _EditNoteState extends State<EditNote> {
   final contentScrollCtrl = ScrollController();
 
   StreamSubscription<DocChange>? docChangesSub;
-  StreamSubscription<List<NoteCollectionEntity>>? noteCollectionsSub;
 
   final sheetCtrl = DraggableScrollableController();
 
@@ -66,7 +63,6 @@ class _EditNoteState extends State<EditNote> {
           documentJson,
         ),
     };
-    startNoteCollectionsSub();
     docChangesSub = document.changes.listen(
       (event) async {
         logger.d(
@@ -78,7 +74,6 @@ class _EditNoteState extends State<EditNote> {
             note: note,
           ),
         );
-        startNoteCollectionsSub();
       },
     );
     contentCtrl = QuillController(
@@ -95,44 +90,9 @@ class _EditNoteState extends State<EditNote> {
     contentCtrl.dispose();
     contentFocus.dispose();
     contentScrollCtrl.dispose();
-    docChangesSub?.cancel().whenComplete(
-      () {
-        logger.i(
-          'changesSub disposed',
-        );
-      },
-    );
-    noteCollectionsSub?.cancel();
+    docChangesSub?.cancel();
+    sheetCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> startNoteCollectionsSub() async {
-    if (note.id > 0 && noteCollectionsSub == null) {
-      final store = await db.store;
-      final builder = store.box<NoteCollectionEntity>().query()
-        ..linkMany(
-          NoteCollectionEntity_.notes,
-          NoteEntity_.id.equals(
-            note.id,
-          ),
-        );
-      noteCollectionsSub = builder
-          .watch(
-            triggerImmediately: true,
-          )
-          .map(
-            (query) => query.find(),
-          )
-          .listen(
-        (noteCollections) {
-          bloc.add(
-            UpdateNoteCollectionsEvent(
-              noteCollections: noteCollections,
-            ),
-          );
-        },
-      );
-    }
   }
 
   Future<NoteEntity> saveContent() async {
@@ -212,26 +172,26 @@ class _EditNoteState extends State<EditNote> {
             );
       },
     );
+    if (deleted) {
+      logger.d(
+        'deleted note with id: ${note.id}',
+      );
+      docChangesSub?.pause();
+    }
     final title = "'${note.title}'";
     final content = switch (deleted) {
-      true => () {
-          logger.d(
-            'deleted note with id: ${note.id}',
-          );
-          docChangesSub?.pause();
-          return '$title was deleted successfully';
-        },
-      _ => () {
-          return 'Could not delete $title';
-        },
-    }();
+      true => '$title was deleted successfully',
+      _ => 'Could not delete $title',
+    };
     if (mounted) {
       UiUtils.showSnackbar(
         context,
         content: content,
         onClose: () {
-          if (deleted) {
-            context.pop();
+          if (deleted && mounted) {
+            context.go(
+              '/',
+            );
           }
         },
       );
@@ -349,6 +309,7 @@ class _EditNoteState extends State<EditNote> {
                       ),
                     ),
                     onTap: () {
+                      final context = this.context;
                       UiUtils.showProceedDialog(
                         title: 'Delete note?',
                         message: 'You are about to delete this note.'
@@ -356,10 +317,13 @@ class _EditNoteState extends State<EditNote> {
                             '\n\nAre you sure you want to proceed?',
                         context: context,
                         onYes: () {
+                          logger.i('on yes');
                           context.pop();
+                          // return;
                           deleteNote();
                         },
                         onNo: () {
+                          logger.i('on no');
                           context.pop();
                         },
                       );
@@ -383,97 +347,11 @@ class _EditNoteState extends State<EditNote> {
                 scrollController: contentScrollCtrl,
                 controller: contentCtrl,
               ),
-              DraggableScrollableSheet(
-                minChildSize: 0,
-                initialChildSize: 0,
+              NoteCollectionListSheet(
                 controller: sheetCtrl,
-                snapSizes: const [
-                  0,
-                ],
-                snap: true,
-                builder: (context, scrollController) {
-                  return BlocBuilder<EditNoteBloc, EditNoteState>(
-                    buildWhen: (previous, current) {
-                      return true;
-                    },
-                    builder: (context, state) {
-                      final collections = state.note.collections;
-                      final children = <Widget>[
-                        ListView(
-                          controller: scrollController,
-                          padding: const EdgeInsets.all(15),
-                          children: collections.map(
-                            (collection) {
-                              return CollectionListTile(
-                                collection: collection,
-                                onRemoveNote: () {
-                                  final collectionTitle =
-                                      "'${collection.name}'";
-                                  // final context = this.context;
-                                  UiUtils.showProceedDialog(
-                                    title: 'Remove note from collection?',
-                                    message: 'You are about to this note from'
-                                        ' $collectionTitle.'
-                                        '\n\nAre you sure you want to proceed?',
-                                    context: context,
-                                    onYes: () {
-                                      context.pop();
-                                      removeFromCollection(
-                                        collection,
-                                      );
-                                    },
-                                    onNo: () {
-                                      context.pop();
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          ).toList(),
-                        )
-                      ];
-                      if (collections case []) {
-                        children.add(
-                          const Center(
-                            child: NoCollectionsMessage(),
-                          ),
-                        );
-                      }
-                      return Container(
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(15),
-                          ),
-                        ),
-                        child: Stack(
-                          children: children,
-                        ),
-                      );
-                    },
-                  );
-                },
               ),
             ],
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            final store = await db.store;
-            store.box<NoteCollectionEntity>().getAll().forEach(
-              (element) {
-                note.collections
-                  ..add(
-                    element,
-                  )
-                  ..applyToDb();
-              },
-            );
-            bloc.add(
-              UpdateNoteEvent(
-                note: note,
-              ),
-            );
-          },
         ),
       ),
     );
