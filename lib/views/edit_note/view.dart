@@ -29,8 +29,12 @@ class EditNote extends StatefulWidget {
 }
 
 class _EditNoteState extends State<EditNote> {
-  final logger = AppLogger(
+  static final logger = AppLogger(
     EditNote,
+  );
+
+  static const animationDuration = Duration(
+    milliseconds: 150,
   );
 
   final db = ObjectBoxDB();
@@ -82,17 +86,29 @@ class _EditNoteState extends State<EditNote> {
         offset: 0,
       ),
     );
+    contentFocus.addListener(
+      onEditorFocus,
+    );
   }
 
   @override
   void dispose() {
     titleCtrl.dispose();
     contentCtrl.dispose();
+    contentFocus.removeListener(
+      onEditorFocus,
+    );
     contentFocus.dispose();
     contentScrollCtrl.dispose();
     docChangesSub?.cancel();
     sheetCtrl.dispose();
     super.dispose();
+  }
+
+  void onEditorFocus() {
+    sheetCtrl.jumpTo(
+      0,
+    );
   }
 
   Future<NoteEntity> saveContent() async {
@@ -226,131 +242,156 @@ class _EditNoteState extends State<EditNote> {
 
   @override
   Widget build(BuildContext context) {
-    return DismissKeyboard(
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: InkWell(
-            onTap: renameNote,
-            borderRadius: BorderRadius.circular(7.5),
-            child: Padding(
-              padding: const EdgeInsets.all(7.5),
-              child: BlocBuilder<EditNoteBloc, EditNoteState>(
-                buildWhen: (previous, current) {
-                  final t1 = previous.note.title;
-                  final t2 = current.note.title;
-                  return t1 != t2;
-                },
-                builder: (context, state) {
-                  return Text(
-                    state.note.title,
-                    style: context.themeData.textTheme.titleLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  );
-                },
-              ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          return;
+        }
+        if (sheetCtrl.pixels > 0) {
+          sheetCtrl.animateTo(
+            0,
+            duration: const Duration(
+              seconds: 5,
             ),
-          ),
-          actions: [
-            const Padding(
-              padding: EdgeInsets.only(
-                left: 5,
-              ),
-              child: Text(
-                'Saving...',
-              ),
-            ),
-            PopupMenuButton(
-              color: Colors.white,
-              surfaceTintColor: Colors.white,
-              onOpened: () {
-                contentFocus.unfocus();
-              },
-              itemBuilder: (context) {
-                const style = TextStyle(
-                  fontWeight: FontWeight.normal,
-                );
-                return [
-                  PopupMenuItem(
-                    child: const Text(
-                      'Collections',
-                      style: style,
-                    ),
-                    onTap: () async {
-                      await sheetCtrl.animateTo(
-                        1,
-                        duration: const Duration(
-                          milliseconds: 150,
-                        ),
-                        curve: Curves.ease,
-                      );
-                      switch (this.context) {
-                        case BuildContext context when context.mounted:
-                          UiUtils.dismissKeyboard(
-                            context,
-                          );
-                        case _:
-                      }
-                    },
-                  ),
-                  PopupMenuItem(
-                    child: const Text(
-                      'Linked Notes',
-                      style: style,
-                    ),
-                    onTap: () {},
-                  ),
-                  PopupMenuItem(
-                    child: Text(
-                      'Delete',
-                      style: style.copyWith(
-                        color: Colors.red,
-                      ),
-                    ),
-                    onTap: () {
-                      final context = this.context;
-                      UiUtils.showProceedDialog(
-                        title: 'Delete note?',
-                        message: 'You are about to delete this note.'
-                            ' Once deleted its gone forever.'
-                            '\n\nAre you sure you want to proceed?',
-                        context: context,
-                        onYes: () {
-                          logger.i('on yes');
-                          context.pop();
-                          // return;
-                          deleteNote();
-                        },
-                        onNo: () {
-                          logger.i('on no');
-                          context.pop();
-                        },
-                      );
-                    },
-                  ),
-                ];
-              },
-            ),
-          ],
-        ),
-        body: SafeArea(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              QuillEditor(
-                configurations: const QuillEditorConfigurations(
-                  padding: EdgeInsets.all(15),
-                  scrollPhysics: BouncingScrollPhysics(),
+            curve: Curves.linear,
+          );
+          return;
+        }
+        if (contentFocus.hasFocus) {
+          contentFocus.unfocus();
+          return;
+        }
+        if (mounted) {
+          context.pop(
+            result,
+          );
+        }
+      },
+      child: DismissKeyboard(
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: InkWell(
+              onTap: renameNote,
+              borderRadius: BorderRadius.circular(7.5),
+              child: Padding(
+                padding: const EdgeInsets.all(7.5),
+                child: BlocBuilder<EditNoteBloc, EditNoteState>(
+                  buildWhen: (previous, current) {
+                    final t1 = previous.note.title;
+                    final t2 = current.note.title;
+                    return t1 != t2;
+                  },
+                  builder: (context, state) {
+                    return Text(
+                      state.note.title,
+                      style: context.themeData.textTheme.titleLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  },
                 ),
-                focusNode: contentFocus,
-                scrollController: contentScrollCtrl,
-                controller: contentCtrl,
               ),
-              NoteCollectionListSheet(
-                controller: sheetCtrl,
+            ),
+            actions: [
+              const Padding(
+                padding: EdgeInsets.only(
+                  left: 5,
+                ),
+                child: Text(
+                  'Saving...',
+                ),
+              ),
+              PopupMenuButton(
+                color: Colors.white,
+                surfaceTintColor: Colors.white,
+                onOpened: () {
+                  contentFocus.unfocus();
+                },
+                itemBuilder: (context) {
+                  const style = TextStyle(
+                    fontWeight: FontWeight.normal,
+                  );
+                  return [
+                    PopupMenuItem(
+                      child: const Text(
+                        'Collections',
+                        style: style,
+                      ),
+                      onTap: () async {
+                        await sheetCtrl.animateTo(
+                          1,
+                          duration: animationDuration,
+                          curve: Curves.ease,
+                        );
+                        switch (this.context) {
+                          case BuildContext context when context.mounted:
+                            UiUtils.dismissKeyboard(
+                              context,
+                            );
+                          case _:
+                        }
+                      },
+                    ),
+                    PopupMenuItem(
+                      child: const Text(
+                        'Linked Notes',
+                        style: style,
+                      ),
+                      onTap: () {},
+                    ),
+                    PopupMenuItem(
+                      child: Text(
+                        'Delete',
+                        style: style.copyWith(
+                          color: Colors.red,
+                        ),
+                      ),
+                      onTap: () {
+                        final context = this.context;
+                        UiUtils.showProceedDialog(
+                          title: 'Delete note?',
+                          message: 'You are about to delete this note.'
+                              ' Once deleted its gone forever.'
+                              '\n\nAre you sure you want to proceed?',
+                          context: context,
+                          onYes: () {
+                            logger.i('on yes');
+                            context.pop();
+                            // return;
+                            deleteNote();
+                          },
+                          onNo: () {
+                            logger.i('on no');
+                            context.pop();
+                          },
+                        );
+                      },
+                    ),
+                  ];
+                },
               ),
             ],
+          ),
+          body: SafeArea(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                QuillEditor(
+                  configurations: const QuillEditorConfigurations(
+                    padding: EdgeInsets.all(15),
+                    scrollPhysics: BouncingScrollPhysics(),
+                  ),
+                  focusNode: contentFocus,
+                  scrollController: contentScrollCtrl,
+                  controller: contentCtrl,
+                ),
+                NoteCollectionListSheet(
+                  controller: sheetCtrl,
+                ),
+              ],
+            ),
           ),
         ),
       ),

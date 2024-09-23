@@ -72,54 +72,59 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
           },
           builder: (context, state) {
             final collections = state.note.collections;
-            final children = <Widget>[
-              ListView(
-                controller: scrollController,
-                padding: const EdgeInsets.all(15),
-                children: collections.map(
-                  (collection) {
-                    return CollectionListTile(
-                      collection: collection,
-                      onRemoveNote: () {
-                        final collectionTitle = "'${collection.name}'";
-                        UiUtils.showProceedDialog(
-                          title: 'Remove note from collection?',
-                          message: 'You are about to this note from'
-                              ' $collectionTitle.'
-                              '\n\nAre you sure you want to proceed?',
-                          context: context,
-                          onYes: () {
-                            context.pop();
-                            removeFromCollection(
-                              collection,
-                            );
-                          },
-                          onNo: () {
-                            context.pop();
-                          },
-                        );
-                      },
-                    );
-                  },
-                ).toList(),
-              ),
-            ];
-            if (collections case []) {
-              children.add(
-                const Center(
-                  child: NoCollectionsMessage(),
-                ),
-              );
-            }
+            final listView = ListView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(15),
+              children: collections.map(
+                (collection) {
+                  return CollectionListTile(
+                    collection: collection,
+                    onRemoveNote: () {
+                      final collectionTitle = "'${collection.name}'";
+                      UiUtils.showProceedDialog(
+                        title: 'Remove note from collection?',
+                        message: 'You are about to this note from'
+                            ' $collectionTitle.'
+                            '\n\nAre you sure you want to proceed?',
+                        context: context,
+                        onYes: () {
+                          context.pop();
+                          removeFromCollection(
+                            collection,
+                          );
+                        },
+                        onNo: () {
+                          context.pop();
+                        },
+                      );
+                    },
+                  );
+                },
+              ).toList(),
+            );
             return DecoratedBox(
               decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(15),
-                ),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    spreadRadius: 2.5,
+                    blurRadius: 2.5,
+                    offset: Offset(0, -1),
+                  ),
+                ],
               ),
-              child: Stack(
-                children: children,
-              ),
+              child: switch (collections) {
+                [] => Stack(
+                    children: [
+                      listView,
+                      const Center(
+                        child: NoCollectionsMessage(),
+                      ),
+                    ],
+                  ),
+                _ => listView,
+              },
             );
           },
         );

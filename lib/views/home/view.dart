@@ -185,17 +185,17 @@ class _HomePageState extends State<HomePage>
   ) async {
     collectionNameCtrl.clear();
     final title = switch (collection) {
-      NoteCollectionEntity collection when collection.id > 0 => () {
+      NoteCollectionEntity(id: 0) => () {
+          return 'New collection';
+        },
+      NoteCollectionEntity(:final name) => () {
           collectionNameCtrl
-            ..text = collection.name
+            ..text = name
             ..selection = TextSelection(
               baseOffset: 0,
-              extentOffset: collection.name.length,
+              extentOffset: name.length,
             );
           return 'Edit title';
-        },
-      _ => () {
-          return 'New collection';
         },
     }();
     await UiUtils.showEditTitleDialog(
@@ -203,21 +203,19 @@ class _HomePageState extends State<HomePage>
       context: context,
       titleCtrl: collectionNameCtrl,
       onOk: () async {
-        switch (collectionNameFormKey.currentState?.validate()) {
-          case true:
-            await db.store.then(
-              (value) {
-                value.box<NoteCollectionEntity>().put(
-                      collection.copyWith(
-                        name: collectionNameCtrl.text.trim(),
-                      ),
-                    );
-              },
-            );
-            if (mounted) {
-              context.pop();
-            }
-          case _:
+        if (collectionNameFormKey.currentState?.validate() case true) {
+          await db.store.then(
+            (value) {
+              value.box<NoteCollectionEntity>().put(
+                    collection.copyWith(
+                      name: collectionNameCtrl.text.trim(),
+                    ),
+                  );
+            },
+          );
+          if (mounted) {
+            context.pop();
+          }
         }
       },
       onCancel: () {
@@ -658,9 +656,6 @@ class _HomePageState extends State<HomePage>
                                         },
                                       );
                                     },
-                                    // child: Text(
-                                    //   e.name,
-                                    // ),
                                   ),
                                 );
                               },
