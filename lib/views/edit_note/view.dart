@@ -34,7 +34,7 @@ class _EditNoteState extends State<EditNote> {
   );
 
   static const animationDuration = Duration(
-    milliseconds: 150,
+    milliseconds: 250,
   );
 
   final db = ObjectBoxDB();
@@ -251,10 +251,8 @@ class _EditNoteState extends State<EditNote> {
         if (sheetCtrl.pixels > 0) {
           sheetCtrl.animateTo(
             0,
-            duration: const Duration(
-              seconds: 5,
-            ),
-            curve: Curves.linear,
+            duration: animationDuration,
+            curve: Curves.ease,
           );
           return;
         }
@@ -357,13 +355,10 @@ class _EditNoteState extends State<EditNote> {
                               '\n\nAre you sure you want to proceed?',
                           context: context,
                           onYes: () {
-                            logger.i('on yes');
                             context.pop();
-                            // return;
                             deleteNote();
                           },
                           onNo: () {
-                            logger.i('on no');
                             context.pop();
                           },
                         );
