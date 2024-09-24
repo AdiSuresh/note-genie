@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/data/objectbox_db.dart';
+import 'package:note_maker/models/note/extensions.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
@@ -15,6 +15,7 @@ import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
 import 'package:note_maker/views/edit_note/widgets/note_collection_list_sheet.dart';
+import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class EditNote extends StatefulWidget {
@@ -72,10 +73,9 @@ class _EditNoteState extends State<EditNote> {
         logger.d(
           'updating document...',
         );
-        final note = await saveContent();
         bloc.add(
-          UpdateNoteEvent(
-            note: note,
+          UpdateContentEvent(
+            document: contentCtrl.document,
           ),
         );
       },
@@ -111,42 +111,6 @@ class _EditNoteState extends State<EditNote> {
     );
   }
 
-  Future<NoteEntity> saveContent() async {
-    return saveNote(
-      note.copyWith(
-        content: jsonEncode(
-          contentCtrl.document.toDelta().toJson(),
-        ),
-      ),
-    );
-  }
-
-  Future<NoteEntity> saveTitle() async {
-    final title = switch (titleCtrl.text.trim()) {
-      '' => 'Untitled',
-      final s => s,
-    };
-    return saveNote(
-      note.copyWith(
-        title: title,
-      ),
-    );
-  }
-
-  Future<NoteEntity> saveNote(
-    NoteEntity note,
-  ) async {
-    return db.store.then(
-      (value) {
-        return note.copyWith(
-          id: value.box<NoteEntity>().put(
-                note,
-              ),
-        );
-      },
-    );
-  }
-
   void renameNote() {
     titleCtrl.text = note.title;
     titleCtrl.selection = TextSelection(
@@ -160,15 +124,12 @@ class _EditNoteState extends State<EditNote> {
       onOk: () async {
         switch (titleFormKey.currentState?.validate()) {
           case true:
-            final note = await saveTitle();
-            if (mounted) {
-              context.pop();
-            }
             bloc.add(
-              UpdateNoteEvent(
-                note: note,
+              UpdateTitleEvent(
+                title: titleCtrl.text,
               ),
             );
+            context.pop();
           case _:
         }
       },
@@ -217,15 +178,11 @@ class _EditNoteState extends State<EditNote> {
   Future<void> removeFromCollection(
     NoteCollectionEntity collection,
   ) async {
-    note.collections
-      ..removeWhere(
-        (element) {
-          return element.id == collection.id;
-        },
-      )
-      ..applyToDb();
+    note.removeFromCollection(
+      collection.id,
+    );
     bloc.add(
-      UpdateNoteEvent(
+      SaveNoteEvent(
         note: note,
       ),
     );
@@ -293,12 +250,24 @@ class _EditNoteState extends State<EditNote> {
               ),
             ),
             actions: [
-              const Padding(
-                padding: EdgeInsets.only(
+              Padding(
+                padding: const EdgeInsets.only(
                   left: 5,
                 ),
-                child: Text(
-                  'Saving...',
+                child: BlocBuilder<EditNoteBloc, EditNoteState>(
+                  buildWhen: (previous, current) {
+                    return previous.noteStatus != current.noteStatus;
+                  },
+                  builder: (context, state) {
+                    return CustomAnimatedSwitcher(
+                      child: Text(
+                        key: ValueKey(
+                          state.noteStatus,
+                        ),
+                        state.noteStatus.message,
+                      ),
+                    );
+                  },
                 ),
               ),
               PopupMenuButton(
@@ -324,7 +293,7 @@ class _EditNoteState extends State<EditNote> {
                           curve: Curves.ease,
                         );
                         switch (this.context) {
-                          case BuildContext context when context.mounted:
+                          case final BuildContext context when context.mounted:
                             UiUtils.dismissKeyboard(
                               context,
                             );
