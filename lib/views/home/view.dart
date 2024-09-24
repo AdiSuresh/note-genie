@@ -204,15 +204,12 @@ class _HomePageState extends State<HomePage>
       titleCtrl: collectionNameCtrl,
       onOk: () async {
         if (collectionNameFormKey.currentState?.validate() case true) {
-          await db.store.then(
-            (value) {
-              value.box<NoteCollectionEntity>().put(
-                    collection.copyWith(
-                      name: collectionNameCtrl.text.trim(),
-                    ),
-                  );
-            },
-          );
+          final store = await db.store;
+          store.box<NoteCollectionEntity>().put(
+                collection.copyWith(
+                  name: collectionNameCtrl.text.trim(),
+                ),
+              );
           if (mounted) {
             context.pop();
           }

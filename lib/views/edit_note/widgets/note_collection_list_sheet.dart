@@ -38,7 +38,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
       )
       ..applyToDb();
     bloc.add(
-      UpdateNoteEvent(
+      SaveNoteEvent(
         note: note,
       ),
     );

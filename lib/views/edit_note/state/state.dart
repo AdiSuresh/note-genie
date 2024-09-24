@@ -1,16 +1,27 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:note_maker/models/note/model.dart';
-import 'package:note_maker/models/note_collection/model.dart';
 
 part 'state.g.dart';
+
+enum EditNoteStatus {
+  initial(''),
+  saving('Saving...'),
+  saved('Saved');
+
+  final String message;
+
+  const EditNoteStatus(
+    this.message,
+  );
+}
 
 @CopyWith()
 class EditNoteState {
   final NoteEntity note;
-  final List<NoteCollectionEntity> noteCollections;
+  final EditNoteStatus noteStatus;
 
-  EditNoteState({
+  const EditNoteState({
     required this.note,
-    required this.noteCollections,
+    this.noteStatus = EditNoteStatus.initial,
   });
 }
