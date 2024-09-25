@@ -27,19 +27,12 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
   EditNoteBloc get bloc => context.read<EditNoteBloc>();
   NoteEntity get note => bloc.state.note;
 
-  Future<void> removeFromCollection(
+  void removeFromCollection(
     NoteCollectionEntity collection,
-  ) async {
-    note.collections
-      ..removeWhere(
-        (element) {
-          return element.id == collection.id;
-        },
-      )
-      ..applyToDb();
+  ) {
     bloc.add(
-      SaveNoteEvent(
-        note: note,
+      RemoveFromCollectionEvent(
+        collectionId: collection.id,
       ),
     );
     final noteTitle = "'${note.title}'";
@@ -66,8 +59,8 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
       builder: (context, scrollController) {
         return BlocBuilder<EditNoteBloc, EditNoteState>(
           buildWhen: (previous, current) {
-            final l1 = previous.note.collections;
-            final l2 = current.note.collections;
+            final l1 = previous.note.collections.length;
+            final l2 = current.note.collections.length;
             return l1 != l2;
           },
           builder: (context, state) {

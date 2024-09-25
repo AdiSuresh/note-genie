@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:note_maker/models/note/extensions.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/repository.dart';
@@ -15,7 +16,7 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
     required this.repository,
   }) {
     on<UpdateTitleEvent>(
-      (event, emit) async {
+      (event, emit) {
         emit(
           state.copyWith(
             noteStatus: EditNoteStatus.saving,
@@ -36,7 +37,7 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
       },
     );
     on<UpdateContentEvent>(
-      (event, emit) async {
+      (event, emit) {
         final content = jsonEncode(
           event.document.toDelta().toJson(),
         );
@@ -63,8 +64,21 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
         );
       },
     );
-    on<UpdateCollectionsEvent>(
+    on<AddToCollectionEvent>(
       (event, emit) {
+        state.note.addToCollection(
+          event.collection,
+        );
+        emit(
+          state.copyWith(),
+        );
+      },
+    );
+    on<RemoveFromCollectionEvent>(
+      (event, emit) {
+        state.note.removeFromCollection(
+          event.collectionId,
+        );
         emit(
           state.copyWith(),
         );
