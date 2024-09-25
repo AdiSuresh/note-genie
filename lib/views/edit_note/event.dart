@@ -9,7 +9,7 @@ sealed class EditNoteEvent {
 class SaveNoteEvent extends EditNoteEvent {
   final NoteEntity note;
 
-  const SaveNoteEvent({
+  SaveNoteEvent({
     required this.note,
   });
 }
@@ -30,10 +30,26 @@ class UpdateContentEvent extends EditNoteEvent {
   });
 }
 
-class UpdateCollectionsEvent extends EditNoteEvent {
-  final List<NoteCollectionEntity> noteCollections;
+class RemoveFromCollectionEvent extends EditNoteEvent {
+  final int collectionId;
 
-  UpdateCollectionsEvent({
-    required this.noteCollections,
+  RemoveFromCollectionEvent({
+    required this.collectionId,
   });
+}
+
+class AddToCollectionEvent extends EditNoteEvent {
+  final NoteCollectionEntity collection;
+
+  AddToCollectionEvent({
+    required this.collection,
+  });
+}
+
+class ViewCollectionsEvent extends EditNoteEvent {
+  const ViewCollectionsEvent();
+}
+
+class ViewUnlinkedCollectionsEvent extends EditNoteEvent {
+  const ViewUnlinkedCollectionsEvent();
 }

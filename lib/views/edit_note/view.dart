@@ -5,9 +5,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/data/objectbox_db.dart';
-import 'package:note_maker/models/note/extensions.dart';
 import 'package:note_maker/models/note/model.dart';
-import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
@@ -175,33 +173,11 @@ class _EditNoteState extends State<EditNote> {
     }
   }
 
-  Future<void> removeFromCollection(
-    NoteCollectionEntity collection,
-  ) async {
-    note.removeFromCollection(
-      collection.id,
-    );
-    bloc.add(
-      SaveNoteEvent(
-        note: note,
-      ),
-    );
-    final noteTitle = "'${note.title}'";
-    final collectionTitle = "'${collection.name}'";
-    final content = '$noteTitle was removed from $collectionTitle';
-    if (mounted) {
-      UiUtils.showSnackbar(
-        context,
-        content: content,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
           return;
         }
@@ -215,6 +191,14 @@ class _EditNoteState extends State<EditNote> {
         }
         if (contentFocus.hasFocus) {
           contentFocus.unfocus();
+          await Future.delayed(
+            const Duration(
+              milliseconds: 50,
+            ),
+          );
+          if (context.mounted) {
+            UiUtils.dismissKeyboard(context);
+          }
           return;
         }
         if (mounted) {
@@ -287,18 +271,11 @@ class _EditNoteState extends State<EditNote> {
                         style: style,
                       ),
                       onTap: () async {
-                        await sheetCtrl.animateTo(
+                        sheetCtrl.animateTo(
                           1,
                           duration: animationDuration,
                           curve: Curves.ease,
                         );
-                        switch (this.context) {
-                          case final BuildContext context when context.mounted:
-                            UiUtils.dismissKeyboard(
-                              context,
-                            );
-                          case _:
-                        }
                       },
                     ),
                     PopupMenuItem(

@@ -12,37 +12,33 @@ extension NoteCollectionExtension on NoteEntity {
     );
   }
 
-  void removeFromCollection(
-    int collectionId,
-  ) {
-    final i = _findIndex(
-      collectionId,
-    );
-    switch (i) {
-      case > -1:
-        collections
-          ..removeAt(
-            i,
-          )
-          ..applyToDb();
-      case _:
-    }
-  }
-
   void addToCollection(
     NoteCollectionEntity collection,
   ) {
     final i = _findIndex(
       collection.id,
     );
-    switch (i) {
-      case -1:
-        collections
-          ..add(
-            collection,
-          )
-          ..applyToDb();
-      case _:
+    if (i == -1) {
+      collections
+        ..add(
+          collection,
+        )
+        ..applyToDb();
+    }
+  }
+
+  void removeFromCollection(
+    int collectionId,
+  ) {
+    final i = _findIndex(
+      collectionId,
+    );
+    if (i > -1) {
+      collections
+        ..removeAt(
+          i,
+        )
+        ..applyToDb();
     }
   }
 }

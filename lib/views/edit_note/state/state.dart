@@ -19,9 +19,11 @@ enum EditNoteStatus {
 class EditNoteState {
   final NoteEntity note;
   final EditNoteStatus noteStatus;
+  final bool viewCollections;
 
   const EditNoteState({
     required this.note,
     this.noteStatus = EditNoteStatus.initial,
+    this.viewCollections = true,
   });
 }
