@@ -6,6 +6,7 @@ class CollectionListTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onAddNote;
   final VoidCallback? onRemoveNote;
 
   const CollectionListTile({
@@ -14,6 +15,7 @@ class CollectionListTile extends StatelessWidget {
     this.onTap,
     this.onEdit,
     this.onDelete,
+    this.onAddNote,
     this.onRemoveNote,
   });
 
@@ -54,6 +56,14 @@ class CollectionListTile extends StatelessWidget {
                         onPressed: onDelete,
                         icon: const Icon(
                           Icons.delete_outlined,
+                        ),
+                      ),
+                    if (onAddNote != null)
+                      IconButton(
+                        tooltip: 'Add to collection',
+                        onPressed: onAddNote,
+                        icon: const Icon(
+                          Icons.add_circle_outline,
                         ),
                       ),
                     if (onRemoveNote != null)

@@ -3,7 +3,7 @@ import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 
 sealed class EditNoteEvent {
-  EditNoteEvent();
+  const EditNoteEvent();
 }
 
 class SaveNoteEvent extends EditNoteEvent {
@@ -44,4 +44,12 @@ class AddToCollectionEvent extends EditNoteEvent {
   AddToCollectionEvent({
     required this.collection,
   });
+}
+
+class ViewCollectionsEvent extends EditNoteEvent {
+  const ViewCollectionsEvent();
+}
+
+class ViewUnlinkedCollectionsEvent extends EditNoteEvent {
+  const ViewUnlinkedCollectionsEvent();
 }

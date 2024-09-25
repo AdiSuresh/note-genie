@@ -58,6 +58,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
       snap: true,
       builder: (context, scrollController) {
         return BlocBuilder<EditNoteBloc, EditNoteState>(
+          bloc: context.watch<EditNoteBloc>(),
           buildWhen: (previous, current) {
             final l1 = previous.note.collections.length;
             final l2 = current.note.collections.length;
@@ -65,35 +66,57 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
           },
           builder: (context, state) {
             final collections = state.note.collections;
-            final listView = ListView(
-              controller: scrollController,
-              padding: const EdgeInsets.all(15),
-              children: collections.map(
-                (collection) {
-                  return CollectionListTile(
-                    collection: collection,
-                    onRemoveNote: () {
-                      final collectionTitle = "'${collection.name}'";
-                      UiUtils.showProceedDialog(
-                        title: 'Remove note from collection?',
-                        message: 'You are about to this note from'
-                            ' $collectionTitle.'
-                            '\n\nAre you sure you want to proceed?',
-                        context: context,
-                        onYes: () {
-                          context.pop();
-                          removeFromCollection(
-                            collection,
+            final listView = BlocBuilder<EditNoteBloc, EditNoteState>(
+              bloc: context.watch<EditNoteBloc>(),
+              buildWhen: (previous, current) {
+                return previous.viewCollections ^ current.viewCollections;
+              },
+              builder: (context, state) {
+                return switch (state.viewCollections) {
+                  true => ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(15),
+                      children: collections.map(
+                        (collection) {
+                          return CollectionListTile(
+                            collection: collection,
+                            onRemoveNote: () {
+                              final collectionTitle = "'${collection.name}'";
+                              UiUtils.showProceedDialog(
+                                title: 'Remove note from collection?',
+                                message: 'You are about to this note from'
+                                    ' $collectionTitle.'
+                                    '\n\nAre you sure you want to proceed?',
+                                context: context,
+                                onYes: () {
+                                  context.pop();
+                                  removeFromCollection(
+                                    collection,
+                                  );
+                                },
+                                onNo: () {
+                                  context.pop();
+                                },
+                              );
+                            },
                           );
                         },
-                        onNo: () {
-                          context.pop();
+                      ).toList(),
+                    ),
+                  _ => ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(15),
+                      children: collections.map(
+                        (collection) {
+                          return CollectionListTile(
+                            collection: collection,
+                            onAddNote: () {},
+                          );
                         },
-                      );
-                    },
-                  );
-                },
-              ).toList(),
+                      ).toList(),
+                    ),
+                };
+              },
             );
             return DecoratedBox(
               decoration: const BoxDecoration(
