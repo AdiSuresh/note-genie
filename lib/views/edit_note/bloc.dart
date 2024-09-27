@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
 import 'package:note_maker/models/note/extensions.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/edit_note/event.dart';
@@ -65,12 +65,17 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
       },
     );
     on<AddToCollectionEvent>(
-      (event, emit) {
+      (event, emit) async {
         state.note.addToCollection(
           event.collection,
         );
+        final unlinkedCollections = await repository.getUnlinkedCollections(
+          state.note.collections,
+        );
         emit(
-          state.copyWith(),
+          state.copyWith(
+            unlinkedCollections: unlinkedCollections,
+          ),
         );
       },
     );
@@ -81,6 +86,28 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
         );
         emit(
           state.copyWith(),
+        );
+      },
+    );
+    on<ViewCollectionsEvent>(
+      (event, emit) {
+        emit(
+          state.copyWith(
+            viewCollections: true,
+          ),
+        );
+      },
+    );
+    on<ViewUnlinkedCollectionsEvent>(
+      (event, emit) async {
+        final unlinkedCollections = await repository.getUnlinkedCollections(
+          state.note.collections,
+        );
+        emit(
+          state.copyWith(
+            viewCollections: false,
+            unlinkedCollections: unlinkedCollections,
+          ),
         );
       },
     );

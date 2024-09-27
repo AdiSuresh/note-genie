@@ -144,17 +144,17 @@ class _HomePageState extends State<HomePage>
     stopNotesSub();
     final store = await db.store;
     final builder = store.box<NoteEntity>().query();
-    final query = switch (bloc.state.currentCollection) {
-      NoteCollectionEntity c when c.id > 0 => builder
-        ..backlinkMany(
+    switch (bloc.state.currentCollection) {
+      case NoteCollectionEntity c when c.id > 0:
+        builder.backlinkMany(
           NoteCollectionEntity_.notes,
           NoteCollectionEntity_.id.equals(
             c.id,
           ),
-        ),
-      _ => builder,
-    };
-    notesSub = query
+        );
+      case _:
+    }
+    notesSub = builder
         .watch(
           triggerImmediately: true,
         )
