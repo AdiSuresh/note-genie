@@ -5,15 +5,6 @@ import 'package:objectbox/objectbox.dart';
 
 part 'model.g.dart';
 
-@CopyWith()
-class NoteCollection {
-  final String name;
-
-  const NoteCollection({
-    required this.name,
-  });
-}
-
 @Entity()
 @CopyWith()
 class NoteCollectionEntity implements BaseEntity {

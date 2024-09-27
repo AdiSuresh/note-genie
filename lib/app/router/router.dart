@@ -49,6 +49,7 @@ class AppRouter {
                   return EditNoteBloc(
                     EditNoteState(
                       note: note,
+                      unlinkedCollections: [],
                     ),
                     repository: context.read<EditNoteRepository>(),
                   );

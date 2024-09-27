@@ -190,15 +190,12 @@ class _EditNoteState extends State<EditNote> {
           return;
         }
         if (contentFocus.hasFocus) {
-          contentFocus.unfocus();
           await Future.delayed(
             const Duration(
               milliseconds: 50,
             ),
           );
-          if (context.mounted) {
-            UiUtils.dismissKeyboard(context);
-          }
+          contentFocus.unfocus();
           return;
         }
         if (mounted) {

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 
 class NoCollectionsMessage extends StatelessWidget {
+  final String? message;
+
   const NoCollectionsMessage({
     super.key,
+    this.message,
   });
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(
+    return Padding(
+      padding: const EdgeInsets.symmetric(
         horizontal: 15,
       ),
       child: Text(
-        'No collections yet',
+        message ?? 'No collections yet',
       ),
     );
   }
