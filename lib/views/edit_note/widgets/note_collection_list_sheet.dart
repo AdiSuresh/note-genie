@@ -130,10 +130,15 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
                     true => (() => removeFromCollection(collection), null),
                     _ => (null, () => addToCollection(collection)),
                   };
-                  return CollectionListTile(
-                    collection: collection,
-                    onRemoveNote: removeNote,
-                    onAddNote: addNote,
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 15,
+                    ),
+                    child: CollectionListTile(
+                      collection: collection,
+                      onRemoveNote: removeNote,
+                      onAddNote: addNote,
+                    ),
                   );
                 },
               ),
