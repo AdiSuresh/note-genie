@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/data/objectbox_db.dart';
+import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
@@ -12,7 +12,6 @@ import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
-import 'package:note_maker/views/edit_note/widgets/edit_note_fab.dart';
 import 'package:note_maker/views/edit_note/widgets/note_collection_list_sheet.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
@@ -332,7 +331,6 @@ class _EditNoteState extends State<EditNote> {
               ],
             ),
           ),
-          floatingActionButton: const EditNoteFab(),
         ),
       ),
     );

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
-import 'package:note_maker/data/objectbox_db.dart';
+import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
@@ -280,6 +280,7 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final bloc = context.watch<HomeBloc>();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -291,7 +292,7 @@ class _HomePageState extends State<HomePage>
               child: Row(
                 children: [
                   BlocBuilder<HomeBloc, HomeState>(
-                    bloc: context.watch<HomeBloc>(),
+                    bloc: bloc,
                     buildWhen: (previous, current) {
                       return previous.showNotes != current.showNotes;
                     },
@@ -366,7 +367,7 @@ class _HomePageState extends State<HomePage>
                   Column(
                     children: [
                       BlocBuilder<HomeBloc, HomeState>(
-                        bloc: context.watch<HomeBloc>(),
+                        bloc: bloc,
                         buildWhen: (prev, curr) {
                           final result = [
                             prev.noteCollections != curr.noteCollections,
@@ -491,7 +492,7 @@ class _HomePageState extends State<HomePage>
                       ),
                       Expanded(
                         child: BlocBuilder<HomeBloc, HomeState>(
-                          bloc: context.watch<HomeBloc>(),
+                          bloc: bloc,
                           buildWhen: (previous, current) {
                             return previous.notes != current.notes;
                           },
@@ -551,7 +552,7 @@ class _HomePageState extends State<HomePage>
                     ],
                   ),
                   BlocBuilder<HomeBloc, HomeState>(
-                    bloc: context.watch<HomeBloc>(),
+                    bloc: bloc,
                     buildWhen: (previous, current) {
                       return previous.noteCollections !=
                           current.noteCollections;

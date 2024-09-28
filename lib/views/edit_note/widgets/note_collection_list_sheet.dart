@@ -67,7 +67,6 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
   void addToCollection(
     NoteCollectionEntity collection,
   ) {
-    Icons.playlist_add;
     bloc.add(
       AddToCollectionEvent(
         collection: collection,
@@ -108,6 +107,15 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
                 style: context.themeData.textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
+              if (collections.isEmpty)
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height * 0.25,
+                  ),
+                  child: const Center(
+                    child: NoCollectionsMessage(),
+                  ),
+                ),
               ...collections.map(
                 (collection) {
                   final (removeNote, addNote) = switch (state.viewCollections) {
@@ -140,15 +148,42 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
               padding: const EdgeInsets.all(15),
               children: listViewChildren,
             );
+            final (tooltip, label, iconData) = switch (state.viewCollections) {
+              true => ('Add to collection', 'Add', Icons.playlist_add),
+              _ => ('View collections', 'View', Icons.view_list_rounded),
+            };
+            final fab = FloatingActionButton.extended(
+              heroTag: null,
+              tooltip: tooltip,
+              label: Text(
+                label,
+              ),
+              icon: Icon(
+                iconData,
+              ),
+              onPressed: () {
+                final event = switch (state.viewCollections) {
+                  true => const ViewUnlinkedCollectionsEvent(),
+                  _ => const ViewCollectionsEvent(),
+                };
+                bloc.add(
+                  event,
+                );
+              },
+            );
             return Stack(
               children: [
                 CustomAnimatedSwitcher(
                   child: listView,
                 ),
-                if (collections.isEmpty)
-                  const Center(
-                    child: NoCollectionsMessage(),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 15,
+                  child: Center(
+                    child: fab,
                   ),
+                ),
               ],
             );
           },
