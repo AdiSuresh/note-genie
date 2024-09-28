@@ -181,7 +181,7 @@ class _EditNoteState extends State<EditNote> {
         if (didPop) {
           return;
         }
-        if (sheetCtrl.pixels > 0) {
+        if (bloc.state.isSheetOpen) {
           sheetCtrl.animateTo(
             0,
             duration: animationDuration,
@@ -330,7 +330,7 @@ class _EditNoteState extends State<EditNote> {
                         notification: notification,
                       ),
                     );
-                    return false;
+                    return true;
                   },
                   child: NoteCollectionListSheet(
                     controller: sheetCtrl,

@@ -121,7 +121,7 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
       (event, emit) {
         final previous = state.isSheetOpen;
         final next = switch (event.notification) {
-          DraggableScrollableNotification(extent: == 0) => false,
+          DraggableScrollableNotification(extent: < 0.01) => false,
           _ => true,
         };
         if (previous ^ next) {

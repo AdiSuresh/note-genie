@@ -188,19 +188,31 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
             );
           },
         );
-        return DecoratedBox(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                spreadRadius: 2.5,
-                blurRadius: 2.5,
-                offset: Offset(0, -1),
+        return BlocBuilder<EditNoteBloc, EditNoteState>(
+          bloc: context.watch<EditNoteBloc>(),
+          buildWhen: (previous, current) {
+            return previous.isSheetOpen ^ current.isSheetOpen;
+          },
+          builder: (context, state) {
+            final boxShadow = switch (state.isSheetOpen) {
+              true => [
+                  const BoxShadow(
+                    color: Colors.black12,
+                    spreadRadius: 2.5,
+                    blurRadius: 2.5,
+                    offset: Offset(0, -1),
+                  ),
+                ],
+              _ => null,
+            };
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: boxShadow,
               ),
-            ],
-          ),
-          child: builder,
+              child: builder,
+            );
+          },
         );
       },
     );
