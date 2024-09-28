@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
@@ -66,6 +67,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
   void addToCollection(
     NoteCollectionEntity collection,
   ) {
+    Icons.playlist_add;
     bloc.add(
       AddToCollectionEvent(
         collection: collection,
@@ -96,33 +98,15 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
             ].or();
           },
           builder: (context, state) {
-            final collections = switch (state.viewCollections) {
-              true => state.note.collections,
-              _ => state.unlinkedCollections,
+            final (viewTitle, collections) = switch (state.viewCollections) {
+              true => ('Found in...', state.note.collections),
+              _ => ('Add to...', state.unlinkedCollections),
             };
-            print('current collection list: $collections');
-            final viewKey = ValueKey(
-              'view-collections:${state.viewCollections}',
-            );
             final listViewChildren = <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      final event = switch (state.viewCollections) {
-                        true => const ViewUnlinkedCollectionsEvent(),
-                        _ => const ViewCollectionsEvent(),
-                      };
-                      bloc.add(
-                        event,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.switch_right_rounded,
-                    ),
-                  ),
-                ],
+              Text(
+                viewTitle,
+                style: context.themeData.textTheme.titleLarge,
+                textAlign: TextAlign.center,
               ),
               ...collections.map(
                 (collection) {
@@ -130,19 +114,26 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
                     true => (() => removeFromCollection(collection), null),
                     _ => (null, () => addToCollection(collection)),
                   };
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 15,
-                    ),
-                    child: CollectionListTile(
-                      collection: collection,
-                      onRemoveNote: removeNote,
-                      onAddNote: addNote,
-                    ),
+                  return CollectionListTile(
+                    collection: collection,
+                    onRemoveNote: removeNote,
+                    onAddNote: addNote,
                   );
                 },
               ),
-            ];
+            ].map(
+              (e) {
+                return Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 15,
+                  ),
+                  child: e,
+                );
+              },
+            ).toList();
+            final viewKey = ValueKey(
+              'view-collections:${state.viewCollections}',
+            );
             final listView = ListView(
               key: viewKey,
               controller: scrollController,

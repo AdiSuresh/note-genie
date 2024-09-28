@@ -12,6 +12,7 @@ import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
+import 'package:note_maker/views/edit_note/widgets/edit_note_fab.dart';
 import 'package:note_maker/views/edit_note/widgets/note_collection_list_sheet.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
@@ -331,6 +332,7 @@ class _EditNoteState extends State<EditNote> {
               ],
             ),
           ),
+          floatingActionButton: const EditNoteFab(),
         ),
       ),
     );

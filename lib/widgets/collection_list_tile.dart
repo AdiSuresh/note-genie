@@ -23,64 +23,52 @@ class CollectionListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final borderRadius = BorderRadius.circular(15);
-    return Tooltip(
-      message: 'Show notes in ${collection.name}',
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: borderRadius,
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  collection.name,
-                  style: textTheme.titleMedium,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (onEdit != null)
-                      IconButton(
-                        tooltip: 'Edit title',
-                        onPressed: onEdit,
-                        icon: const Icon(
-                          Icons.edit_outlined,
-                        ),
-                      ),
-                    if (onDelete != null)
-                      IconButton(
-                        tooltip: 'Delete collection',
-                        onPressed: onDelete,
-                        icon: const Icon(
-                          Icons.delete_outlined,
-                        ),
-                      ),
-                    if (onAddNote != null)
-                      IconButton(
-                        tooltip: 'Add to collection',
-                        onPressed: onAddNote,
-                        icon: const Icon(
-                          Icons.add_circle_outline,
-                        ),
-                      ),
-                    if (onRemoveNote != null)
-                      IconButton(
-                        tooltip: 'Remove from collection',
-                        onPressed: onRemoveNote,
-                        icon: const Icon(
-                          Icons.remove_circle_outline,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
+    final actionButtonData = [
+      ('Edit title', onEdit, Icons.edit_outlined),
+      ('Delete collection', onDelete, Icons.delete_outlined),
+      ('Add to collection', onAddNote, Icons.add_circle_outline),
+      ('Remove from collection', onRemoveNote, Icons.remove_circle_outline),
+    ];
+    final actionButtons = [
+      for (final (tooltip, onPressed, icon) in actionButtonData)
+        if (onPressed != null)
+          IconButton(
+            tooltip: tooltip,
+            onPressed: onPressed,
+            icon: Icon(
+              icon,
             ),
+          ),
+    ];
+    final card = Card(
+      margin: EdgeInsets.zero,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: borderRadius,
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                collection.name,
+                style: textTheme.titleMedium,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: actionButtons,
+              ),
+            ],
           ),
         ),
       ),
+    );
+    if (onTap == null) {
+      return card;
+    }
+    return Tooltip(
+      message: 'Show notes in ${collection.name}',
+      child: card,
     );
   }
 }
