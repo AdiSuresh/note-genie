@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:note_maker/data/objectbox_db.dart';
+import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
@@ -34,7 +34,9 @@ class EditNoteRepository {
       (element) {
         return element.id;
       },
-    ).toList();
+    ).toList(
+      growable: false,
+    );
     final box = await noteCollectionBox;
     final query = box
         .query(

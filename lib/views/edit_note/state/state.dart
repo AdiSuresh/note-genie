@@ -21,12 +21,14 @@ class EditNoteState {
   final NoteEntity note;
   final EditNoteStatus noteStatus;
   final bool viewCollections;
+  final bool isSheetOpen;
   final List<NoteCollectionEntity> unlinkedCollections;
 
   const EditNoteState({
     required this.note,
     this.noteStatus = EditNoteStatus.initial,
     this.viewCollections = true,
+    this.isSheetOpen = false,
     required this.unlinkedCollections,
   });
 }

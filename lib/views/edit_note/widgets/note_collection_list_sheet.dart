@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
@@ -96,34 +97,25 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
             ].or();
           },
           builder: (context, state) {
-            final collections = switch (state.viewCollections) {
-              true => state.note.collections,
-              _ => state.unlinkedCollections,
+            final (viewTitle, collections) = switch (state.viewCollections) {
+              true => ('Found in...', state.note.collections),
+              _ => ('Add to...', state.unlinkedCollections),
             };
-            print('current collection list: $collections');
-            final viewKey = ValueKey(
-              'view-collections:${state.viewCollections}',
-            );
             final listViewChildren = <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      final event = switch (state.viewCollections) {
-                        true => const ViewUnlinkedCollectionsEvent(),
-                        _ => const ViewCollectionsEvent(),
-                      };
-                      bloc.add(
-                        event,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.switch_right_rounded,
-                    ),
-                  ),
-                ],
+              Text(
+                viewTitle,
+                style: context.themeData.textTheme.titleLarge,
+                textAlign: TextAlign.center,
               ),
+              if (collections.isEmpty)
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height * 0.30,
+                  ),
+                  child: const Center(
+                    child: NoCollectionsMessage(),
+                  ),
+                ),
               ...collections.map(
                 (collection) {
                   final (removeNote, addNote) = switch (state.viewCollections) {
@@ -137,39 +129,90 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
                   );
                 },
               ),
-            ];
+            ].map(
+              (e) {
+                return Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 15,
+                  ),
+                  child: e,
+                );
+              },
+            ).toList();
+            final viewKey = ValueKey(
+              'view-collections:${state.viewCollections}',
+            );
             final listView = ListView(
               key: viewKey,
               controller: scrollController,
               padding: const EdgeInsets.all(15),
               children: listViewChildren,
             );
+            final (tooltip, label, iconData) = switch (state.viewCollections) {
+              true => ('Add to collection', 'Add', Icons.playlist_add),
+              _ => ('View collections', 'View', Icons.view_list_rounded),
+            };
+            final fab = FloatingActionButton.extended(
+              heroTag: null,
+              tooltip: tooltip,
+              label: Text(
+                label,
+              ),
+              icon: Icon(
+                iconData,
+              ),
+              onPressed: () {
+                final event = switch (state.viewCollections) {
+                  true => const ViewUnlinkedCollectionsEvent(),
+                  _ => const ViewCollectionsEvent(),
+                };
+                bloc.add(
+                  event,
+                );
+              },
+            );
             return Stack(
               children: [
                 CustomAnimatedSwitcher(
                   child: listView,
                 ),
-                if (collections.isEmpty)
-                  const Center(
-                    child: NoCollectionsMessage(),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 15,
+                  child: Center(
+                    child: fab,
                   ),
+                ),
               ],
             );
           },
         );
-        return DecoratedBox(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                spreadRadius: 2.5,
-                blurRadius: 2.5,
-                offset: Offset(0, -1),
+        return BlocBuilder<EditNoteBloc, EditNoteState>(
+          bloc: context.watch<EditNoteBloc>(),
+          buildWhen: (previous, current) {
+            return previous.isSheetOpen ^ current.isSheetOpen;
+          },
+          builder: (context, state) {
+            final boxShadow = switch (state.isSheetOpen) {
+              true => [
+                  const BoxShadow(
+                    color: Colors.black12,
+                    spreadRadius: 2.5,
+                    blurRadius: 2.5,
+                    offset: Offset(0, -1),
+                  ),
+                ],
+              _ => null,
+            };
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: boxShadow,
               ),
-            ],
-          ),
-          child: builder,
+              child: builder,
+            );
+          },
         );
       },
     );

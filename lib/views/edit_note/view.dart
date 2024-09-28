@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/data/objectbox_db.dart';
+import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/ui_utils.dart';
@@ -181,7 +181,7 @@ class _EditNoteState extends State<EditNote> {
         if (didPop) {
           return;
         }
-        if (sheetCtrl.pixels > 0) {
+        if (bloc.state.isSheetOpen) {
           sheetCtrl.animateTo(
             0,
             duration: animationDuration,
@@ -192,7 +192,7 @@ class _EditNoteState extends State<EditNote> {
         if (contentFocus.hasFocus) {
           await Future.delayed(
             const Duration(
-              milliseconds: 50,
+              milliseconds: 25,
             ),
           );
           contentFocus.unfocus();
@@ -215,9 +215,7 @@ class _EditNoteState extends State<EditNote> {
                 padding: const EdgeInsets.all(7.5),
                 child: BlocBuilder<EditNoteBloc, EditNoteState>(
                   buildWhen: (previous, current) {
-                    final t1 = previous.note.title;
-                    final t2 = current.note.title;
-                    return t1 != t2;
+                    return previous.note.title != current.note.title;
                   },
                   builder: (context, state) {
                     return Text(
@@ -325,8 +323,18 @@ class _EditNoteState extends State<EditNote> {
                   scrollController: contentScrollCtrl,
                   controller: contentCtrl,
                 ),
-                NoteCollectionListSheet(
-                  controller: sheetCtrl,
+                NotificationListener<DraggableScrollableNotification>(
+                  onNotification: (notification) {
+                    bloc.add(
+                      UpdateSheetVisibilityEvent(
+                        notification: notification,
+                      ),
+                    );
+                    return true;
+                  },
+                  child: NoteCollectionListSheet(
+                    controller: sheetCtrl,
+                  ),
                 ),
               ],
             ),
