@@ -192,7 +192,7 @@ class _EditNoteState extends State<EditNote> {
         if (contentFocus.hasFocus) {
           await Future.delayed(
             const Duration(
-              milliseconds: 50,
+              milliseconds: 25,
             ),
           );
           contentFocus.unfocus();
@@ -215,9 +215,7 @@ class _EditNoteState extends State<EditNote> {
                 padding: const EdgeInsets.all(7.5),
                 child: BlocBuilder<EditNoteBloc, EditNoteState>(
                   buildWhen: (previous, current) {
-                    final t1 = previous.note.title;
-                    final t2 = current.note.title;
-                    return t1 != t2;
+                    return previous.note.title != current.note.title;
                   },
                   builder: (context, state) {
                     return Text(
@@ -325,8 +323,18 @@ class _EditNoteState extends State<EditNote> {
                   scrollController: contentScrollCtrl,
                   controller: contentCtrl,
                 ),
-                NoteCollectionListSheet(
-                  controller: sheetCtrl,
+                NotificationListener<DraggableScrollableNotification>(
+                  onNotification: (notification) {
+                    bloc.add(
+                      UpdateSheetVisibilityEvent(
+                        notification: notification,
+                      ),
+                    );
+                    return false;
+                  },
+                  child: NoteCollectionListSheet(
+                    controller: sheetCtrl,
+                  ),
                 ),
               ],
             ),

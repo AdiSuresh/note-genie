@@ -1,6 +1,7 @@
 import 'dart:convert';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/note/extensions.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/edit_note/event.dart';
@@ -8,6 +9,11 @@ import 'package:note_maker/views/edit_note/repository.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
 
 class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
+  @protected
+  final logger = AppLogger(
+    EditNoteBloc,
+  );
+
   @protected
   final EditNoteRepository repository;
 
@@ -109,6 +115,22 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
             unlinkedCollections: unlinkedCollections,
           ),
         );
+      },
+    );
+    on<UpdateSheetVisibilityEvent>(
+      (event, emit) {
+        final previous = state.isSheetOpen;
+        final next = switch (event.notification) {
+          DraggableScrollableNotification(extent: == 0) => false,
+          _ => true,
+        };
+        if (previous ^ next) {
+          emit(
+            state.copyWith(
+              isSheetOpen: next,
+            ),
+          );
+        }
       },
     );
   }

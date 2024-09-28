@@ -110,7 +110,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
               if (collections.isEmpty)
                 Padding(
                   padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height * 0.25,
+                    top: MediaQuery.of(context).size.height * 0.30,
                   ),
                   child: const Center(
                     child: NoCollectionsMessage(),
