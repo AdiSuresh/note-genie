@@ -164,6 +164,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
               icon: Icon(
                 iconData,
               ),
+              elevation: 2.5,
               onPressed: () {
                 final event = switch (state.viewCollections) {
                   true => const ViewUnlinkedCollectionsEvent(),
