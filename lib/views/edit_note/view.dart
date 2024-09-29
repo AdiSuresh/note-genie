@@ -15,6 +15,7 @@ import 'package:note_maker/views/edit_note/state/state.dart';
 import 'package:note_maker/views/edit_note/widgets/note_collection_list_sheet.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
+import 'package:note_maker/widgets/draggable_scrollable_bloc/bloc.dart';
 
 class EditNote extends StatefulWidget {
   static const path = '/edit-note';
@@ -47,12 +48,18 @@ class _EditNoteState extends State<EditNote> {
 
   StreamSubscription<DocChange>? docChangesSub;
 
-  final sheetCtrl = DraggableScrollableController();
+  DraggableScrollableController get sheetCtrl {
+    return sheetBloc.controller;
+  }
 
   var documentJson = <dynamic>[];
 
   EditNoteBloc get bloc => context.read<EditNoteBloc>();
   NoteEntity get note => bloc.state.note;
+
+  DraggableScrollableBloc get sheetBloc {
+    return context.read<DraggableScrollableBloc>();
+  }
 
   @override
   void initState() {
@@ -99,7 +106,6 @@ class _EditNoteState extends State<EditNote> {
     contentFocus.dispose();
     contentScrollCtrl.dispose();
     docChangesSub?.cancel();
-    sheetCtrl.dispose();
     super.dispose();
   }
 
@@ -181,7 +187,7 @@ class _EditNoteState extends State<EditNote> {
         if (didPop) {
           return;
         }
-        if (bloc.state.isSheetOpen) {
+        if (sheetBloc.state.isOpen) {
           sheetCtrl.animateTo(
             0,
             duration: animationDuration,
@@ -323,19 +329,7 @@ class _EditNoteState extends State<EditNote> {
                   scrollController: contentScrollCtrl,
                   controller: contentCtrl,
                 ),
-                NotificationListener<DraggableScrollableNotification>(
-                  onNotification: (notification) {
-                    bloc.add(
-                      UpdateSheetVisibilityEvent(
-                        notification: notification,
-                      ),
-                    );
-                    return true;
-                  },
-                  child: NoteCollectionListSheet(
-                    controller: sheetCtrl,
-                  ),
-                ),
+                const NoteCollectionListSheet(),
               ],
             ),
           ),

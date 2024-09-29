@@ -246,13 +246,6 @@ class _HomePageState extends State<HomePage>
     }
   }
 
-  String get pageTitle {
-    return switch (bloc.state.showNotes) {
-      true => 'Notes',
-      _ => 'Collections',
-    };
-  }
-
   void fabOnPressed() async {
     switch (tabCtrl.index) {
       case 0:
@@ -298,7 +291,7 @@ class _HomePageState extends State<HomePage>
                     },
                     builder: (context, state) {
                       return Text(
-                        pageTitle,
+                        state.pageTitle,
                         style: context.themeData.textTheme.titleLarge,
                       );
                     },
