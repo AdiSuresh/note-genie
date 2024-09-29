@@ -17,4 +17,11 @@ class HomeState {
     required this.noteCollections,
     this.currentCollection,
   });
+
+  String get pageTitle {
+    return switch (showNotes) {
+      true => 'Notes',
+      _ => 'Collections',
+    };
+  }
 }

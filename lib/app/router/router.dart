@@ -12,6 +12,7 @@ import 'package:note_maker/views/home/view.dart';
 import 'package:note_maker/views/note_info/bloc.dart';
 import 'package:note_maker/views/note_info/state.dart';
 import 'package:note_maker/views/note_info/view.dart';
+import 'package:note_maker/widgets/draggable_scrollable_bloc/bloc.dart';
 
 class AppRouter {
   AppRouter._();
@@ -40,22 +41,26 @@ class AppRouter {
               NoteEntity note => note,
               _ => NoteEntity.empty(),
             };
-            return RepositoryProvider(
-              create: (context) {
-                return EditNoteRepository();
-              },
-              child: BlocProvider(
-                create: (context) {
-                  return EditNoteBloc(
-                    EditNoteState(
-                      note: note,
-                      unlinkedCollections: [],
-                    ),
-                    repository: context.read<EditNoteRepository>(),
-                  );
-                },
-                child: const EditNote(),
-              ),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) {
+                    return DraggableScrollableBloc();
+                  },
+                ),
+                BlocProvider(
+                  create: (context) {
+                    return EditNoteBloc(
+                      EditNoteState(
+                        note: note,
+                        unlinkedCollections: [],
+                      ),
+                      repository: EditNoteRepository(),
+                    );
+                  },
+                ),
+              ],
+              child: const EditNote(),
             );
           },
         ),

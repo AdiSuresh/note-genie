@@ -12,13 +12,12 @@ import 'package:note_maker/views/edit_note/state/state.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 import 'package:note_maker/widgets/collection_list_tile.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
+import 'package:note_maker/widgets/draggable_scrollable_bloc/bloc.dart';
+import 'package:note_maker/widgets/draggable_scrollable_bloc/state.dart';
 
 class NoteCollectionListSheet extends StatefulWidget {
-  final DraggableScrollableController controller;
-
   const NoteCollectionListSheet({
     super.key,
-    required this.controller,
   });
 
   @override
@@ -30,6 +29,10 @@ class NoteCollectionListSheet extends StatefulWidget {
 class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
   EditNoteBloc get bloc => context.read<EditNoteBloc>();
   NoteEntity get note => bloc.state.note;
+
+  DraggableScrollableBloc get sheetBloc {
+    return context.read<DraggableScrollableBloc>();
+  }
 
   void removeFromCollection(
     NoteCollectionEntity collection,
@@ -79,7 +82,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
     return DraggableScrollableSheet(
       minChildSize: 0,
       initialChildSize: 0,
-      controller: widget.controller,
+      controller: sheetBloc.controller,
       snapSizes: const [
         0,
       ],
@@ -161,6 +164,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
               icon: Icon(
                 iconData,
               ),
+              elevation: 2.5,
               onPressed: () {
                 final event = switch (state.viewCollections) {
                   true => const ViewUnlinkedCollectionsEvent(),
@@ -188,13 +192,13 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
             );
           },
         );
-        return BlocBuilder<EditNoteBloc, EditNoteState>(
-          bloc: context.watch<EditNoteBloc>(),
+        return BlocBuilder<DraggableScrollableBloc, DraggableScrollableState>(
+          bloc: context.watch<DraggableScrollableBloc>(),
           buildWhen: (previous, current) {
-            return previous.isSheetOpen ^ current.isSheetOpen;
+            return previous.isOpen ^ current.isOpen;
           },
           builder: (context, state) {
-            final boxShadow = switch (state.isSheetOpen) {
+            final boxShadow = switch (state.isOpen) {
               true => [
                   const BoxShadow(
                     color: Colors.black12,
