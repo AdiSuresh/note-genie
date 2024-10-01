@@ -12,21 +12,21 @@ class AppNavigatorObserver extends NavigatorObserver {
   }
 
   void _dispatchEvent(
-    Route? route, [
-    NavigationEventType? eventConstructor,
-  ]) {
+    Route? route,
+    NavigationEventType eventType,
+  ) {
+    print('route?.settings.name: ${route?.settings.name}');
     switch (route?.navigator?.context) {
       case final BuildContext context when context.mounted:
         final path = _getPath(
           context,
         );
-        if (eventConstructor != null) {
-          context.navBloc.add(
-            NavigationEvent(
-              currentPath: path,
-            ),
-          );
-        }
+        context.navBloc.add(
+          NavigationEvent(
+            type: eventType,
+            currentPath: path,
+          ),
+        );
       case _:
     }
   }
