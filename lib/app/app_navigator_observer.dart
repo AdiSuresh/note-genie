@@ -1,33 +1,28 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/router/navigation/bloc.dart';
 import 'package:note_maker/app/router/navigation/event.dart';
 
 class AppNavigatorObserver extends NavigatorObserver {
-  String _getPath(
-    BuildContext context,
-  ) {
-    return GoRouter.of(context).routeInformationProvider.value.uri.path;
-  }
-
   void _dispatchEvent(
     Route? route,
     NavigationEventType eventType,
   ) {
-    print('route?.settings.name: ${route?.settings.name}');
-    switch (route?.navigator?.context) {
-      case final BuildContext context when context.mounted:
-        final path = _getPath(
-          context,
-        );
-        context.navBloc.add(
-          NavigationEvent(
-            type: eventType,
-            currentPath: path,
+    if (route
+        case Route(
+          settings: RouteSettings(
+            name: final String path,
           ),
-        );
-      case _:
+          navigator: NavigatorState(
+            :final context,
+          ),
+        ) when context.mounted) {
+      context.navBloc.add(
+        NavigationEvent(
+          type: eventType,
+          currentPath: path,
+        ),
+      );
     }
   }
 
@@ -42,7 +37,7 @@ class AppNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
     _dispatchEvent(
-      previousRoute,
+      route,
       NavigationEventType.push,
     );
   }
