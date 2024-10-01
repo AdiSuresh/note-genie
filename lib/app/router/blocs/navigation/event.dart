@@ -8,18 +8,18 @@ enum NavigationEventType {
 
 class NavigationEvent {
   final NavigationEventType type;
-  final String currentPath;
+  final String newPath;
 
-  NavigationEvent({
+  const NavigationEvent({
     required this.type,
-    required this.currentPath,
+    required this.newPath,
   });
 
   @override
   String toString() {
     final props = {
       'type': type,
-      'currentPath': currentPath,
+      'newPath': newPath,
     };
     return '$runtimeType($props)';
   }

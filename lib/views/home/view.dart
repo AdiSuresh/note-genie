@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/app/router/extra_variable/bloc.dart';
+import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
 import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/app/router/navigation/event.dart';
-import 'package:note_maker/app/router/navigation/state.dart';
+import 'package:note_maker/app/router/blocs/navigation/event.dart';
+import 'package:note_maker/app/router/blocs/navigation/state.dart';
 
 class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
   final logger = AppLogger(
@@ -17,7 +17,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
         emit(
           NavigationState(
             event: event,
-            currentPath: event.currentPath,
+            currentPath: event.newPath,
           ),
         );
       },

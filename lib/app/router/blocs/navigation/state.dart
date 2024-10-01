@@ -1,4 +1,4 @@
-import 'package:note_maker/app/router/navigation/event.dart';
+import 'package:note_maker/app/router/blocs/navigation/event.dart';
 
 class NavigationState {
   final NavigationEvent? event;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/app/router/navigation/bloc.dart';
-import 'package:note_maker/app/router/navigation/state.dart';
+import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
+import 'package:note_maker/app/router/blocs/navigation/state.dart';
 import 'package:note_maker/app/router/router.dart';
-import 'package:note_maker/app/router/extra_variable/bloc.dart';
+import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
 import 'package:note_maker/app/themes/themes.dart';
 
 class NoteMaker extends StatefulWidget {
