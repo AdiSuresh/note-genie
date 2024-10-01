@@ -11,11 +11,9 @@ class AppNavigatorObserver extends NavigatorObserver {
     return GoRouter.of(context).routeInformationProvider.value.uri.path;
   }
 
-  void _processRoute(
+  void _dispatchEvent(
     Route? route, [
-    NavigationEvent Function({
-      required String currentPath,
-    })? eventConstructor,
+    NavigationEventType? eventConstructor,
   ]) {
     switch (route?.navigator?.context) {
       case final BuildContext context when context.mounted:
@@ -24,7 +22,7 @@ class AppNavigatorObserver extends NavigatorObserver {
         );
         if (eventConstructor != null) {
           context.navBloc.add(
-            eventConstructor.call(
+            NavigationEvent(
               currentPath: path,
             ),
           );
@@ -35,33 +33,33 @@ class AppNavigatorObserver extends NavigatorObserver {
 
   @override
   void didPop(Route route, Route? previousRoute) {
-    _processRoute(
+    _dispatchEvent(
       previousRoute,
-      PopRouteEvent.new,
+      NavigationEventType.pop,
     );
   }
 
   @override
   void didPush(Route route, Route? previousRoute) {
-    _processRoute(
+    _dispatchEvent(
       previousRoute,
-      PushRouteEvent.new,
+      NavigationEventType.push,
     );
   }
 
   @override
   void didRemove(Route route, Route? previousRoute) {
-    _processRoute(
+    _dispatchEvent(
       previousRoute,
-      RemoveRouteEvent.new,
+      NavigationEventType.remove,
     );
   }
 
   @override
   void didReplace({Route? newRoute, Route? oldRoute}) {
-    _processRoute(
+    _dispatchEvent(
       newRoute,
-      ReplaceRouteEvent.new,
+      NavigationEventType.replace,
     );
   }
 }

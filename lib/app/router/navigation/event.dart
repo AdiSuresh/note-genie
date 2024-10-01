@@ -1,4 +1,12 @@
-sealed class NavigationEvent {
+enum NavigationEventType {
+  init,
+  pop,
+  push,
+  remove,
+  replace,
+}
+
+class NavigationEvent {
   final String currentPath;
 
   NavigationEvent({
@@ -12,34 +20,4 @@ sealed class NavigationEvent {
     };
     return '$runtimeType($props)';
   }
-}
-
-class InitEvent extends NavigationEvent {
-  InitEvent({
-    super.currentPath = '/',
-  });
-}
-
-class PopRouteEvent extends NavigationEvent {
-  PopRouteEvent({
-    required super.currentPath,
-  });
-}
-
-class PushRouteEvent extends NavigationEvent {
-  PushRouteEvent({
-    required super.currentPath,
-  });
-}
-
-class RemoveRouteEvent extends NavigationEvent {
-  RemoveRouteEvent({
-    required super.currentPath,
-  });
-}
-
-class ReplaceRouteEvent extends NavigationEvent {
-  ReplaceRouteEvent({
-    required super.currentPath,
-  });
 }
