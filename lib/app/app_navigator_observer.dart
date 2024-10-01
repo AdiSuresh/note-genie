@@ -11,74 +11,58 @@ class AppNavigatorObserver extends NavigatorObserver {
     return GoRouter.of(context).routeInformationProvider.value.uri.path;
   }
 
-  (BuildContext, String)? _processRoute(
-    Route? route,
-  ) {
+  void _processRoute(
+    Route? route, [
+    NavigationEvent Function({
+      required String currentPath,
+    })? eventConstructor,
+  ]) {
     switch (route?.navigator?.context) {
       case final BuildContext context when context.mounted:
         final path = _getPath(
           context,
         );
-        return (context, path);
+        if (eventConstructor != null) {
+          context.navBloc.add(
+            eventConstructor.call(
+              currentPath: path,
+            ),
+          );
+        }
       case _:
-        return null;
     }
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
-    final result = _processRoute(
+    _processRoute(
       previousRoute,
+      PopRouteEvent.new,
     );
-    if (result case (final BuildContext context, final String path)) {
-      context.navBloc.add(
-        PopRouteEvent(
-          currentPath: path,
-        ),
-      );
-    }
   }
 
   @override
   void didPush(Route route, Route? previousRoute) {
-    final result = _processRoute(
+    _processRoute(
       previousRoute,
+      PushRouteEvent.new,
     );
-    if (result case (final BuildContext context, final String path)) {
-      context.navBloc.add(
-        PushRouteEvent(
-          currentPath: path,
-        ),
-      );
-    }
   }
 
   @override
   void didRemove(Route route, Route? previousRoute) {
-    final result = _processRoute(
+    _processRoute(
       previousRoute,
+      RemoveRouteEvent.new,
     );
-    if (result case (final BuildContext context, final String path)) {
-      context.navBloc.add(
-        RemoveRouteEvent(
-          currentPath: path,
-        ),
-      );
-    }
   }
 
   @override
   void didReplace({Route? newRoute, Route? oldRoute}) {
-    final result = _processRoute(
+    _processRoute(
       newRoute,
+      ReplaceRouteEvent.new,
     );
-    if (result case (final BuildContext context, final String path)) {
-      context.navBloc.add(
-        ReplaceRouteEvent(
-          currentPath: path,
-        ),
-      );
-    }
   }
 }
 
