@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:note_maker/app/app_navigator_observer.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
@@ -15,7 +16,7 @@ import 'package:note_maker/views/note_info/view.dart';
 import 'package:note_maker/widgets/draggable_scrollable_bloc/bloc.dart';
 
 class AppRouter {
-  AppRouter._();
+  const AppRouter._();
 
   static List<GoRoute> get routes => [
         GoRoute(
@@ -82,12 +83,21 @@ class AppRouter {
         ),
       ];
 
+  static String get path {
+    return router.routeInformationProvider.value.uri.path;
+  }
+
+  static final routeObserver = AppNavigatorObserver();
+
   static final router = GoRouter(
     initialLocation: '/',
     routes: routes,
+    observers: [
+      routeObserver,
+    ],
   );
 
-  static final _instance = AppRouter._();
+  static const _instance = AppRouter._();
 
   factory AppRouter() {
     return _instance;
