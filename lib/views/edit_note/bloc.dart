@@ -117,21 +117,5 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
         );
       },
     );
-    on<UpdateSheetVisibilityEvent>(
-      (event, emit) {
-        final previous = state.isSheetOpen;
-        final next = switch (event.notification) {
-          DraggableScrollableNotification(extent: < 0.01) => false,
-          _ => true,
-        };
-        if (previous ^ next) {
-          emit(
-            state.copyWith(
-              isSheetOpen: next,
-            ),
-          );
-        }
-      },
-    );
   }
 }

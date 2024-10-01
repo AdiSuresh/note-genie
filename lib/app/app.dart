@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/app/router/navigation/bloc.dart';
+import 'package:note_maker/app/router/navigation/state.dart';
 import 'package:note_maker/app/router/router.dart';
 import 'package:note_maker/app/router/extra_variable/bloc.dart';
 import 'package:note_maker/app/themes/themes.dart';
@@ -15,13 +17,19 @@ class NoteMaker extends StatefulWidget {
 }
 
 class _NoteMakerState extends State<NoteMaker> {
-  static final logger = AppLogger(
+  final logger = AppLogger(
     NoteMaker,
   );
 
   @override
+  void initState() {
+    super.initState();
+    logger.i('init NoteMaker');
+  }
+
+  @override
   void dispose() {
-    logger.i('dispose');
+    logger.close();
     super.dispose();
   }
 
@@ -32,6 +40,15 @@ class _NoteMakerState extends State<NoteMaker> {
         BlocProvider(
           create: (context) {
             return ExtraVariableBloc();
+          },
+        ),
+        BlocProvider(
+          create: (context) {
+            return NavigationBloc(
+              NavigationState(
+                currentPath: AppRouter.path,
+              ),
+            );
           },
         ),
       ],

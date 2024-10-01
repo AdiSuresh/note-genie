@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
@@ -53,12 +52,4 @@ class ViewCollectionsEvent extends EditNoteEvent {
 
 class ViewUnlinkedCollectionsEvent extends EditNoteEvent {
   const ViewUnlinkedCollectionsEvent();
-}
-
-class UpdateSheetVisibilityEvent extends EditNoteEvent {
-  final DraggableScrollableNotification notification;
-
-  UpdateSheetVisibilityEvent({
-    required this.notification,
-  });
 }
