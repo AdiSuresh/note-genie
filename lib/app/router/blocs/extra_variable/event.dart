@@ -1,6 +1,6 @@
 abstract class ExtraVariableEvent<T extends Object> {}
 
-// Event to update the extra variable
+/// Event for updating the extra variable.
 class ExtraVariableUpdate<T> extends ExtraVariableEvent {
   final T extra;
 

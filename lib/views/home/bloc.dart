@@ -1,11 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/views/home/event.dart';
+import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  final HomeRepository repository;
+
+  StreamSubscription<List<NoteCollectionEntity>>? _noteCollectionsSub;
+
   HomeBloc(
-    super.initialState,
-  ) {
+    super.initialState, {
+    required this.repository,
+  }) {
     on<UpdateNoteCollectionsEvent>(
       (event, emit) {
         emit(
@@ -67,5 +76,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
+    _startNoteCollectionsSub();
+  }
+
+  @override
+  Future<void> close() {
+    _stopNoteCollectionsSub();
+    return super.close();
+  }
+
+  Future<void> _startNoteCollectionsSub() async {
+    _stopNoteCollectionsSub();
+    if (_noteCollectionsSub == null) {
+      final stream = await repository.createCollectionsStream();
+      _noteCollectionsSub = stream.listen(
+        (event) {
+          add(
+            UpdateNoteCollectionsEvent(
+              noteCollections: event,
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  void _stopNoteCollectionsSub() {
+    _noteCollectionsSub?.cancel();
+    _noteCollectionsSub = null;
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/app/router/extra_variable/bloc.dart';
+import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
 import 'package:note_maker/app/themes/themes.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';

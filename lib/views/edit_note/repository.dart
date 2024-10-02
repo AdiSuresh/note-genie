@@ -1,21 +1,9 @@
-import 'dart:async';
-
-import 'package:note_maker/data/services/objectbox_db.dart';
+import 'package:note_maker/data/services/mixins/local_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
 
-class EditNoteRepository {
-  Future<Box<NoteEntity>> get noteBox async {
-    final store = await ObjectBoxDB().store;
-    return store.box<NoteEntity>();
-  }
-
-  Future<Box<NoteCollectionEntity>> get noteCollectionBox async {
-    final store = await ObjectBoxDB().store;
-    return store.box<NoteCollectionEntity>();
-  }
-
+class EditNoteRepository with LocalDBServiceMixin {
   Future<NoteEntity> saveNote(
     NoteEntity note,
   ) async {

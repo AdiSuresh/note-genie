@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/app/router/extra_variable/bloc.dart';
+import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
 import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
@@ -64,16 +64,16 @@ class _HomePageState extends State<HomePage>
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
-  StreamSubscription<List<NoteCollectionEntity>>? noteCollectionsSub;
   StreamSubscription<List<NoteEntity>>? notesSub;
 
   late final TabController tabCtrl;
 
-  HomeBloc get bloc => context.read();
+  HomeBloc get bloc => context.read<HomeBloc>();
 
   @override
   void initState() {
     super.initState();
+    logger.i('init home');
     tabCtrl = TabController(
       animationDuration: animationDuration,
       length: 2,
@@ -83,31 +83,6 @@ class _HomePageState extends State<HomePage>
       handleSwitchTabEvent,
     );
     startNotesSub();
-    db.store.then(
-      (store) {
-        noteCollectionsSub = store
-            .box<NoteCollectionEntity>()
-            .query()
-            .watch(
-              triggerImmediately: true,
-            )
-            .map(
-              (query) => query.find(),
-            )
-            .listen(
-          (event) {
-            logger.i(
-              'changes detected in note collections',
-            );
-            bloc.add(
-              UpdateNoteCollectionsEvent(
-                noteCollections: event,
-              ),
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
@@ -116,9 +91,6 @@ class _HomePageState extends State<HomePage>
       handleSwitchTabEvent,
     );
     tabCtrl.dispose();
-    unawaited(
-      noteCollectionsSub?.cancel(),
-    );
     stopNotesSub();
     logger.i(
       'disposing',
@@ -246,6 +218,8 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+  StreamSubscription<List<NoteCollectionEntity>>? listener;
+
   void fabOnPressed() async {
     switch (tabCtrl.index) {
       case 0:
@@ -369,13 +343,13 @@ class _HomePageState extends State<HomePage>
                           return result;
                         },
                         builder: (context, state) {
-                          if (noteCollectionsSub == null) {
-                            return const Center(
-                              child: Text(
-                                'Loading...',
-                              ),
-                            );
-                          }
+                          // if (state.noteCollectionsSub == null) {
+                          //   return const Center(
+                          //     child: Text(
+                          //       'Loading...',
+                          //     ),
+                          //   );
+                          // }
                           const verticalPadding = EdgeInsets.symmetric(
                             vertical: 7.5,
                           );
@@ -551,11 +525,11 @@ class _HomePageState extends State<HomePage>
                           current.noteCollections;
                     },
                     builder: (context, state) {
-                      if (noteCollectionsSub == null) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
+                      // if (noteCollectionsSub == null) {
+                      //   return const Center(
+                      //     child: CircularProgressIndicator(),
+                      //   );
+                      // }
                       final collections = state.noteCollections;
                       switch (collections) {
                         case []:

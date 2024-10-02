@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:note_maker/app/router/navigation/bloc.dart';
-import 'package:note_maker/app/router/navigation/event.dart';
+import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
+import 'package:note_maker/app/router/blocs/navigation/event.dart';
 
 class AppNavigatorObserver extends NavigatorObserver {
   void _dispatchEvent(
@@ -20,7 +20,7 @@ class AppNavigatorObserver extends NavigatorObserver {
       context.navBloc.add(
         NavigationEvent(
           type: eventType,
-          currentPath: path,
+          newPath: path,
         ),
       );
     }
