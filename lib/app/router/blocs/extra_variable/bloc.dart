@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/event.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/state.dart';
 
-// BLoC to manage the extra variable state
+/// Bloc for managing the extra variable state.
 class ExtraVariableBloc extends Bloc<ExtraVariableEvent, ExtraVariableState> {
   ExtraVariableBloc()
       : super(

@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage>
 
   late final TabController tabCtrl;
 
-  HomeBloc get bloc => context.read();
+  HomeBloc get bloc => context.read<HomeBloc>();
 
   @override
   void initState() {

@@ -18,7 +18,7 @@ class NavigationEvent {
   @override
   String toString() {
     final props = {
-      'type': type,
+      'type': type.name,
       'newPath': newPath,
     };
     return '$runtimeType($props)';
