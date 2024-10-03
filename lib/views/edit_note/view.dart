@@ -7,6 +7,7 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
+import 'package:note_maker/utils/extensions/draggable_scrollable_controller.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
@@ -187,10 +188,15 @@ class _EditNoteState extends State<EditNote> {
         if (didPop) {
           return;
         }
+        if (await sheetCtrl.isAnimating()) {
+          return;
+        }
         if (sheetBloc.state.isOpen) {
           sheetCtrl.animateTo(
             0,
-            duration: animationDuration,
+            duration: const Duration(
+              seconds: 5,
+            ),
             curve: Curves.ease,
           );
           return;
