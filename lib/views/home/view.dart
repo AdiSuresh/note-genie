@@ -498,7 +498,6 @@ class _HomePageState extends State<HomePage>
                                         NoteListTile(
                                           note: note,
                                           viewNote: () async {
-                                            // return;
                                             notesSub?.pause();
                                             context.extra = note;
                                             await context.push(
