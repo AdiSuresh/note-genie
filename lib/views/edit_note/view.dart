@@ -194,9 +194,7 @@ class _EditNoteState extends State<EditNote> {
         if (sheetBloc.state.isOpen) {
           sheetCtrl.animateTo(
             0,
-            duration: const Duration(
-              seconds: 5,
-            ),
+            duration: animationDuration,
             curve: Curves.ease,
           );
           return;
@@ -210,7 +208,7 @@ class _EditNoteState extends State<EditNote> {
           contentFocus.unfocus();
           return;
         }
-        if (mounted) {
+        if (context.mounted) {
           context.pop(
             result,
           );
