@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-extension Extension on DraggableScrollableController {
+extension AnimationStatusExtension on DraggableScrollableController {
   Future<bool> isAnimating() async {
     try {
       final s1 = size;
