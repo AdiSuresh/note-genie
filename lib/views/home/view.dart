@@ -7,7 +7,6 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
 import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
-import 'package:note_maker/objectbox.g.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/utils/ui_utils.dart';
@@ -64,8 +63,6 @@ class _HomePageState extends State<HomePage>
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
-  StreamSubscription<List<NoteEntity>>? notesSub;
-
   late final TabController tabCtrl;
 
   HomeBloc get bloc => context.read<HomeBloc>();
@@ -82,7 +79,6 @@ class _HomePageState extends State<HomePage>
     tabCtrl.addListener(
       handleSwitchTabEvent,
     );
-    startNotesSub();
   }
 
   @override
@@ -91,7 +87,6 @@ class _HomePageState extends State<HomePage>
       handleSwitchTabEvent,
     );
     tabCtrl.dispose();
-    stopNotesSub();
     logger.i(
       'disposing',
     );
@@ -110,46 +105,6 @@ class _HomePageState extends State<HomePage>
         ),
       );
     }
-  }
-
-  Future<void> startNotesSub() async {
-    stopNotesSub();
-    final store = await db.store;
-    final builder = store.box<NoteEntity>().query();
-    switch (bloc.state.currentCollection) {
-      case NoteCollectionEntity c when c.id > 0:
-        builder.backlinkMany(
-          NoteCollectionEntity_.notes,
-          NoteCollectionEntity_.id.equals(
-            c.id,
-          ),
-        );
-      case _:
-    }
-    notesSub = builder
-        .watch(
-          triggerImmediately: true,
-        )
-        .map(
-          (query) => query.find(),
-        )
-        .listen(
-      (notes) {
-        logger.i(
-          'changes detected in notes',
-        );
-        bloc.add(
-          UpdateNotesEvent(
-            notes: notes,
-          ),
-        );
-      },
-    );
-  }
-
-  void stopNotesSub() {
-    notesSub?.cancel();
-    notesSub = null;
   }
 
   Future<void> putCollection(
@@ -223,7 +178,6 @@ class _HomePageState extends State<HomePage>
   void fabOnPressed() async {
     switch (tabCtrl.index) {
       case 0:
-        notesSub?.pause();
         context.extra = switch (bloc.state.currentCollection) {
           final NoteCollectionEntity collection => NoteEntity.empty()
             ..collections.add(
@@ -234,8 +188,6 @@ class _HomePageState extends State<HomePage>
         await context.push(
           EditNote.path,
         );
-        notesSub?.resume();
-        startNotesSub();
       case 1:
         putCollection(
           NoteCollectionEntity.untitled(),
@@ -417,7 +369,6 @@ class _HomePageState extends State<HomePage>
                                                       collection: collection,
                                                     ),
                                                   );
-                                                  startNotesSub();
                                                 },
                                                 child: Text(
                                                   collection.name,
@@ -476,11 +427,11 @@ class _HomePageState extends State<HomePage>
                               child: Builder(
                                 key: key,
                                 builder: (context) {
-                                  if (notesSub == null) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
+                                  // if (notesSub == null) {
+                                  //   return const Center(
+                                  //     child: CircularProgressIndicator(),
+                                  //   );
+                                  // }
                                   final notes = state.notes;
                                   if (notes.isEmpty) {
                                     return const Center(
@@ -498,13 +449,10 @@ class _HomePageState extends State<HomePage>
                                         NoteListTile(
                                           note: note,
                                           viewNote: () async {
-                                            notesSub?.pause();
                                             context.extra = note;
                                             await context.push(
                                               EditNote.path,
                                             );
-                                            notesSub?.resume();
-                                            startNotesSub();
                                           },
                                         ),
                                       const EmptyFooter(),
@@ -580,7 +528,6 @@ class _HomePageState extends State<HomePage>
                                             collection: e,
                                           ),
                                         );
-                                        startNotesSub();
                                       }
                                       final key = GlobalObjectKey(
                                         e,
