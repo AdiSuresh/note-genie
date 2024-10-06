@@ -1,16 +1,7 @@
-import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 
 sealed class HomeEvent {
   const HomeEvent();
-}
-
-class UpdateNotesEvent extends HomeEvent {
-  final List<NoteEntity> notes;
-
-  const UpdateNotesEvent({
-    required this.notes,
-  });
 }
 
 class UpdateNoteCollectionsEvent extends HomeEvent {
@@ -41,4 +32,8 @@ class SwitchTabEvent extends HomeEvent {
   const SwitchTabEvent({
     required this.index,
   });
+}
+
+class FetchNotesEvent extends HomeEvent {
+  const FetchNotesEvent();
 }

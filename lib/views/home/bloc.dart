@@ -1,18 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
+import 'package:note_maker/app/router/blocs/navigation/state.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  final NavigationBloc _navigationBloc;
+
   final HomeRepository repository;
 
   StreamSubscription<List<NoteCollectionEntity>>? _noteCollectionsSub;
+  StreamSubscription<NavigationState>? _navigationSub;
 
   HomeBloc(
-    super.initialState, {
+    super.initialState,
+    this._navigationBloc, {
     required this.repository,
   }) {
     on<UpdateNoteCollectionsEvent>(
@@ -20,15 +26,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         emit(
           state.copyWith(
             noteCollections: event.noteCollections,
-          ),
-        );
-      },
-    );
-    on<UpdateNotesEvent>(
-      (event, emit) {
-        emit(
-          state.copyWith(
-            notes: event.notes,
           ),
         );
       },
@@ -43,6 +40,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           state.copyWith(
             currentCollection: collection,
           ),
+        );
+        add(
+          const FetchNotesEvent(),
         );
       },
     );
@@ -76,19 +76,37 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
+    on<FetchNotesEvent>(
+      (event, emit) async {
+        final notes = await repository.fetchNotes(
+          currentCollection: state.currentCollection,
+        );
+        emit(
+          state.copyWith(
+            notes: notes,
+          ),
+        );
+      },
+    );
+    _startNavigationSub();
     _startNoteCollectionsSub();
   }
 
   @override
   Future<void> close() {
     _stopNoteCollectionsSub();
+    _stopNavigationSub();
     return super.close();
   }
 
   Future<void> _startNoteCollectionsSub() async {
     _stopNoteCollectionsSub();
     if (_noteCollectionsSub == null) {
-      final stream = await repository.createCollectionsStream();
+      final stream = await repository.createCollectionsStream(
+        shouldSkip: () {
+          return _navigationBloc.state.currentPath != '/';
+        },
+      );
       _noteCollectionsSub = stream.listen(
         (event) {
           add(
@@ -104,5 +122,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   void _stopNoteCollectionsSub() {
     _noteCollectionsSub?.cancel();
     _noteCollectionsSub = null;
+  }
+
+  void _startNavigationSub() {
+    _stopNavigationSub();
+    _navigationSub = _navigationBloc.stream.listen(
+      (state) {
+        if (state.currentPath != '/') {
+          return;
+        }
+        add(
+          FetchNotesEvent(),
+        );
+      },
+    );
+  }
+
+  void _stopNavigationSub() {
+    _navigationSub?.cancel();
+    _navigationSub = null;
   }
 }
