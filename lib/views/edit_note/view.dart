@@ -166,7 +166,7 @@ class _EditNoteState extends State<EditNote> {
       _ => 'Could not delete $title',
     };
     if (mounted) {
-      UiUtils.showSnackbar(
+      UiUtils.showSnackBar(
         context,
         content: content,
         onClose: () {
