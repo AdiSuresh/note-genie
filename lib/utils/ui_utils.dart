@@ -127,7 +127,7 @@ class UiUtils {
     );
   }
 
-  static void showSnackbar(
+  static void showSnackBar(
     BuildContext context, {
     required String content,
     VoidCallback? onClose,

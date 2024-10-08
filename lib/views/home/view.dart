@@ -166,14 +166,12 @@ class _HomePageState extends State<HomePage>
       _ => 'Could not delete $title',
     };
     if (mounted) {
-      UiUtils.showSnackbar(
+      UiUtils.showSnackBar(
         context,
         content: content,
       );
     }
   }
-
-  StreamSubscription<List<NoteCollectionEntity>>? listener;
 
   void fabOnPressed() async {
     switch (tabCtrl.index) {

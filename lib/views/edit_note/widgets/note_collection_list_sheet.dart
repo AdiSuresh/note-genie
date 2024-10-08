@@ -55,7 +55,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
         final collectionTitle = "'${collection.name}'";
         final content = '$noteTitle was removed from $collectionTitle';
         if (mounted) {
-          UiUtils.showSnackbar(
+          UiUtils.showSnackBar(
             context,
             content: content,
           );
