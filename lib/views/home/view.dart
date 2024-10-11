@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
+import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
 import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
+import 'package:note_maker/utils/extensions/type.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
 import 'package:note_maker/views/edit_note/view.dart';
@@ -88,7 +90,7 @@ class _HomePageState extends State<HomePage>
     );
     tabCtrl.dispose();
     logger.i(
-      'disposing',
+      'disposing home',
     );
     collectionNameCtrl.dispose();
     super.dispose();
@@ -174,6 +176,15 @@ class _HomePageState extends State<HomePage>
   }
 
   void fabOnPressed() async {
+    // final uri = Uri.parse(
+    //   'home-page/edit-note?id=1',
+    // );
+    // print('path: ${uri.path}');
+    // print('queryParameters: ${uri.queryParameters}');
+    // print('pathSegments: ${uri.pathSegments}');
+    // final navBloc = context.read<NavigationBloc>();
+    // print(navBloc.state.currentPath);
+    // return;
     switch (tabCtrl.index) {
       case 0:
         context.extra = switch (bloc.state.currentCollection) {
@@ -183,8 +194,14 @@ class _HomePageState extends State<HomePage>
             ),
           _ => null,
         };
-        await context.push(
-          EditNote.path,
+        final currentPath = context.read<NavigationBloc>().state.currentPath;
+        context.go(
+          [
+            currentPath,
+            (EditNote).asRouteName(),
+          ].join(
+            '/',
+          ),
         );
       case 1:
         putCollection(
@@ -448,8 +465,17 @@ class _HomePageState extends State<HomePage>
                                           note: note,
                                           viewNote: () async {
                                             context.extra = note;
-                                            await context.push(
-                                              EditNote.path,
+                                            final currentPath = context
+                                                .read<NavigationBloc>()
+                                                .state
+                                                .currentPath;
+                                            context.go(
+                                              [
+                                                currentPath,
+                                                (EditNote).asRouteName(),
+                                              ].join(
+                                                '/',
+                                              ),
                                             );
                                           },
                                         ),

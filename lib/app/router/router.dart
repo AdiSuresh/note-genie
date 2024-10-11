@@ -4,6 +4,7 @@ import 'package:note_maker/app/app_navigator_observer.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
 import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
 import 'package:note_maker/models/note/model.dart';
+import 'package:note_maker/utils/extensions/type.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/repository.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
@@ -20,9 +21,9 @@ import 'package:note_maker/widgets/draggable_scrollable_bloc/bloc.dart';
 class AppRouter {
   const AppRouter._();
 
-  static List<GoRoute> get routes => [
+  static List<GoRoute> get _routes => [
         GoRoute(
-          path: '/',
+          path: (HomePage).asRoutePath(),
           builder: (context, state) {
             return BlocProvider(
               create: (context) {
@@ -33,41 +34,44 @@ class AppRouter {
                   ),
                   context.read<NavigationBloc>(),
                   repository: HomeRepository(),
+                  routeName: (HomePage).asRouteName(),
                 );
               },
               child: const HomePage(),
             );
           },
-        ),
-        GoRoute(
-          path: EditNote.path,
-          builder: (context, state) {
-            final note = switch (context.extra) {
-              NoteEntity note => note,
-              _ => NoteEntity.empty(),
-            };
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (context) {
-                    return DraggableScrollableBloc();
-                  },
-                ),
-                BlocProvider(
-                  create: (context) {
-                    return EditNoteBloc(
-                      EditNoteState(
-                        note: note,
-                        unlinkedCollections: [],
-                      ),
-                      repository: EditNoteRepository(),
-                    );
-                  },
-                ),
-              ],
-              child: const EditNote(),
-            );
-          },
+          routes: [
+            GoRoute(
+              path: (EditNote).asRouteName(),
+              builder: (context, state) {
+                final note = switch (context.extra) {
+                  NoteEntity note => note,
+                  _ => NoteEntity.empty(),
+                };
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (context) {
+                        return DraggableScrollableBloc();
+                      },
+                    ),
+                    BlocProvider(
+                      create: (context) {
+                        return EditNoteBloc(
+                          EditNoteState(
+                            note: note,
+                            unlinkedCollections: [],
+                          ),
+                          repository: EditNoteRepository(),
+                        );
+                      },
+                    ),
+                  ],
+                  child: const EditNote(),
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/note-info',
@@ -94,8 +98,8 @@ class AppRouter {
   static final routeObserver = AppNavigatorObserver();
 
   static final router = GoRouter(
-    initialLocation: '/',
-    routes: routes,
+    initialLocation: (HomePage).asRoutePath(),
+    routes: _routes,
     observers: [
       routeObserver,
     ],

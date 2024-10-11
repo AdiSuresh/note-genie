@@ -11,6 +11,8 @@ import 'package:note_maker/views/home/state/state.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final NavigationBloc _navigationBloc;
 
+  final String routeName;
+
   final HomeRepository repository;
 
   StreamSubscription<List<NoteCollectionEntity>>? _noteCollectionsSub;
@@ -20,6 +22,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     super.initialState,
     this._navigationBloc, {
     required this.repository,
+    required this.routeName,
   }) {
     on<UpdateNoteCollectionsEvent>(
       (event, emit) {
@@ -90,12 +93,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     _startNavigationSub();
     _startNoteCollectionsSub();
+    add(
+      FetchNotesEvent(),
+    );
   }
 
   @override
   Future<void> close() {
-    _stopNoteCollectionsSub();
     _stopNavigationSub();
+    _stopNoteCollectionsSub();
     return super.close();
   }
 
@@ -104,7 +110,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (_noteCollectionsSub == null) {
       final stream = await repository.createCollectionsStream(
         shouldSkip: () {
-          return _navigationBloc.state.currentPath != '/';
+          final uri = Uri.parse(
+            _navigationBloc.state.currentPath,
+          );
+          final shouldSkip =
+              uri.pathSegments.isEmpty || uri.pathSegments.last != routeName;
+          print('shouldSkip: $shouldSkip');
+          return uri.pathSegments.isEmpty || uri.pathSegments.last != routeName;
         },
       );
       _noteCollectionsSub = stream.listen(
