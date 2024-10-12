@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
-import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
 import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
@@ -27,6 +26,8 @@ import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/empty_footer.dart';
 
 class HomePage extends StatefulWidget {
+  static const path = '/';
+
   const HomePage({
     super.key,
   });
@@ -194,14 +195,8 @@ class _HomePageState extends State<HomePage>
             ),
           _ => null,
         };
-        final currentPath = context.read<NavigationBloc>().state.currentPath;
         context.go(
-          [
-            currentPath,
-            (EditNote).asRouteName(),
-          ].join(
-            '/',
-          ),
+          (EditNote).asRoutePath(),
         );
       case 1:
         putCollection(
@@ -465,17 +460,8 @@ class _HomePageState extends State<HomePage>
                                           note: note,
                                           viewNote: () async {
                                             context.extra = note;
-                                            final currentPath = context
-                                                .read<NavigationBloc>()
-                                                .state
-                                                .currentPath;
                                             context.go(
-                                              [
-                                                currentPath,
-                                                (EditNote).asRouteName(),
-                                              ].join(
-                                                '/',
-                                              ),
+                                              (EditNote).asRoutePath(),
                                             );
                                           },
                                         ),

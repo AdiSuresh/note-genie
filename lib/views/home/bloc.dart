@@ -11,7 +11,7 @@ import 'package:note_maker/views/home/state/state.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final NavigationBloc _navigationBloc;
 
-  final String routeName;
+  final String path;
 
   final HomeRepository repository;
 
@@ -22,7 +22,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     super.initialState,
     this._navigationBloc, {
     required this.repository,
-    required this.routeName,
+    required this.path,
   }) {
     on<UpdateNoteCollectionsEvent>(
       (event, emit) {
@@ -113,10 +113,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           final uri = Uri.parse(
             _navigationBloc.state.currentPath,
           );
-          final shouldSkip =
-              uri.pathSegments.isEmpty || uri.pathSegments.last != routeName;
+          final shouldSkip = uri.path != path;
           print('shouldSkip: $shouldSkip');
-          return uri.pathSegments.isEmpty || uri.pathSegments.last != routeName;
+          return uri.path != path;
         },
       );
       _noteCollectionsSub = stream.listen(

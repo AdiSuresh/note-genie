@@ -23,7 +23,7 @@ class AppRouter {
 
   static List<GoRoute> get _routes => [
         GoRoute(
-          path: (HomePage).asRoutePath(),
+          path: '/',
           builder: (context, state) {
             return BlocProvider(
               create: (context) {
@@ -34,7 +34,7 @@ class AppRouter {
                   ),
                   context.read<NavigationBloc>(),
                   repository: HomeRepository(),
-                  routeName: (HomePage).asRouteName(),
+                  path: HomePage.path,
                 );
               },
               child: const HomePage(),
@@ -98,7 +98,7 @@ class AppRouter {
   static final routeObserver = AppNavigatorObserver();
 
   static final router = GoRouter(
-    initialLocation: (HomePage).asRoutePath(),
+    initialLocation: HomePage.path,
     routes: _routes,
     observers: [
       routeObserver,
