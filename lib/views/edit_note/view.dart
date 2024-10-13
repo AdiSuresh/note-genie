@@ -259,63 +259,73 @@ class _EditNoteState extends State<EditNote> {
                   },
                 ),
               ),
-              PopupMenuButton(
-                color: Colors.white,
-                surfaceTintColor: Colors.white,
-                onOpened: () {
-                  contentFocus.unfocus();
+              BlocBuilder<EditNoteBloc, EditNoteState>(
+                buildWhen: (previous, current) {
+                  return previous.note.id != current.note.id;
                 },
-                itemBuilder: (context) {
-                  const style = TextStyle(
-                    fontWeight: FontWeight.normal,
-                  );
-                  return [
-                    PopupMenuItem(
-                      child: const Text(
-                        'Collections',
-                        style: style,
-                      ),
-                      onTap: () async {
-                        sheetCtrl.animateTo(
-                          1,
-                          duration: animationDuration,
-                          curve: Curves.ease,
-                        );
-                      },
-                    ),
-                    PopupMenuItem(
-                      child: const Text(
-                        'Linked Notes',
-                        style: style,
-                      ),
-                      onTap: () {},
-                    ),
-                    PopupMenuItem(
-                      child: Text(
-                        'Delete',
-                        style: style.copyWith(
-                          color: Colors.red,
+                builder: (context, state) {
+                  if (note.id == 0) {
+                    return const SizedBox();
+                  }
+                  return PopupMenuButton(
+                    color: Colors.white,
+                    surfaceTintColor: Colors.white,
+                    onOpened: () {
+                      contentFocus.unfocus();
+                    },
+                    itemBuilder: (context) {
+                      const style = TextStyle(
+                        fontWeight: FontWeight.normal,
+                      );
+                      return [
+                        PopupMenuItem(
+                          child: const Text(
+                            'Collections',
+                            style: style,
+                          ),
+                          onTap: () async {
+                            sheetCtrl.animateTo(
+                              1,
+                              duration: animationDuration,
+                              curve: Curves.ease,
+                            );
+                          },
                         ),
-                      ),
-                      onTap: () {
-                        final context = this.context;
-                        UiUtils.showProceedDialog(
-                          title: 'Delete note?',
-                          message: 'You are about to delete this note.'
-                              ' Once deleted its gone forever.'
-                              '\n\nAre you sure you want to proceed?',
-                          context: context,
-                          onYes: () {
-                            context.pop();
-                            deleteNote();
+                        PopupMenuItem(
+                          child: const Text(
+                            'Linked Notes',
+                            style: style,
+                          ),
+                          onTap: () {},
+                        ),
+                        PopupMenuItem(
+                          child: Text(
+                            'Delete',
+                            style: style.copyWith(
+                              color: Colors.red,
+                            ),
+                          ),
+                          onTap: () {
+                            final context = this.context;
+                            UiUtils.showProceedDialog(
+                              title: 'Delete note?',
+                              message: 'You are about to delete this note.'
+                                  ' Once deleted its gone forever.'
+                                  '\n\nAre you sure you want to proceed?',
+                              context: context,
+                              onYes: () {
+                                context.pop();
+                                deleteNote();
+                              },
+                              onNo: () {
+                                context.pop();
+                              },
+                            );
                           },
-                          onNo: () {
-                            context.pop();
-                          },
-                        );
-                      },
-                    ),
-                  ];
+                        ),
+                      ];
+                    },
+                  );
                 },
               ),
             ],
