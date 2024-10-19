@@ -23,20 +23,29 @@ class AppRouter {
 
   static List<GoRoute> get _routes => [
         GoRoute(
-          path: '/',
+          path: HomePage.path,
           builder: (context, state) {
-            return BlocProvider(
-              create: (context) {
-                return HomeBloc(
-                  const HomeState(
-                    notes: [],
-                    noteCollections: [],
-                  ),
-                  context.read<NavigationBloc>(),
-                  repository: HomeRepository(),
-                  path: HomePage.path,
-                );
-              },
+            return MultiBlocProvider(
+              providers: [
+                RepositoryProvider(
+                  create: (context) {
+                    return HomeRepository();
+                  },
+                ),
+                BlocProvider(
+                  create: (context) {
+                    return HomeBloc(
+                      const HomeState(
+                        notes: [],
+                        noteCollections: [],
+                      ),
+                      context.read<NavigationBloc>(),
+                      repository: context.read<HomeRepository>(),
+                      path: HomePage.path,
+                    );
+                  },
+                ),
+              ],
               child: const HomePage(),
             );
           },
