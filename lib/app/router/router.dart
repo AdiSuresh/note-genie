@@ -64,6 +64,11 @@ class AppRouter {
                         return DraggableScrollableBloc();
                       },
                     ),
+                    RepositoryProvider(
+                      create: (context) {
+                        return EditNoteRepository();
+                      },
+                    ),
                     BlocProvider(
                       create: (context) {
                         return EditNoteBloc(
@@ -71,7 +76,7 @@ class AppRouter {
                             note: note,
                             unlinkedCollections: [],
                           ),
-                          repository: EditNoteRepository(),
+                          repository: context.read<EditNoteRepository>(),
                         );
                       },
                     ),
