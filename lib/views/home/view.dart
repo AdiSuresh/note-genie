@@ -102,6 +102,7 @@ class _HomePageState extends State<HomePage>
 
   void handleSwitchTabEvent() {
     if (mounted) {
+      print('handleSwitchTabEvent');
       bloc.add(
         SwitchTabEvent(
           index: tabCtrl.index,

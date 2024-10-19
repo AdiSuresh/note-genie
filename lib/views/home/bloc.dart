@@ -58,6 +58,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 currentCollection: event.collection,
               ),
             );
+            add(
+              const FetchNotesEvent(),
+            );
           case _:
         }
       },
@@ -81,6 +84,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<FetchNotesEvent>(
       (event, emit) async {
+        print('FetchNotesEvent');
         final notes = await repository.fetchNotes(
           currentCollection: state.currentCollection,
         );
@@ -142,6 +146,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         if (state.currentPath != '/') {
           return;
         }
+        print('fetch notes from _navigationSub');
         add(
           FetchNotesEvent(),
         );

@@ -23,20 +23,29 @@ class AppRouter {
 
   static List<GoRoute> get _routes => [
         GoRoute(
-          path: '/',
+          path: HomePage.path,
           builder: (context, state) {
-            return BlocProvider(
-              create: (context) {
-                return HomeBloc(
-                  const HomeState(
-                    notes: [],
-                    noteCollections: [],
-                  ),
-                  context.read<NavigationBloc>(),
-                  repository: HomeRepository(),
-                  path: HomePage.path,
-                );
-              },
+            return MultiBlocProvider(
+              providers: [
+                RepositoryProvider(
+                  create: (context) {
+                    return HomeRepository();
+                  },
+                ),
+                BlocProvider(
+                  create: (context) {
+                    return HomeBloc(
+                      const HomeState(
+                        notes: [],
+                        noteCollections: [],
+                      ),
+                      context.read<NavigationBloc>(),
+                      repository: context.read<HomeRepository>(),
+                      path: HomePage.path,
+                    );
+                  },
+                ),
+              ],
               child: const HomePage(),
             );
           },
@@ -45,7 +54,7 @@ class AppRouter {
               path: (EditNote).asRouteName(),
               builder: (context, state) {
                 final note = switch (context.extra) {
-                  NoteEntity note => note,
+                  final NoteEntity note => note,
                   _ => NoteEntity.empty(),
                 };
                 return MultiBlocProvider(
@@ -55,6 +64,11 @@ class AppRouter {
                         return DraggableScrollableBloc();
                       },
                     ),
+                    RepositoryProvider(
+                      create: (context) {
+                        return EditNoteRepository();
+                      },
+                    ),
                     BlocProvider(
                       create: (context) {
                         return EditNoteBloc(
@@ -62,7 +76,7 @@ class AppRouter {
                             note: note,
                             unlinkedCollections: [],
                           ),
-                          repository: EditNoteRepository(),
+                          repository: context.read<EditNoteRepository>(),
                         );
                       },
                     ),
