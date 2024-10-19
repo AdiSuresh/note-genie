@@ -54,7 +54,7 @@ class AppRouter {
               path: (EditNote).asRouteName(),
               builder: (context, state) {
                 final note = switch (context.extra) {
-                  NoteEntity note => note,
+                  final NoteEntity note => note,
                   _ => NoteEntity.empty(),
                 };
                 return MultiBlocProvider(

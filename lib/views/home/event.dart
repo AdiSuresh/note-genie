@@ -20,9 +20,11 @@ class ToggleCollectionEvent extends HomeEvent {
   });
 }
 
-class SelectCollectionEvent extends ToggleCollectionEvent {
+class SelectCollectionEvent extends HomeEvent {
+  final NoteCollectionEntity? collection;
+
   const SelectCollectionEvent({
-    required super.collection,
+    required this.collection,
   });
 }
 
