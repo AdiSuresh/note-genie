@@ -102,7 +102,6 @@ class _HomePageState extends State<HomePage>
 
   void handleSwitchTabEvent() {
     if (mounted) {
-      print('handleSwitchTabEvent');
       bloc.add(
         SwitchTabEvent(
           index: tabCtrl.index,
@@ -533,13 +532,11 @@ class _HomePageState extends State<HomePage>
                                       await Future.delayed(
                                         animationDuration,
                                       );
-                                      if (state.currentCollection != e) {
-                                        bloc.add(
-                                          SelectCollectionEvent(
-                                            collection: e,
-                                          ),
-                                        );
-                                      }
+                                      bloc.add(
+                                        SelectCollectionEvent(
+                                          collection: e,
+                                        ),
+                                      );
                                       final key = GlobalObjectKey(
                                         e,
                                       );
