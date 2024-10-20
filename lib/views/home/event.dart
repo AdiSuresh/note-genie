@@ -12,19 +12,23 @@ class UpdateNoteCollectionsEvent extends HomeEvent {
   });
 }
 
-class ToggleCollectionEvent extends HomeEvent {
+sealed class UpdateCollectionEvent extends HomeEvent {
   final NoteCollectionEntity? collection;
 
-  const ToggleCollectionEvent({
+  const UpdateCollectionEvent({
     required this.collection,
   });
 }
 
-class SelectCollectionEvent extends HomeEvent {
-  final NoteCollectionEntity? collection;
+class ToggleCollectionEvent extends UpdateCollectionEvent {
+  const ToggleCollectionEvent({
+    required super.collection,
+  });
+}
 
+class SelectCollectionEvent extends UpdateCollectionEvent {
   const SelectCollectionEvent({
-    required this.collection,
+    required super.collection,
   });
 }
 

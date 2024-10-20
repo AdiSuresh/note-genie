@@ -4,7 +4,7 @@ import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
 
 class EditNoteRepository with LocalDBServiceMixin {
-  Future<NoteEntity> saveNote(
+  Future<NoteEntity> putNote(
     NoteEntity note,
   ) async {
     final box = await noteBox;

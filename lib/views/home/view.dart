@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
-import 'package:note_maker/data/services/objectbox_db.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
@@ -16,6 +15,7 @@ import 'package:note_maker/views/edit_note/view.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
+import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/widgets/collection_list_tile.dart';
@@ -61,14 +61,13 @@ class _HomePageState extends State<HomePage>
     ),
   ];
 
-  final db = ObjectBoxDB();
-
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
   late final TabController tabCtrl;
 
   HomeBloc get bloc => context.read<HomeBloc>();
+  HomeRepository get repo => context.read<HomeRepository>();
 
   @override
   void initState() {
@@ -102,7 +101,6 @@ class _HomePageState extends State<HomePage>
 
   void handleSwitchTabEvent() {
     if (mounted) {
-      print('handleSwitchTabEvent');
       bloc.add(
         SwitchTabEvent(
           index: tabCtrl.index,
@@ -129,18 +127,17 @@ class _HomePageState extends State<HomePage>
           return 'Edit title';
         },
     }();
-    await UiUtils.showEditTitleDialog(
+    UiUtils.showEditTitleDialog(
       title: title,
       context: context,
       titleCtrl: collectionNameCtrl,
       onOk: () async {
         if (collectionNameFormKey.currentState?.validate() case true) {
-          final store = await db.store;
-          store.box<NoteCollectionEntity>().put(
-                collection.copyWith(
-                  name: collectionNameCtrl.text.trim(),
-                ),
-              );
+          repo.putCollection(
+            collection.copyWith(
+              name: collectionNameCtrl.text.trim(),
+            ),
+          );
           if (mounted) {
             context.pop();
           }
@@ -157,12 +154,8 @@ class _HomePageState extends State<HomePage>
   Future<void> deleteCollection(
     NoteCollectionEntity collection,
   ) async {
-    final deleted = await db.store.then(
-      (value) {
-        return value.box<NoteCollectionEntity>().remove(
-              collection.id,
-            );
-      },
+    final deleted = await repo.removeCollection(
+      collection,
     );
     final title = "'${collection.name}'";
     final content = switch (deleted) {
@@ -178,15 +171,6 @@ class _HomePageState extends State<HomePage>
   }
 
   void fabOnPressed() async {
-    // final uri = Uri.parse(
-    //   'home-page/edit-note?id=1',
-    // );
-    // print('path: ${uri.path}');
-    // print('queryParameters: ${uri.queryParameters}');
-    // print('pathSegments: ${uri.pathSegments}');
-    // final navBloc = context.read<NavigationBloc>();
-    // print(navBloc.state.currentPath);
-    // return;
     switch (tabCtrl.index) {
       case 0:
         context.extra = switch (bloc.state.currentCollection) {
@@ -533,13 +517,11 @@ class _HomePageState extends State<HomePage>
                                       await Future.delayed(
                                         animationDuration,
                                       );
-                                      if (state.currentCollection != e) {
-                                        bloc.add(
-                                          SelectCollectionEvent(
-                                            collection: e,
-                                          ),
-                                        );
-                                      }
+                                      bloc.add(
+                                        SelectCollectionEvent(
+                                          collection: e,
+                                        ),
+                                      );
                                       final key = GlobalObjectKey(
                                         e,
                                       );

@@ -52,7 +52,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<SelectCollectionEvent>(
       (event, emit) {
         switch (state.currentCollection?.id) {
-          case final int id when id != event.collection?.id:
+          case final int id when id == event.collection?.id:
+          // ignored
+          case _:
             emit(
               state.copyWith(
                 currentCollection: event.collection,
@@ -61,7 +63,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             add(
               const FetchNotesEvent(),
             );
-          case _:
         }
       },
     );
@@ -84,7 +85,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<FetchNotesEvent>(
       (event, emit) async {
-        print('FetchNotesEvent');
         final notes = await repository.fetchNotes(
           currentCollection: state.currentCollection,
         );
@@ -119,7 +119,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           );
           final shouldSkip = uri.path != path;
           print('shouldSkip: $shouldSkip');
-          return uri.path != path;
+          return shouldSkip;
         },
       );
       _noteCollectionsSub = stream.listen(

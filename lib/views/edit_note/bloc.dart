@@ -59,7 +59,7 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
     );
     on<SaveNoteEvent>(
       (event, emit) async {
-        final note = await repository.saveNote(
+        final note = await repository.putNote(
           event.note,
         );
         emit(
