@@ -4,6 +4,26 @@ import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
 
 class HomeRepository with LocalDBServiceMixin {
+  Future<NoteCollectionEntity> putCollection(
+    NoteCollectionEntity collection,
+  ) async {
+    final box = await noteCollectionBox;
+    return collection.copyWith(
+      id: box.put(
+        collection,
+      ),
+    );
+  }
+
+  Future<bool> removeCollection(
+    NoteCollectionEntity collection,
+  ) async {
+    final box = await noteCollectionBox;
+    return box.remove(
+      collection.id,
+    );
+  }
+
   Future<bool> collectionExists(
     NoteCollectionEntity collection,
   ) async {
