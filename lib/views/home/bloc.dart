@@ -8,7 +8,7 @@ import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 
-class HomeBloc extends Bloc<HomeEvent, HomeState> {
+class HomeBloc extends Bloc<HomeEvent, IdleState> {
   final NavigationBloc _navigationBloc;
 
   final String path;

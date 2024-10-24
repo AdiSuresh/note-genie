@@ -205,7 +205,7 @@ class _HomePageState extends State<HomePage>
               ),
               child: Row(
                 children: [
-                  BlocBuilder<HomeBloc, HomeState>(
+                  BlocBuilder<HomeBloc, IdleState>(
                     bloc: bloc,
                     buildWhen: (previous, current) {
                       return previous.showNotes != current.showNotes;
@@ -280,7 +280,7 @@ class _HomePageState extends State<HomePage>
                 children: [
                   Column(
                     children: [
-                      BlocBuilder<HomeBloc, HomeState>(
+                      BlocBuilder<HomeBloc, IdleState>(
                         bloc: bloc,
                         buildWhen: (prev, curr) {
                           final result = [
@@ -404,7 +404,7 @@ class _HomePageState extends State<HomePage>
                         },
                       ),
                       Expanded(
-                        child: BlocBuilder<HomeBloc, HomeState>(
+                        child: BlocBuilder<HomeBloc, IdleState>(
                           bloc: bloc,
                           buildWhen: (previous, current) {
                             return previous.notes != current.notes;
@@ -461,7 +461,7 @@ class _HomePageState extends State<HomePage>
                       ),
                     ],
                   ),
-                  BlocBuilder<HomeBloc, HomeState>(
+                  BlocBuilder<HomeBloc, IdleState>(
                     bloc: bloc,
                     buildWhen: (previous, current) {
                       return previous.noteCollections !=

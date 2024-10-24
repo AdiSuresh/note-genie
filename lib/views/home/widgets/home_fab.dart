@@ -13,7 +13,7 @@ class HomeFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
+    return BlocBuilder<HomeBloc, IdleState>(
       bloc: context.watch<HomeBloc>(),
       buildWhen: (previous, current) {
         return previous.showNotes != current.showNotes;
