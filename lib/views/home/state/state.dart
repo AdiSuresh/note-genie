@@ -4,14 +4,18 @@ import 'package:note_maker/models/note/model.dart';
 
 part 'state.g.dart';
 
+sealed class HomeState {
+  const HomeState();
+}
+
 @CopyWith()
-class HomeState {
+final class IdleState extends HomeState {
   final bool showNotes;
   final List<NoteEntity> notes;
   final List<NoteCollectionEntity> noteCollections;
   final NoteCollectionEntity? currentCollection;
 
-  const HomeState({
+  const IdleState({
     this.showNotes = true,
     required this.notes,
     required this.noteCollections,
@@ -25,3 +29,5 @@ class HomeState {
     };
   }
 }
+
+final class SearchState extends HomeState {}

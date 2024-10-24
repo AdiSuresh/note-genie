@@ -35,7 +35,7 @@ class AppRouter {
                 BlocProvider(
                   create: (context) {
                     return HomeBloc(
-                      const HomeState(
+                      const IdleState(
                         notes: [],
                         noteCollections: [],
                       ),
