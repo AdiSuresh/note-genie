@@ -171,9 +171,13 @@ class _HomePageState extends State<HomePage>
   }
 
   void fabOnPressed() async {
+    final state = bloc.state;
+    if (state is! IdleState) {
+      return;
+    }
     switch (tabCtrl.index) {
       case 0:
-        context.extra = switch (bloc.state.currentCollection) {
+        context.extra = switch (state.currentCollection) {
           final NoteCollectionEntity collection => NoteEntity.empty()
             ..collections.add(
               collection,
@@ -205,16 +209,29 @@ class _HomePageState extends State<HomePage>
               ),
               child: Row(
                 children: [
-                  BlocBuilder<HomeBloc, IdleState>(
+                  BlocBuilder<HomeBloc, HomeState>(
                     bloc: bloc,
                     buildWhen: (previous, current) {
-                      return previous.showNotes != current.showNotes;
+                      return previous.runtimeType != current.runtimeType;
                     },
                     builder: (context, state) {
-                      return Text(
-                        state.pageTitle,
-                        style: context.themeData.textTheme.titleLarge,
-                      );
+                      switch (state) {
+                        case final IdleState state:
+                          return Text(
+                            state.pageTitle,
+                            style: context.themeData.textTheme.titleLarge,
+                          );
+                        case _:
+                          return TextField(
+                            onChanged: (value) {
+                              bloc.add(
+                                PerformSearchEvent(
+                                  query: value,
+                                ),
+                              );
+                            },
+                          );
+                      }
                     },
                   ),
                   Expanded(
@@ -280,14 +297,19 @@ class _HomePageState extends State<HomePage>
                 children: [
                   Column(
                     children: [
-                      BlocBuilder<HomeBloc, IdleState>(
+                      BlocBuilder<HomeBloc, HomeState>(
                         bloc: bloc,
                         buildWhen: (prev, curr) {
-                          final result = [
-                            prev.noteCollections != curr.noteCollections,
-                            prev.currentCollection != curr.currentCollection,
-                          ].or();
-                          return result;
+                          switch ((prev, curr)) {
+                            case (final IdleState prev, final IdleState curr):
+                              return [
+                                prev.noteCollections != curr.noteCollections,
+                                prev.currentCollection !=
+                                    curr.currentCollection,
+                              ].or();
+                            case _:
+                          }
+                          return false;
                         },
                         builder: (context, state) {
                           // if (state.noteCollectionsSub == null) {
@@ -461,11 +483,11 @@ class _HomePageState extends State<HomePage>
                       ),
                     ],
                   ),
-                  BlocBuilder<HomeBloc, IdleState>(
+                  BlocBuilder<HomeBloc, HomeState>(
                     bloc: bloc,
                     buildWhen: (previous, current) {
-                      return previous.noteCollections !=
-                          current.noteCollections;
+                      // return previous.noteCollections != current.noteCollections;
+                      return true;
                     },
                     builder: (context, state) {
                       // if (noteCollectionsSub == null) {
@@ -473,7 +495,10 @@ class _HomePageState extends State<HomePage>
                       //     child: CircularProgressIndicator(),
                       //   );
                       // }
-                      final collections = state.noteCollections;
+                      final collections = switch (state) {
+                        IdleState _ => state.noteCollections,
+                        SearchState state => state.prevState.noteCollections,
+                      };
                       switch (collections) {
                         case []:
                           return const Center(

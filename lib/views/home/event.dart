@@ -43,3 +43,15 @@ class SwitchTabEvent extends HomeEvent {
 class FetchNotesEvent extends HomeEvent {
   const FetchNotesEvent();
 }
+
+class ToggleSearchEvent extends HomeEvent {
+  const ToggleSearchEvent();
+}
+
+class PerformSearchEvent extends HomeEvent {
+  final String query;
+
+  const PerformSearchEvent({
+    required this.query,
+  });
+}
