@@ -8,7 +8,7 @@ import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 
-class HomeBloc extends Bloc<HomeEvent, IdleState> {
+class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final NavigationBloc _navigationBloc;
 
   final String path;
@@ -26,73 +26,115 @@ class HomeBloc extends Bloc<HomeEvent, IdleState> {
   }) {
     on<UpdateNoteCollectionsEvent>(
       (event, emit) {
-        emit(
-          state.copyWith(
-            noteCollections: event.noteCollections,
-          ),
-        );
+        switch (state) {
+          case final IdleState state:
+            emit(
+              state.copyWith(
+                noteCollections: event.noteCollections,
+              ),
+            );
+          case _:
+        }
       },
     );
     on<ToggleCollectionEvent>(
       (event, emit) {
-        final collection = switch (state.currentCollection?.id) {
-          final int id when id == event.collection?.id => null,
-          _ => event.collection,
-        };
-        emit(
-          state.copyWith(
-            currentCollection: collection,
-          ),
-        );
-        add(
-          const FetchNotesEvent(),
-        );
-      },
-    );
-    on<SelectCollectionEvent>(
-      (event, emit) {
-        switch (state.currentCollection?.id) {
-          case final int id when id == event.collection?.id:
-          // ignored
-          case _:
+        switch (state) {
+          case final IdleState state:
+            final collection = switch (state.currentCollection?.id) {
+              final int id when id == event.collection?.id => null,
+              _ => event.collection,
+            };
             emit(
               state.copyWith(
-                currentCollection: event.collection,
+                currentCollection: collection,
               ),
             );
             add(
               const FetchNotesEvent(),
             );
+          case _:
+        }
+      },
+    );
+    on<SelectCollectionEvent>(
+      (event, emit) {
+        switch (state) {
+          case final IdleState state:
+            switch (state.currentCollection?.id) {
+              case final int id when id == event.collection?.id:
+              // ignored
+              case _:
+                emit(
+                  state.copyWith(
+                    currentCollection: event.collection,
+                  ),
+                );
+                add(
+                  const FetchNotesEvent(),
+                );
+            }
+          case _:
         }
       },
     );
     on<SwitchTabEvent>(
       (event, emit) {
-        final showNotes = switch (event.index) {
-          0 || 1 => event.index == 0,
-          _ => null,
-        };
-        switch (showNotes) {
-          case final bool showNotes when showNotes ^ state.showNotes:
-            emit(
-              state.copyWith(
-                showNotes: showNotes,
-              ),
-            );
+        switch (state) {
+          case final IdleState state:
+            final showNotes = switch (event.index) {
+              0 || 1 => event.index == 0,
+              _ => null,
+            };
+            switch (showNotes) {
+              case final bool showNotes when showNotes ^ state.showNotes:
+                emit(
+                  state.copyWith(
+                    showNotes: showNotes,
+                  ),
+                );
+              case _:
+            }
           case _:
         }
       },
     );
     on<FetchNotesEvent>(
       (event, emit) async {
-        final notes = await repository.fetchNotes(
-          currentCollection: state.currentCollection,
-        );
-        emit(
-          state.copyWith(
-            notes: notes,
-          ),
-        );
+        switch (state) {
+          case final IdleState state:
+            final notes = await repository.fetchNotes(
+              currentCollection: state.currentCollection,
+            );
+            emit(
+              state.copyWith(
+                notes: notes,
+              ),
+            );
+          case _:
+        }
+      },
+    );
+    on<ToggleSearchEvent>(
+      (event, emit) {
+        switch (state) {
+          case final IdleState state:
+            final nextState = switch (state.showNotes) {
+              true => SearchNotesState.initial(
+                  state,
+                ),
+              _ => SearchNoteCollectionsState.initial(
+                  state,
+                ),
+            };
+            emit(
+              nextState,
+            );
+          case final SearchState state:
+            emit(
+              state.prevState,
+            );
+        }
       },
     );
     _startNavigationSub();

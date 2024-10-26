@@ -13,22 +13,32 @@ class HomeFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, IdleState>(
+    return BlocBuilder<HomeBloc, HomeState>(
       bloc: context.watch<HomeBloc>(),
       buildWhen: (previous, current) {
-        return previous.showNotes != current.showNotes;
+        switch ((previous, current)) {
+          case (final IdleState previous, final IdleState current):
+            return previous.showNotes != current.showNotes;
+          case _:
+        }
+        return false;
       },
       builder: (context, state) {
-        return FloatingActionButton(
-          onPressed: onPressed,
-          tooltip: switch (state.showNotes) {
-            true => 'Add note',
-            _ => 'Add collection',
-          },
-          child: const Icon(
-            Icons.add,
-          ),
-        );
+        switch (state) {
+          case IdleState _:
+            return FloatingActionButton(
+              onPressed: onPressed,
+              tooltip: switch (state.showNotes) {
+                true => 'Add note',
+                _ => 'Add collection',
+              },
+              child: const Icon(
+                Icons.add,
+              ),
+            );
+          case _:
+            return const SizedBox();
+        }
       },
     );
   }
