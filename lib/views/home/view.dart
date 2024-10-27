@@ -443,10 +443,29 @@ class _HomePageState extends State<HomePage>
                         child: BlocBuilder<HomeBloc, HomeState>(
                           bloc: bloc,
                           buildWhen: (previous, current) {
-                            return previous.notes != current.notes;
+                            switch ((previous, current)) {
+                              case (
+                                  final IdleState prev,
+                                  final IdleState curr,
+                                ):
+                                return prev.notes != curr.notes;
+                              case _:
+                            }
+                            return previous.runtimeType != current.runtimeType;
                           },
                           builder: (context, state) {
-                            final key = switch (state.currentCollection) {
+                            final data = switch (state) {
+                              final IdleState state => (
+                                  state.currentCollection,
+                                  state.notes,
+                                ),
+                              _ => null,
+                            };
+                            if (data case null) {
+                              return const SizedBox();
+                            }
+                            final (currentCollection, notes) = data;
+                            final key = switch (currentCollection) {
                               null => const ValueKey(
                                   'notes-list-switcher',
                                 ),
@@ -463,7 +482,6 @@ class _HomePageState extends State<HomePage>
                                   //     child: CircularProgressIndicator(),
                                   //   );
                                   // }
-                                  final notes = state.notes;
                                   if (notes.isEmpty) {
                                     return const Center(
                                       child: Text(
@@ -473,7 +491,7 @@ class _HomePageState extends State<HomePage>
                                   }
                                   return ListView(
                                     key: PageStorageKey(
-                                      state.currentCollection,
+                                      currentCollection,
                                     ),
                                     children: <Widget>[
                                       for (final note in notes)
@@ -499,9 +517,13 @@ class _HomePageState extends State<HomePage>
                   ),
                   BlocBuilder<HomeBloc, HomeState>(
                     bloc: bloc,
-                    buildWhen: (previous, current) {
-                      // return previous.noteCollections != current.noteCollections;
-                      return true;
+                    buildWhen: (prev, curr) {
+                      switch ((prev, curr)) {
+                        case (final IdleState prev, final IdleState curr):
+                          return prev.noteCollections != curr.noteCollections;
+                        case _:
+                      }
+                      return prev.runtimeType != curr.runtimeType;
                     },
                     builder: (context, state) {
                       // if (noteCollectionsSub == null) {
