@@ -322,7 +322,21 @@ class _HomePageState extends State<HomePage>
                           const verticalPadding = EdgeInsets.symmetric(
                             vertical: 7.5,
                           );
-                          final collections = state.noteCollections;
+                          final data = switch (state) {
+                            final IdleState state => (
+                                state.noteCollections,
+                                state.currentCollection,
+                              ),
+                            final SearchNoteCollectionsState state => (
+                                state.searchResults,
+                                state.previousState.currentCollection,
+                              ),
+                            _ => null,
+                          };
+                          if (data case null) {
+                            return const SizedBox();
+                          }
+                          final (collections, currentCollection) = data;
                           final scrollView = switch (collections) {
                             [] => const NoCollectionsMessage(),
                             _ => SingleChildScrollView(
@@ -349,8 +363,8 @@ class _HomePageState extends State<HomePage>
                                               left: 15,
                                             );
                                           }
-                                          final selected = collection ==
-                                              state.currentCollection;
+                                          final selected =
+                                              collection == currentCollection;
                                           final scale = selected ? 1.05 : 1.0;
                                           final borderColor =
                                               switch (selected) {
@@ -426,7 +440,7 @@ class _HomePageState extends State<HomePage>
                         },
                       ),
                       Expanded(
-                        child: BlocBuilder<HomeBloc, IdleState>(
+                        child: BlocBuilder<HomeBloc, HomeState>(
                           bloc: bloc,
                           buildWhen: (previous, current) {
                             return previous.notes != current.notes;
@@ -497,7 +511,8 @@ class _HomePageState extends State<HomePage>
                       // }
                       final collections = switch (state) {
                         IdleState _ => state.noteCollections,
-                        SearchState state => state.prevState.noteCollections,
+                        SearchState state =>
+                          state.previousState.noteCollections,
                       };
                       switch (collections) {
                         case []:
