@@ -283,9 +283,13 @@ class _HomePageState extends State<HomePage>
                     width: 15,
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      bloc.add(
+                        const ToggleSearchEvent(),
+                      );
+                    },
                     icon: const Icon(
-                      Icons.settings,
+                      Icons.search,
                     ),
                   ),
                 ],
