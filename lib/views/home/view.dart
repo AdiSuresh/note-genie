@@ -18,6 +18,7 @@ import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
+import 'package:note_maker/views/home/widgets/home_page_title.dart';
 import 'package:note_maker/widgets/collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/home_fab.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
@@ -171,6 +172,10 @@ class _HomePageState extends State<HomePage>
   }
 
   void fabOnPressed() async {
+    bloc.add(
+      const ToggleSearchEvent(),
+    );
+    return;
     final state = bloc.state;
     if (state is! IdleState) {
       return;
@@ -207,92 +212,90 @@ class _HomePageState extends State<HomePage>
               padding: const EdgeInsets.all(15).copyWith(
                 bottom: 7.5,
               ),
-              child: Row(
-                children: [
-                  BlocBuilder<HomeBloc, HomeState>(
-                    bloc: bloc,
-                    buildWhen: (previous, current) {
-                      return previous.runtimeType != current.runtimeType;
-                    },
-                    builder: (context, state) {
-                      switch (state) {
-                        case final IdleState state:
-                          return Text(
-                            state.pageTitle,
-                            style: context.themeData.textTheme.titleLarge,
-                          );
-                        case _:
-                          return TextField(
-                            onChanged: (value) {
-                              bloc.add(
-                                PerformSearchEvent(
-                                  query: value,
-                                ),
-                              );
-                            },
-                          );
-                      }
-                    },
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Builder(
-                        builder: (context) {
-                          const padding = EdgeInsets.zero;
-                          final borderRadius = BorderRadius.circular(
-                            15,
-                          );
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black12,
-                              borderRadius: borderRadius,
-                            ),
-                            child: TabBar(
-                              controller: tabCtrl,
-                              automaticIndicatorColorAdjustment: false,
-                              tabAlignment: TabAlignment.center,
-                              indicator: BoxDecoration(
-                                borderRadius: borderRadius,
-                                color: context.themeData.primaryColorLight,
-                              ),
-                              overlayColor: WidgetStateProperty.all(
-                                Colors.transparent,
-                              ),
-                              padding: padding,
-                              indicatorPadding: padding,
-                              labelPadding: padding,
-                              dividerColor: Colors.transparent,
-                              labelColor: Colors.white,
-                              unselectedLabelColor: Colors.black,
-                              tabs: tabIcons.map(
-                                (e) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(15),
-                                    child: e,
+              child: BlocBuilder<HomeBloc, HomeState>(
+                bloc: bloc,
+                buildWhen: (previous, current) {
+                  return previous.runtimeType != current.runtimeType;
+                },
+                builder: (context, state) {
+                  switch (state) {
+                    case final IdleState _:
+                      return Row(
+                        children: [
+                          HomePageTitle(),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Builder(
+                                builder: (context) {
+                                  const padding = EdgeInsets.zero;
+                                  final borderRadius = BorderRadius.circular(
+                                    15,
+                                  );
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black12,
+                                      borderRadius: borderRadius,
+                                    ),
+                                    child: TabBar(
+                                      controller: tabCtrl,
+                                      automaticIndicatorColorAdjustment: false,
+                                      tabAlignment: TabAlignment.center,
+                                      indicator: BoxDecoration(
+                                        borderRadius: borderRadius,
+                                        color:
+                                            context.themeData.primaryColorLight,
+                                      ),
+                                      overlayColor: WidgetStateProperty.all(
+                                        Colors.transparent,
+                                      ),
+                                      padding: padding,
+                                      indicatorPadding: padding,
+                                      labelPadding: padding,
+                                      dividerColor: Colors.transparent,
+                                      labelColor: Colors.white,
+                                      unselectedLabelColor: Colors.black,
+                                      tabs: tabIcons.map(
+                                        (e) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(15),
+                                            child: e,
+                                          );
+                                        },
+                                      ).toList(),
+                                    ),
                                   );
                                 },
-                              ).toList(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              bloc.add(
+                                const ToggleSearchEvent(),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.search,
+                            ),
+                          ),
+                        ],
+                      );
+                    case _:
+                      return TextField(
+                        onChanged: (value) {
+                          bloc.add(
+                            PerformSearchEvent(
+                              query: value,
                             ),
                           );
                         },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      bloc.add(
-                        const ToggleSearchEvent(),
                       );
-                    },
-                    icon: const Icon(
-                      Icons.search,
-                    ),
-                  ),
-                ],
+                  }
+                },
               ),
             ),
             Expanded(
@@ -313,7 +316,7 @@ class _HomePageState extends State<HomePage>
                               ].or();
                             case _:
                           }
-                          return false;
+                          return prev.runtimeType != curr.runtimeType;
                         },
                         builder: (context, state) {
                           // if (state.noteCollectionsSub == null) {
