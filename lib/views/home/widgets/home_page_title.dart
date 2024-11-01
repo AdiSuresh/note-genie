@@ -16,14 +16,14 @@ class HomePageTitle extends StatelessWidget {
         switch ((previous, current)) {
           case (IdleState previous, IdleState current):
             return previous.pageTitle != current.pageTitle;
-          case (_, IdleState _):
+          case (_, IdleState()):
             return true;
           case _:
         }
         return false;
       },
       builder: (context, state) {
-        if (state case IdleState _) {
+        if (state case IdleState()) {
           return Text(
             state.pageTitle,
             style: context.themeData.textTheme.titleLarge,

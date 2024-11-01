@@ -289,6 +289,23 @@ class _HomePageState extends State<HomePage>
                             ),
                           );
                         },
+                        decoration: InputDecoration(
+                          hintText: 'Search',
+                          contentPadding: EdgeInsets.all(15),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              Icons.cancel,
+                            ),
+                            onPressed: () {
+                              bloc.add(
+                                const ToggleSearchEvent(),
+                              );
+                            },
+                          ),
+                        ),
                       );
                   }
                 },
