@@ -172,10 +172,6 @@ class _HomePageState extends State<HomePage>
   }
 
   void fabOnPressed() async {
-    bloc.add(
-      const ToggleSearchEvent(),
-    );
-    return;
     final state = bloc.state;
     if (state is! IdleState) {
       return;
