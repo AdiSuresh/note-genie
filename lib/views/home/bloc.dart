@@ -135,6 +135,32 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
+    on<PerformSearchEvent>(
+      (event, emit) async {
+        switch (state) {
+          case final SearchNotesState state:
+            final notes = await repository.fetchNotes(
+              currentCollection: state.previousState.currentCollection,
+              searchQuery: event.query,
+            );
+            emit(
+              state.copyWith(
+                searchResults: notes,
+              ),
+            );
+          case final SearchNoteCollectionsState state:
+            final noteCollections = await repository.fetchNoteCollections(
+              searchQuery: event.query,
+            );
+            emit(
+              state.copyWith(
+                searchResults: noteCollections,
+              ),
+            );
+          case _:
+        }
+      },
+    );
     _startNavigationSub();
     _startNoteCollectionsSub();
     add(

@@ -469,6 +469,11 @@ class _HomePageState extends State<HomePage>
                                   final IdleState curr,
                                 ):
                                 return prev.notes != curr.notes;
+                              case (
+                                  _,
+                                  SearchNotesState(),
+                                ):
+                                return true;
                               case _:
                             }
                             return previous.runtimeType != current.runtimeType;
@@ -478,6 +483,10 @@ class _HomePageState extends State<HomePage>
                               final IdleState state => (
                                   state.currentCollection,
                                   state.notes,
+                                ),
+                              final SearchNotesState state => (
+                                  state.previousState.currentCollection,
+                                  state.searchResults,
                                 ),
                               _ => null,
                             };
