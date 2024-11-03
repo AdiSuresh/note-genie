@@ -215,7 +215,7 @@ class _HomePageState extends State<HomePage>
                 },
                 builder: (context, state) {
                   switch (state) {
-                    case final IdleState _:
+                    case IdleState():
                       return Row(
                         children: [
                           HomePageTitle(),
@@ -280,7 +280,17 @@ class _HomePageState extends State<HomePage>
                           ),
                         ],
                       );
-                    case _:
+                    case final SearchState state:
+                      final hintText = switch (state) {
+                        SearchNotesState(
+                          previousState: IdleState(
+                            :final NoteCollectionEntity currentCollection,
+                          ),
+                        ) =>
+                          'Search in ${currentCollection.name}',
+                        SearchNotesState() => 'Search notes',
+                        SearchNoteCollectionsState() => 'Search collections',
+                      };
                       return TextField(
                         onChanged: (value) {
                           bloc.add(
@@ -290,7 +300,7 @@ class _HomePageState extends State<HomePage>
                           );
                         },
                         decoration: InputDecoration(
-                          hintText: 'Search',
+                          hintText: hintText,
                           contentPadding: EdgeInsets.all(15),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),

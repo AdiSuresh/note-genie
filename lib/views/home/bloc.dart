@@ -117,16 +117,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (event, emit) {
         switch (state) {
           case final IdleState state:
-            final nextState = switch (state.showNotes) {
-              true => SearchNotesState.initial(
-                  state,
-                ),
-              _ => SearchNoteCollectionsState.initial(
-                  state,
-                ),
+            final ctr = switch (state.showNotes) {
+              true => SearchNotesState.initial,
+              _ => SearchNoteCollectionsState.initial,
             };
             emit(
-              nextState,
+              ctr(
+                state,
+              ),
             );
           case final SearchState state:
             emit(
