@@ -65,6 +65,8 @@ class _HomePageState extends State<HomePage>
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
+  final searchCtrl = TextEditingController();
+
   late final TabController tabCtrl;
 
   HomeBloc get bloc => context.read<HomeBloc>();
@@ -287,15 +289,17 @@ class _HomePageState extends State<HomePage>
                             :final NoteCollectionEntity currentCollection,
                           ),
                         ) =>
-                          'Search in ${currentCollection.name}',
+                          'Search in \'${currentCollection.name}\'',
                         SearchNotesState() => 'Search notes',
                         SearchNoteCollectionsState() => 'Search collections',
                       };
                       return TextField(
+                        controller: searchCtrl,
+                        autofocus: true,
                         onChanged: (value) {
                           bloc.add(
                             PerformSearchEvent(
-                              query: value,
+                              query: value.trim(),
                             ),
                           );
                         },
@@ -307,12 +311,21 @@ class _HomePageState extends State<HomePage>
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              Icons.cancel,
+                              Icons.close_rounded,
                             ),
                             onPressed: () {
-                              bloc.add(
-                                const ToggleSearchEvent(),
-                              );
+                              if (searchCtrl.text.isNotEmpty) {
+                                searchCtrl.text = '';
+                                bloc.add(
+                                  PerformSearchEvent(
+                                    query: '',
+                                  ),
+                                );
+                              } else {
+                                bloc.add(
+                                  const ToggleSearchEvent(),
+                                );
+                              }
                             },
                           ),
                         ),
