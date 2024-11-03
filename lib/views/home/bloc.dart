@@ -117,21 +117,45 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (event, emit) {
         switch (state) {
           case final IdleState state:
-            final nextState = switch (state.showNotes) {
-              true => SearchNotesState.initial(
-                  state,
-                ),
-              _ => SearchNoteCollectionsState.initial(
-                  state,
-                ),
+            final ctr = switch (state.showNotes) {
+              true => SearchNotesState.initial,
+              _ => SearchNoteCollectionsState.initial,
             };
             emit(
-              nextState,
+              ctr(
+                state,
+              ),
             );
           case final SearchState state:
             emit(
               state.previousState,
             );
+        }
+      },
+    );
+    on<PerformSearchEvent>(
+      (event, emit) async {
+        switch (state) {
+          case final SearchNotesState state:
+            final notes = await repository.fetchNotes(
+              currentCollection: state.previousState.currentCollection,
+              searchQuery: event.query,
+            );
+            emit(
+              state.copyWith(
+                searchResults: notes,
+              ),
+            );
+          case final SearchNoteCollectionsState state:
+            final noteCollections = await repository.fetchNoteCollections(
+              searchQuery: event.query,
+            );
+            emit(
+              state.copyWith(
+                searchResults: noteCollections,
+              ),
+            );
+          case _:
         }
       },
     );

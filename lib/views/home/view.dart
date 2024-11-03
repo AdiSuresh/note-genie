@@ -65,6 +65,8 @@ class _HomePageState extends State<HomePage>
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
 
+  final searchCtrl = TextEditingController();
+
   late final TabController tabCtrl;
 
   HomeBloc get bloc => context.read<HomeBloc>();
@@ -215,7 +217,7 @@ class _HomePageState extends State<HomePage>
                 },
                 builder: (context, state) {
                   switch (state) {
-                    case final IdleState _:
+                    case IdleState():
                       return Row(
                         children: [
                           HomePageTitle(),
@@ -280,29 +282,50 @@ class _HomePageState extends State<HomePage>
                           ),
                         ],
                       );
-                    case _:
+                    case final SearchState state:
+                      final hintText = switch (state) {
+                        SearchNotesState(
+                          previousState: IdleState(
+                            :final NoteCollectionEntity currentCollection,
+                          ),
+                        ) =>
+                          'Search in \'${currentCollection.name}\'',
+                        SearchNotesState() => 'Search notes',
+                        SearchNoteCollectionsState() => 'Search collections',
+                      };
                       return TextField(
+                        controller: searchCtrl,
+                        autofocus: true,
                         onChanged: (value) {
                           bloc.add(
                             PerformSearchEvent(
-                              query: value,
+                              query: value.trim(),
                             ),
                           );
                         },
                         decoration: InputDecoration(
-                          hintText: 'Search',
+                          hintText: hintText,
                           contentPadding: EdgeInsets.all(15),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              Icons.cancel,
+                              Icons.close_rounded,
                             ),
                             onPressed: () {
-                              bloc.add(
-                                const ToggleSearchEvent(),
-                              );
+                              if (searchCtrl.text.isNotEmpty) {
+                                searchCtrl.text = '';
+                                bloc.add(
+                                  PerformSearchEvent(
+                                    query: '',
+                                  ),
+                                );
+                              } else {
+                                bloc.add(
+                                  const ToggleSearchEvent(),
+                                );
+                              }
                             },
                           ),
                         ),
@@ -469,6 +492,11 @@ class _HomePageState extends State<HomePage>
                                   final IdleState curr,
                                 ):
                                 return prev.notes != curr.notes;
+                              case (
+                                  _,
+                                  SearchNotesState(),
+                                ):
+                                return true;
                               case _:
                             }
                             return previous.runtimeType != current.runtimeType;
@@ -478,6 +506,10 @@ class _HomePageState extends State<HomePage>
                               final IdleState state => (
                                   state.currentCollection,
                                   state.notes,
+                                ),
+                              final SearchNotesState state => (
+                                  state.previousState.currentCollection,
+                                  state.searchResults,
                                 ),
                               _ => null,
                             };

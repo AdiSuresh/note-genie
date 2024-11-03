@@ -41,6 +41,7 @@ sealed class SearchState<T extends BaseEntity> extends HomeState {
   });
 }
 
+@CopyWith()
 class SearchNotesState extends SearchState<NoteEntity> {
   SearchNotesState({
     required super.previousState,
@@ -57,6 +58,7 @@ class SearchNotesState extends SearchState<NoteEntity> {
   }
 }
 
+@CopyWith()
 class SearchNoteCollectionsState extends SearchState<NoteCollectionEntity> {
   SearchNoteCollectionsState({
     required super.previousState,
