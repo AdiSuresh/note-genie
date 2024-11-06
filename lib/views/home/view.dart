@@ -272,6 +272,9 @@ class _HomePageState extends State<HomePage>
                           ),
                           IconButton(
                             onPressed: () {
+                              if (tabCtrl.offset != 0) {
+                                return;
+                              }
                               bloc.add(
                                 const ToggleSearchEvent(),
                               );
@@ -314,18 +317,16 @@ class _HomePageState extends State<HomePage>
                               Icons.close_rounded,
                             ),
                             onPressed: () {
+                              HomeEvent event = const ToggleSearchEvent();
                               if (searchCtrl.text.isNotEmpty) {
                                 searchCtrl.text = '';
-                                bloc.add(
-                                  PerformSearchEvent(
-                                    query: '',
-                                  ),
-                                );
-                              } else {
-                                bloc.add(
-                                  const ToggleSearchEvent(),
+                                event = PerformSearchEvent(
+                                  query: '',
                                 );
                               }
+                              bloc.add(
+                                event,
+                              );
                             },
                           ),
                         ),
