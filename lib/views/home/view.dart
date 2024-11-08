@@ -550,7 +550,7 @@ class _HomePageState extends State<HomePage>
                                       for (final note in notes)
                                         NoteListTile(
                                           note: note,
-                                          viewNote: () async {
+                                          onTap: () async {
                                             context.extra = note;
                                             context.go(
                                               (EditNote).asRoutePath(),
