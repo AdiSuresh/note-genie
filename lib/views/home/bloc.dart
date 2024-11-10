@@ -150,6 +150,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             final noteCollections = await repository.fetchNoteCollections(
               searchQuery: event.query,
             );
+            print('search results noteCollections: $noteCollections');
             emit(
               state.copyWith(
                 searchResults: noteCollections,

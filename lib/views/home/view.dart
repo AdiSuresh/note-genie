@@ -574,6 +574,11 @@ class _HomePageState extends State<HomePage>
                       switch ((prev, curr)) {
                         case (final IdleState prev, final IdleState curr):
                           return prev.noteCollections != curr.noteCollections;
+                        case (
+                            final SearchNoteCollectionsState prev,
+                            final SearchNoteCollectionsState curr,
+                          ):
+                          return prev.searchResults != curr.searchResults;
                         case _:
                       }
                       return prev.runtimeType != curr.runtimeType;
@@ -585,15 +590,20 @@ class _HomePageState extends State<HomePage>
                       //   );
                       // }
                       final collections = switch (state) {
-                        IdleState _ => state.noteCollections,
-                        SearchState state =>
-                          state.previousState.noteCollections,
+                        IdleState() => state.noteCollections,
+                        SearchNoteCollectionsState(
+                          :final searchResults,
+                        ) =>
+                          searchResults,
+                        _ => null,
                       };
                       switch (collections) {
                         case []:
                           return const Center(
                             child: NoCollectionsMessage(),
                           );
+                        case null:
+                          return const SizedBox();
                         case _:
                       }
                       return ListView(
