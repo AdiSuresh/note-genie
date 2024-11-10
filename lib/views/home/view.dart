@@ -504,13 +504,21 @@ class _HomePageState extends State<HomePage>
                           },
                           builder: (context, state) {
                             final data = switch (state) {
-                              final IdleState state => (
-                                  state.currentCollection,
-                                  state.notes,
+                              IdleState(
+                                :final currentCollection,
+                                :final notes,
+                              ) =>
+                                (
+                                  currentCollection,
+                                  notes,
                                 ),
-                              final SearchNotesState state => (
-                                  state.previousState.currentCollection,
-                                  state.searchResults,
+                              SearchNotesState(
+                                :final previousState,
+                                :final searchResults,
+                              ) =>
+                                (
+                                  previousState.currentCollection,
+                                  searchResults,
                                 ),
                               _ => null,
                             };
