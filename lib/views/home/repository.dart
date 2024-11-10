@@ -38,17 +38,17 @@ class HomeRepository with LocalDBServiceMixin {
     String? searchQuery,
   }) async {
     final box = await noteBox;
-    final builder = switch (searchQuery) {
-      '' || null => box.query(),
-      String() => box.query(
-          NoteEntity_.title.contains(
-                searchQuery,
-              ) |
-              NoteEntity_.content.contains(
-                searchQuery,
-              ),
-        ),
-    };
+    final builder = box.query(
+      switch (searchQuery) {
+        '' || null => null,
+        String() => NoteEntity_.title.contains(
+              searchQuery,
+            ) |
+            NoteEntity_.content.contains(
+              searchQuery,
+            ),
+      },
+    );
     switch (currentCollection) {
       case NoteCollectionEntity c when await collectionExists(c):
         builder.backlinkMany(
@@ -69,14 +69,14 @@ class HomeRepository with LocalDBServiceMixin {
     String? searchQuery,
   }) async {
     final box = await noteCollectionBox;
-    final builder = switch (searchQuery) {
-      '' || null => box.query(),
-      String() => box.query(
-          NoteCollectionEntity_.name.contains(
+    final builder = box.query(
+      switch (searchQuery) {
+        '' || null => null,
+        String() => NoteCollectionEntity_.name.contains(
             searchQuery,
           ),
-        ),
-    };
+      },
+    );
     final query = builder.build();
     final result = query.find();
     query.close();
