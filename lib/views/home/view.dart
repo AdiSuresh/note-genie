@@ -218,11 +218,7 @@ class _HomePageState extends State<HomePage>
                 builder: (context, state) {
                   final child = switch (state) {
                     IdleState() => () {
-                        final key = ValueKey(
-                          'navbar',
-                        );
                         final child = Row(
-                          key: key,
                           children: [
                             HomePageTitle(),
                             Expanded(
@@ -305,11 +301,7 @@ class _HomePageState extends State<HomePage>
                           SearchNotesState() => 'Search notes',
                           SearchNoteCollectionsState() => 'Search collections',
                         };
-                        final key = ValueKey(
-                          'searchbar',
-                        );
                         final child = TextField(
-                          key: key,
                           controller: searchCtrl,
                           autofocus: true,
                           onChanged: (value) {
@@ -395,30 +387,16 @@ class _HomePageState extends State<HomePage>
                               ),
                             _ => null,
                           };
-                          const keyPrefix = 'note-collections-list-1';
-                          if (data case null) {
-                            return CustomAnimatedSwitcher(
-                              child: SizedBox(
-                                key: ValueKey(
-                                  '$keyPrefix-invisible',
-                                ),
-                              ),
-                            );
-                          }
                           final child = switch (data) {
                             null => () {
-                                return SizedBox(
-                                  key: ValueKey(
-                                    '$keyPrefix-invisible',
-                                  ),
-                                );
+                                return const SizedBox();
                               },
                             (final collections, final currentCollection) => () {
                                 final scrollView = switch (collections) {
                                   [] => const NoCollectionsMessage(),
                                   _ => SingleChildScrollView(
                                       key: const PageStorageKey(
-                                        keyPrefix,
+                                        'note-collections-list-1',
                                       ),
                                       padding: verticalPadding,
                                       physics: const BouncingScrollPhysics(),
@@ -496,9 +474,6 @@ class _HomePageState extends State<HomePage>
                                     ),
                                 };
                                 return Row(
-                                  key: ValueKey(
-                                    '$keyPrefix-wrapper',
-                                  ),
                                   children: [
                                     Expanded(
                                       child: scrollView,
