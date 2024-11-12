@@ -395,109 +395,136 @@ class _HomePageState extends State<HomePage>
                               ),
                             _ => null,
                           };
+                          const keyPrefix = 'note-collections-list-1';
                           if (data case null) {
-                            return const SizedBox();
-                          }
-                          final (collections, currentCollection) = data;
-                          final scrollView = switch (collections) {
-                            [] => const NoCollectionsMessage(),
-                            _ => SingleChildScrollView(
-                                key: const PageStorageKey(
-                                  'note-collections-list-1',
+                            return CustomAnimatedSwitcher(
+                              child: SizedBox(
+                                key: ValueKey(
+                                  '$keyPrefix-invisible',
                                 ),
-                                padding: verticalPadding,
-                                physics: const BouncingScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: collections.map(
-                                    (collection) {
-                                      return Builder(
-                                        key: GlobalObjectKey(
-                                          collection,
-                                        ),
-                                        builder: (context) {
-                                          var padding =
-                                              const EdgeInsets.symmetric(
-                                            horizontal: 7.5,
-                                          );
-                                          if (collection == collections.first) {
-                                            padding = padding.copyWith(
-                                              left: 15,
-                                            );
-                                          }
-                                          final selected =
-                                              collection == currentCollection;
-                                          final scale = selected ? 1.05 : 1.0;
-                                          final borderColor =
-                                              switch (selected) {
-                                            true => Colors.blueGrey.withOpacity(
-                                                .5,
+                              ),
+                            );
+                          }
+                          final child = switch (data) {
+                            null => () {
+                                return SizedBox(
+                                  key: ValueKey(
+                                    '$keyPrefix-invisible',
+                                  ),
+                                );
+                              },
+                            (final collections, final currentCollection) => () {
+                                final scrollView = switch (collections) {
+                                  [] => const NoCollectionsMessage(),
+                                  _ => SingleChildScrollView(
+                                      key: const PageStorageKey(
+                                        keyPrefix,
+                                      ),
+                                      padding: verticalPadding,
+                                      physics: const BouncingScrollPhysics(),
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: collections.map(
+                                          (collection) {
+                                            return Builder(
+                                              key: GlobalObjectKey(
+                                                collection,
                                               ),
-                                            _ => Colors.transparent,
-                                          };
-                                          return Padding(
-                                            padding: padding,
-                                            child: AnimatedContainer(
-                                              duration: animationDuration,
-                                              transform: Transform.scale(
-                                                scale: scale,
-                                              ).transform,
-                                              transformAlignment:
-                                                  Alignment.center,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: borderColor,
-                                                  strokeAlign: BorderSide
-                                                      .strokeAlignOutside,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                  15,
-                                                ),
-                                              ),
-                                              child: CollectionChip(
-                                                onTap: () {
-                                                  bloc.add(
-                                                    ToggleCollectionEvent(
-                                                      collection: collection,
-                                                    ),
+                                              builder: (context) {
+                                                var padding =
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 7.5,
+                                                );
+                                                if (collection ==
+                                                    collections.first) {
+                                                  padding = padding.copyWith(
+                                                    left: 15,
                                                   );
-                                                },
-                                                child: Text(
-                                                  collection.name,
-                                                ),
-                                              ),
-                                            ),
+                                                }
+                                                final selected = collection ==
+                                                    currentCollection;
+                                                final scale =
+                                                    selected ? 1.05 : 1.0;
+                                                final borderColor =
+                                                    switch (selected) {
+                                                  true =>
+                                                    Colors.blueGrey.withOpacity(
+                                                      .5,
+                                                    ),
+                                                  _ => Colors.transparent,
+                                                };
+                                                return Padding(
+                                                  padding: padding,
+                                                  child: AnimatedContainer(
+                                                    duration: animationDuration,
+                                                    transform: Transform.scale(
+                                                      scale: scale,
+                                                    ).transform,
+                                                    transformAlignment:
+                                                        Alignment.center,
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: borderColor,
+                                                        strokeAlign: BorderSide
+                                                            .strokeAlignOutside,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                        15,
+                                                      ),
+                                                    ),
+                                                    child: CollectionChip(
+                                                      onTap: () {
+                                                        bloc.add(
+                                                          ToggleCollectionEvent(
+                                                            collection:
+                                                                collection,
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: Text(
+                                                        collection.name,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ).toList(),
+                                      ),
+                                    ),
+                                };
+                                return Row(
+                                  key: ValueKey(
+                                    '$keyPrefix-wrapper',
+                                  ),
+                                  children: [
+                                    Expanded(
+                                      child: scrollView,
+                                    ),
+                                    Padding(
+                                      padding: verticalPadding.copyWith(
+                                        left: 7.5,
+                                        right: 15,
+                                      ),
+                                      child: CollectionChip(
+                                        onTap: () {
+                                          putCollection(
+                                            NoteCollectionEntity.untitled(),
                                           );
                                         },
-                                      );
-                                    },
-                                  ).toList(),
-                                ),
-                              ),
-                          };
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: scrollView,
-                              ),
-                              Padding(
-                                padding: verticalPadding.copyWith(
-                                  left: 7.5,
-                                  right: 15,
-                                ),
-                                child: CollectionChip(
-                                  onTap: () {
-                                    putCollection(
-                                      NoteCollectionEntity.untitled(),
-                                    );
-                                  },
-                                  child: const Icon(
-                                    Icons.create_new_folder,
-                                  ),
-                                ),
-                              ),
-                            ],
+                                        child: const Icon(
+                                          Icons.create_new_folder,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                          }();
+                          return CustomAnimatedSwitcher(
+                            child: child,
                           );
                         },
                       ),
