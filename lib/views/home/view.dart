@@ -216,122 +216,140 @@ class _HomePageState extends State<HomePage>
                   return previous.runtimeType != current.runtimeType;
                 },
                 builder: (context, state) {
-                  switch (state) {
-                    case IdleState():
-                      return Row(
-                        children: [
-                          HomePageTitle(),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Builder(
-                                builder: (context) {
-                                  const padding = EdgeInsets.zero;
-                                  final borderRadius = BorderRadius.circular(
-                                    15,
-                                  );
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black12,
-                                      borderRadius: borderRadius,
-                                    ),
-                                    child: TabBar(
-                                      controller: tabCtrl,
-                                      automaticIndicatorColorAdjustment: false,
-                                      tabAlignment: TabAlignment.center,
-                                      indicator: BoxDecoration(
+                  final child = switch (state) {
+                    IdleState() => () {
+                        final key = ValueKey(
+                          'navbar',
+                        );
+                        final child = Row(
+                          key: key,
+                          children: [
+                            HomePageTitle(),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Builder(
+                                  builder: (context) {
+                                    const padding = EdgeInsets.zero;
+                                    final borderRadius = BorderRadius.circular(
+                                      15,
+                                    );
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black12,
                                         borderRadius: borderRadius,
-                                        color:
-                                            context.themeData.primaryColorLight,
                                       ),
-                                      overlayColor: WidgetStateProperty.all(
-                                        Colors.transparent,
+                                      child: TabBar(
+                                        controller: tabCtrl,
+                                        automaticIndicatorColorAdjustment:
+                                            false,
+                                        tabAlignment: TabAlignment.center,
+                                        indicator: BoxDecoration(
+                                          borderRadius: borderRadius,
+                                          color: context
+                                              .themeData.primaryColorLight,
+                                        ),
+                                        overlayColor: WidgetStateProperty.all(
+                                          Colors.transparent,
+                                        ),
+                                        padding: padding,
+                                        indicatorPadding: padding,
+                                        labelPadding: padding,
+                                        dividerColor: Colors.transparent,
+                                        labelColor: Colors.white,
+                                        unselectedLabelColor: Colors.black,
+                                        tabs: tabIcons.map(
+                                          (e) {
+                                            return Padding(
+                                              padding: const EdgeInsets.all(15),
+                                              child: e,
+                                            );
+                                          },
+                                        ).toList(),
                                       ),
-                                      padding: padding,
-                                      indicatorPadding: padding,
-                                      labelPadding: padding,
-                                      dividerColor: Colors.transparent,
-                                      labelColor: Colors.white,
-                                      unselectedLabelColor: Colors.black,
-                                      tabs: tabIcons.map(
-                                        (e) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(15),
-                                            child: e,
-                                          );
-                                        },
-                                      ).toList(),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 15,
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              if (tabCtrl.offset != 0) {
-                                return;
-                              }
-                              bloc.add(
-                                const ToggleSearchEvent(),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.search,
+                            const SizedBox(
+                              width: 15,
                             ),
-                          ),
-                        ],
-                      );
-                    case final SearchState state:
-                      final hintText = switch (state) {
-                        SearchNotesState(
-                          previousState: IdleState(
-                            :final NoteCollectionEntity currentCollection,
-                          ),
-                        ) =>
-                          'Search in \'${currentCollection.name}\'',
-                        SearchNotesState() => 'Search notes',
-                        SearchNoteCollectionsState() => 'Search collections',
-                      };
-                      return TextField(
-                        controller: searchCtrl,
-                        autofocus: true,
-                        onChanged: (value) {
-                          bloc.add(
-                            PerformSearchEvent(
-                              query: value.trim(),
-                            ),
-                          );
-                        },
-                        decoration: InputDecoration(
-                          hintText: hintText,
-                          contentPadding: EdgeInsets.all(15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              Icons.close_rounded,
-                            ),
-                            onPressed: () {
-                              HomeEvent event = const ToggleSearchEvent();
-                              if (searchCtrl.text.isNotEmpty) {
-                                searchCtrl.text = '';
-                                event = PerformSearchEvent(
-                                  query: '',
+                            IconButton(
+                              onPressed: () {
+                                if (tabCtrl.offset != 0) {
+                                  return;
+                                }
+                                bloc.add(
+                                  const ToggleSearchEvent(),
                                 );
-                              }
-                              bloc.add(
-                                event,
-                              );
-                            },
+                              },
+                              icon: const Icon(
+                                Icons.search,
+                              ),
+                            ),
+                          ],
+                        );
+                        return child;
+                      },
+                    final SearchState state => () {
+                        final hintText = switch (state) {
+                          SearchNotesState(
+                            previousState: IdleState(
+                              currentCollection: NoteCollectionEntity(
+                                :final name,
+                              ),
+                            ),
+                          ) =>
+                            'Search in \'$name\'',
+                          SearchNotesState() => 'Search notes',
+                          SearchNoteCollectionsState() => 'Search collections',
+                        };
+                        final key = ValueKey(
+                          'searchbar',
+                        );
+                        final child = TextField(
+                          key: key,
+                          controller: searchCtrl,
+                          autofocus: true,
+                          onChanged: (value) {
+                            bloc.add(
+                              PerformSearchEvent(
+                                query: value.trim(),
+                              ),
+                            );
+                          },
+                          decoration: InputDecoration(
+                            hintText: hintText,
+                            contentPadding: EdgeInsets.all(15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                Icons.close_rounded,
+                              ),
+                              onPressed: () {
+                                HomeEvent event = const ToggleSearchEvent();
+                                if (searchCtrl.text.isNotEmpty) {
+                                  searchCtrl.text = '';
+                                  event = PerformSearchEvent(
+                                    query: '',
+                                  );
+                                }
+                                bloc.add(
+                                  event,
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      );
-                  }
+                        );
+                        return child;
+                      }
+                  }();
+                  return CustomAnimatedSwitcher(
+                    child: child,
+                  );
                 },
               ),
             ),
