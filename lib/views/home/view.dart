@@ -552,54 +552,40 @@ class _HomePageState extends State<HomePage>
                                 ),
                               _ => null,
                             };
-                            if (data case null) {
-                              return const SizedBox();
-                            }
-                            final (currentCollection, notes) = data;
-                            final key = switch (currentCollection) {
-                              null => const ValueKey(
-                                  'notes-list-switcher',
-                                ),
-                              final c => ObjectKey(
-                                  c,
-                                ),
-                            };
-                            return CustomAnimatedSwitcher(
-                              child: Builder(
-                                key: key,
-                                builder: (context) {
-                                  // if (notesSub == null) {
-                                  //   return const Center(
-                                  //     child: CircularProgressIndicator(),
-                                  //   );
-                                  // }
-                                  if (notes.isEmpty) {
-                                    return const Center(
-                                      child: Text(
-                                        'No notes yet',
-                                      ),
-                                    );
-                                  }
-                                  return ListView(
-                                    key: PageStorageKey(
-                                      currentCollection,
-                                    ),
-                                    children: <Widget>[
-                                      for (final note in notes)
-                                        NoteListTile(
-                                          note: note,
-                                          onTap: () async {
-                                            context.extra = note;
-                                            context.go(
-                                              (EditNote).asRoutePath(),
-                                            );
-                                          },
-                                        ),
-                                      const EmptyFooter(),
-                                    ],
-                                  );
+                            final child = switch (data) {
+                              null => () {
+                                  return const SizedBox();
                                 },
-                              ),
+                              (final currentCollection, final notes) => () {
+                                  return switch (notes) {
+                                    [] => const Center(
+                                        child: Text(
+                                          'No notes yet',
+                                        ),
+                                      ),
+                                    _ => ListView(
+                                        key: PageStorageKey(
+                                          currentCollection,
+                                        ),
+                                        children: <Widget>[
+                                          for (final note in notes)
+                                            NoteListTile(
+                                              note: note,
+                                              onTap: () async {
+                                                context.extra = note;
+                                                context.go(
+                                                  (EditNote).asRoutePath(),
+                                                );
+                                              },
+                                            ),
+                                          const EmptyFooter(),
+                                        ],
+                                      ),
+                                  };
+                                },
+                            }();
+                            return CustomAnimatedSwitcher(
+                              child: child,
                             );
                           },
                         ),
