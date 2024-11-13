@@ -216,122 +216,132 @@ class _HomePageState extends State<HomePage>
                   return previous.runtimeType != current.runtimeType;
                 },
                 builder: (context, state) {
-                  switch (state) {
-                    case IdleState():
-                      return Row(
-                        children: [
-                          HomePageTitle(),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Builder(
-                                builder: (context) {
-                                  const padding = EdgeInsets.zero;
-                                  final borderRadius = BorderRadius.circular(
-                                    15,
-                                  );
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black12,
-                                      borderRadius: borderRadius,
-                                    ),
-                                    child: TabBar(
-                                      controller: tabCtrl,
-                                      automaticIndicatorColorAdjustment: false,
-                                      tabAlignment: TabAlignment.center,
-                                      indicator: BoxDecoration(
+                  final child = switch (state) {
+                    IdleState() => () {
+                        final child = Row(
+                          children: [
+                            HomePageTitle(),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Builder(
+                                  builder: (context) {
+                                    const padding = EdgeInsets.zero;
+                                    final borderRadius = BorderRadius.circular(
+                                      15,
+                                    );
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black12,
                                         borderRadius: borderRadius,
-                                        color:
-                                            context.themeData.primaryColorLight,
                                       ),
-                                      overlayColor: WidgetStateProperty.all(
-                                        Colors.transparent,
+                                      child: TabBar(
+                                        controller: tabCtrl,
+                                        automaticIndicatorColorAdjustment:
+                                            false,
+                                        tabAlignment: TabAlignment.center,
+                                        indicator: BoxDecoration(
+                                          borderRadius: borderRadius,
+                                          color: context
+                                              .themeData.primaryColorLight,
+                                        ),
+                                        overlayColor: WidgetStateProperty.all(
+                                          Colors.transparent,
+                                        ),
+                                        padding: padding,
+                                        indicatorPadding: padding,
+                                        labelPadding: padding,
+                                        dividerColor: Colors.transparent,
+                                        labelColor: Colors.white,
+                                        unselectedLabelColor: Colors.black,
+                                        tabs: tabIcons.map(
+                                          (e) {
+                                            return Padding(
+                                              padding: const EdgeInsets.all(15),
+                                              child: e,
+                                            );
+                                          },
+                                        ).toList(),
                                       ),
-                                      padding: padding,
-                                      indicatorPadding: padding,
-                                      labelPadding: padding,
-                                      dividerColor: Colors.transparent,
-                                      labelColor: Colors.white,
-                                      unselectedLabelColor: Colors.black,
-                                      tabs: tabIcons.map(
-                                        (e) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(15),
-                                            child: e,
-                                          );
-                                        },
-                                      ).toList(),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 15,
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              if (tabCtrl.offset != 0) {
-                                return;
-                              }
-                              bloc.add(
-                                const ToggleSearchEvent(),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.search,
+                            const SizedBox(
+                              width: 15,
                             ),
-                          ),
-                        ],
-                      );
-                    case final SearchState state:
-                      final hintText = switch (state) {
-                        SearchNotesState(
-                          previousState: IdleState(
-                            :final NoteCollectionEntity currentCollection,
-                          ),
-                        ) =>
-                          'Search in \'${currentCollection.name}\'',
-                        SearchNotesState() => 'Search notes',
-                        SearchNoteCollectionsState() => 'Search collections',
-                      };
-                      return TextField(
-                        controller: searchCtrl,
-                        autofocus: true,
-                        onChanged: (value) {
-                          bloc.add(
-                            PerformSearchEvent(
-                              query: value.trim(),
-                            ),
-                          );
-                        },
-                        decoration: InputDecoration(
-                          hintText: hintText,
-                          contentPadding: EdgeInsets.all(15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              Icons.close_rounded,
-                            ),
-                            onPressed: () {
-                              HomeEvent event = const ToggleSearchEvent();
-                              if (searchCtrl.text.isNotEmpty) {
-                                searchCtrl.text = '';
-                                event = PerformSearchEvent(
-                                  query: '',
+                            IconButton(
+                              onPressed: () {
+                                if (tabCtrl.offset != 0) {
+                                  return;
+                                }
+                                bloc.add(
+                                  const ToggleSearchEvent(),
                                 );
-                              }
-                              bloc.add(
-                                event,
-                              );
-                            },
+                              },
+                              icon: const Icon(
+                                Icons.search,
+                              ),
+                            ),
+                          ],
+                        );
+                        return child;
+                      },
+                    final SearchState state => () {
+                        final hintText = switch (state) {
+                          SearchNotesState(
+                            previousState: IdleState(
+                              currentCollection: NoteCollectionEntity(
+                                :final name,
+                              ),
+                            ),
+                          ) =>
+                            'Search in \'$name\'',
+                          SearchNotesState() => 'Search notes',
+                          SearchNoteCollectionsState() => 'Search collections',
+                        };
+                        final child = TextField(
+                          controller: searchCtrl,
+                          autofocus: true,
+                          onChanged: (value) {
+                            bloc.add(
+                              PerformSearchEvent(
+                                query: value.trim(),
+                              ),
+                            );
+                          },
+                          decoration: InputDecoration(
+                            hintText: hintText,
+                            contentPadding: EdgeInsets.all(15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                Icons.close_rounded,
+                              ),
+                              onPressed: () {
+                                HomeEvent event = const ToggleSearchEvent();
+                                if (searchCtrl.text.isNotEmpty) {
+                                  searchCtrl.text = '';
+                                  event = PerformSearchEvent(
+                                    query: '',
+                                  );
+                                }
+                                bloc.add(
+                                  event,
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      );
-                  }
+                        );
+                        return child;
+                      }
+                  }();
+                  return CustomAnimatedSwitcher(
+                    child: child,
+                  );
                 },
               ),
             ),
@@ -377,109 +387,129 @@ class _HomePageState extends State<HomePage>
                               ),
                             _ => null,
                           };
-                          if (data case null) {
-                            return const SizedBox();
-                          }
-                          final (collections, currentCollection) = data;
-                          final scrollView = switch (collections) {
-                            [] => const NoCollectionsMessage(),
-                            _ => SingleChildScrollView(
-                                key: const PageStorageKey(
-                                  'note-collections-list-1',
-                                ),
-                                padding: verticalPadding,
-                                physics: const BouncingScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: collections.map(
-                                    (collection) {
-                                      return Builder(
-                                        key: GlobalObjectKey(
-                                          collection,
-                                        ),
-                                        builder: (context) {
-                                          var padding =
-                                              const EdgeInsets.symmetric(
-                                            horizontal: 7.5,
-                                          );
-                                          if (collection == collections.first) {
-                                            padding = padding.copyWith(
-                                              left: 15,
-                                            );
-                                          }
-                                          final selected =
-                                              collection == currentCollection;
-                                          final scale = selected ? 1.05 : 1.0;
-                                          final borderColor =
-                                              switch (selected) {
-                                            true => Colors.blueGrey.withOpacity(
-                                                .5,
+                          final child = switch (data) {
+                            null => () {
+                                return const SizedBox();
+                              },
+                            (final collections, final currentCollection) => () {
+                                final scrollView = switch (collections) {
+                                  [] => const NoCollectionsMessage(),
+                                  _ => SingleChildScrollView(
+                                      key: const PageStorageKey(
+                                        'note-collections-list-1',
+                                      ),
+                                      padding: verticalPadding,
+                                      physics: const BouncingScrollPhysics(),
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: collections.map(
+                                          (collection) {
+                                            return Builder(
+                                              key: GlobalObjectKey(
+                                                collection,
                                               ),
-                                            _ => Colors.transparent,
-                                          };
-                                          return Padding(
-                                            padding: padding,
-                                            child: AnimatedContainer(
-                                              duration: animationDuration,
-                                              transform: Transform.scale(
-                                                scale: scale,
-                                              ).transform,
-                                              transformAlignment:
-                                                  Alignment.center,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: borderColor,
-                                                  strokeAlign: BorderSide
-                                                      .strokeAlignOutside,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                  15,
-                                                ),
-                                              ),
-                                              child: CollectionChip(
-                                                onTap: () {
-                                                  bloc.add(
-                                                    ToggleCollectionEvent(
-                                                      collection: collection,
-                                                    ),
+                                              builder: (context) {
+                                                var padding =
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 7.5,
+                                                );
+                                                if (collection ==
+                                                    collections.first) {
+                                                  padding = padding.copyWith(
+                                                    left: 15,
                                                   );
-                                                },
-                                                child: Text(
-                                                  collection.name,
-                                                ),
-                                              ),
-                                            ),
+                                                }
+                                                final selected = collection ==
+                                                    currentCollection;
+                                                final scale =
+                                                    selected ? 1.05 : 1.0;
+                                                final borderColor =
+                                                    switch (selected) {
+                                                  true =>
+                                                    Colors.blueGrey.withOpacity(
+                                                      .5,
+                                                    ),
+                                                  _ => Colors.transparent,
+                                                };
+                                                return Padding(
+                                                  padding: padding,
+                                                  child: AnimatedContainer(
+                                                    duration: animationDuration,
+                                                    transform: Transform.scale(
+                                                      scale: scale,
+                                                    ).transform,
+                                                    transformAlignment:
+                                                        Alignment.center,
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: borderColor,
+                                                        strokeAlign: BorderSide
+                                                            .strokeAlignOutside,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                        15,
+                                                      ),
+                                                    ),
+                                                    child: CollectionChip(
+                                                      onTap: () {
+                                                        bloc.add(
+                                                          ToggleCollectionEvent(
+                                                            collection:
+                                                                collection,
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: Text(
+                                                        collection.name,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ).toList(),
+                                      ),
+                                    ),
+                                };
+                                return Row(
+                                  children: [
+                                    Expanded(
+                                      child: scrollView,
+                                    ),
+                                    Padding(
+                                      padding: verticalPadding.copyWith(
+                                        left: 7.5,
+                                        right: 15,
+                                      ),
+                                      child: CollectionChip(
+                                        onTap: () {
+                                          putCollection(
+                                            NoteCollectionEntity.untitled(),
                                           );
                                         },
-                                      );
-                                    },
-                                  ).toList(),
+                                        child: const Icon(
+                                          Icons.create_new_folder,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                          }();
+                          return AnimatedSwitcher(
+                            duration: animationDuration,
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SizeTransition(
+                                  sizeFactor: animation,
+                                  child: child,
                                 ),
-                              ),
-                          };
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: scrollView,
-                              ),
-                              Padding(
-                                padding: verticalPadding.copyWith(
-                                  left: 7.5,
-                                  right: 15,
-                                ),
-                                child: CollectionChip(
-                                  onTap: () {
-                                    putCollection(
-                                      NoteCollectionEntity.untitled(),
-                                    );
-                                  },
-                                  child: const Icon(
-                                    Icons.create_new_folder,
-                                  ),
-                                ),
-                              ),
-                            ],
+                              );
+                            },
+                            child: child,
                           );
                         },
                       ),
@@ -522,54 +552,40 @@ class _HomePageState extends State<HomePage>
                                 ),
                               _ => null,
                             };
-                            if (data case null) {
-                              return const SizedBox();
-                            }
-                            final (currentCollection, notes) = data;
-                            final key = switch (currentCollection) {
-                              null => const ValueKey(
-                                  'notes-list-switcher',
-                                ),
-                              final c => ObjectKey(
-                                  c,
-                                ),
-                            };
-                            return CustomAnimatedSwitcher(
-                              child: Builder(
-                                key: key,
-                                builder: (context) {
-                                  // if (notesSub == null) {
-                                  //   return const Center(
-                                  //     child: CircularProgressIndicator(),
-                                  //   );
-                                  // }
-                                  if (notes.isEmpty) {
-                                    return const Center(
-                                      child: Text(
-                                        'No notes yet',
-                                      ),
-                                    );
-                                  }
-                                  return ListView(
-                                    key: PageStorageKey(
-                                      currentCollection,
-                                    ),
-                                    children: <Widget>[
-                                      for (final note in notes)
-                                        NoteListTile(
-                                          note: note,
-                                          onTap: () async {
-                                            context.extra = note;
-                                            context.go(
-                                              (EditNote).asRoutePath(),
-                                            );
-                                          },
-                                        ),
-                                      const EmptyFooter(),
-                                    ],
-                                  );
+                            final child = switch (data) {
+                              null => () {
+                                  return const SizedBox();
                                 },
-                              ),
+                              (final currentCollection, final notes) => () {
+                                  return switch (notes) {
+                                    [] => const Center(
+                                        child: Text(
+                                          'No notes yet',
+                                        ),
+                                      ),
+                                    _ => ListView(
+                                        key: PageStorageKey(
+                                          currentCollection,
+                                        ),
+                                        children: <Widget>[
+                                          for (final note in notes)
+                                            NoteListTile(
+                                              note: note,
+                                              onTap: () async {
+                                                context.extra = note;
+                                                context.go(
+                                                  (EditNote).asRoutePath(),
+                                                );
+                                              },
+                                            ),
+                                          const EmptyFooter(),
+                                        ],
+                                      ),
+                                  };
+                                },
+                            }();
+                            return CustomAnimatedSwitcher(
+                              child: child,
                             );
                           },
                         ),

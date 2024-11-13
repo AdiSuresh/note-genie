@@ -43,9 +43,11 @@ class HomeRepository with LocalDBServiceMixin {
         '' || null => null,
         String() => NoteEntity_.title.contains(
               searchQuery,
+              caseSensitive: false,
             ) |
             NoteEntity_.content.contains(
               searchQuery,
+              caseSensitive: false,
             ),
       },
     );
@@ -74,6 +76,7 @@ class HomeRepository with LocalDBServiceMixin {
         '' || null => null,
         String() => NoteCollectionEntity_.name.contains(
             searchQuery,
+            caseSensitive: false,
           ),
       },
     );
