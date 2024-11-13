@@ -498,7 +498,17 @@ class _HomePageState extends State<HomePage>
                                 );
                               },
                           }();
-                          return CustomAnimatedSwitcher(
+                          return AnimatedSwitcher(
+                            duration: animationDuration,
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SizeTransition(
+                                  sizeFactor: animation,
+                                  child: child,
+                                ),
+                              );
+                            },
                             child: child,
                           );
                         },
