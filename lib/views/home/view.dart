@@ -221,52 +221,47 @@ class _HomePageState extends State<HomePage>
                         final child = Row(
                           children: [
                             HomePageTitle(),
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Builder(
-                                  builder: (context) {
-                                    const padding = EdgeInsets.zero;
-                                    final borderRadius = BorderRadius.circular(
-                                      15,
-                                    );
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black12,
-                                        borderRadius: borderRadius,
-                                      ),
-                                      child: TabBar(
-                                        controller: tabCtrl,
-                                        automaticIndicatorColorAdjustment:
-                                            false,
-                                        tabAlignment: TabAlignment.center,
-                                        indicator: BoxDecoration(
-                                          borderRadius: borderRadius,
-                                          color: context
-                                              .themeData.primaryColorLight,
-                                        ),
-                                        overlayColor: WidgetStateProperty.all(
-                                          Colors.transparent,
-                                        ),
-                                        padding: padding,
-                                        indicatorPadding: padding,
-                                        labelPadding: padding,
-                                        dividerColor: Colors.transparent,
-                                        labelColor: Colors.white,
-                                        unselectedLabelColor: Colors.black,
-                                        tabs: tabIcons.map(
-                                          (e) {
-                                            return Padding(
-                                              padding: const EdgeInsets.all(15),
-                                              child: e,
-                                            );
-                                          },
-                                        ).toList(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
+                            const Spacer(),
+                            Builder(
+                              builder: (context) {
+                                const padding = EdgeInsets.zero;
+                                final borderRadius = BorderRadius.circular(
+                                  15,
+                                );
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black12,
+                                    borderRadius: borderRadius,
+                                  ),
+                                  child: TabBar(
+                                    controller: tabCtrl,
+                                    automaticIndicatorColorAdjustment: false,
+                                    tabAlignment: TabAlignment.center,
+                                    indicator: BoxDecoration(
+                                      borderRadius: borderRadius,
+                                      color:
+                                          context.themeData.primaryColorLight,
+                                    ),
+                                    overlayColor: WidgetStateProperty.all(
+                                      Colors.transparent,
+                                    ),
+                                    padding: padding,
+                                    indicatorPadding: padding,
+                                    labelPadding: padding,
+                                    dividerColor: Colors.transparent,
+                                    labelColor: Colors.white,
+                                    unselectedLabelColor: Colors.black,
+                                    tabs: tabIcons.map(
+                                      (e) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(15),
+                                          child: e,
+                                        );
+                                      },
+                                    ).toList(),
+                                  ),
+                                );
+                              },
                             ),
                             const SizedBox(
                               width: 15,
@@ -392,7 +387,7 @@ class _HomePageState extends State<HomePage>
                                   [] => const NoCollectionsMessage(),
                                   _ => SingleChildScrollView(
                                       key: const PageStorageKey(
-                                        'note-collections-list-1',
+                                        'note-collections-tab-list',
                                       ),
                                       padding: verticalPadding,
                                       physics: const BouncingScrollPhysics(),
