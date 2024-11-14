@@ -58,7 +58,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       },
     );
     on<SelectCollectionEvent>(
-      (event, emit) {
+      (event, emit) async {
         switch (state) {
           case final IdleState state:
             switch (state.currentCollection?.id) {
@@ -74,6 +74,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                   const FetchNotesEvent(),
                 );
             }
+          case SearchNoteCollectionsState():
+            add(
+              ToggleSearchEvent(),
+            );
+            add(
+              event,
+            );
           case _:
         }
       },

@@ -358,8 +358,8 @@ class _HomePageState extends State<HomePage>
                             case (final IdleState prev, final IdleState curr):
                               return [
                                 prev.noteCollections != curr.noteCollections,
-                                prev.currentCollection !=
-                                    curr.currentCollection,
+                                prev.currentCollection?.id !=
+                                    curr.currentCollection?.id,
                               ].or();
                             case _:
                           }
@@ -380,10 +380,6 @@ class _HomePageState extends State<HomePage>
                             final IdleState state => (
                                 state.noteCollections,
                                 state.currentCollection,
-                              ),
-                            final SearchNoteCollectionsState state => (
-                                state.searchResults,
-                                state.previousState.currentCollection,
                               ),
                             _ => null,
                           };
@@ -419,8 +415,9 @@ class _HomePageState extends State<HomePage>
                                                     left: 15,
                                                   );
                                                 }
-                                                final selected = collection ==
-                                                    currentCollection;
+                                                final selected =
+                                                    collection.id ==
+                                                        currentCollection?.id;
                                                 final scale =
                                                     selected ? 1.05 : 1.0;
                                                 final borderColor =
@@ -660,6 +657,14 @@ class _HomePageState extends State<HomePage>
                                   child: CollectionListTile(
                                     collection: e,
                                     onTap: () async {
+                                      if (bloc.state case SearchState()) {
+                                        bloc.add(
+                                          ToggleSearchEvent(),
+                                        );
+                                        // await Future.delayed(
+                                        //   animationDuration,
+                                        // );
+                                      }
                                       tabCtrl.animateTo(
                                         0,
                                       );
