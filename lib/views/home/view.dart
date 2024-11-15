@@ -554,9 +554,9 @@ class _HomePageState extends State<HomePage>
                                         bloc.add(
                                           ToggleSearchEvent(),
                                         );
-                                        // await Future.delayed(
-                                        //   animationDuration,
-                                        // );
+                                        await Future.delayed(
+                                          animationDuration,
+                                        );
                                       }
                                       tabCtrl.animateTo(
                                         0,
