@@ -522,7 +522,7 @@ class _HomePageState extends State<HomePage>
                       }
                       return ListView(
                         key: const PageStorageKey(
-                          'note-collections-list-2',
+                          'note-collection-list',
                         ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 15,

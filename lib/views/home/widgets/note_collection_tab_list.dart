@@ -40,7 +40,7 @@ class NoteCollectionTabList extends StatelessWidget {
           final currentCollection = state.currentCollection;
           return SingleChildScrollView(
             key: const PageStorageKey(
-              'note-collections-tab-list',
+              'note-collection-tab-list',
             ),
             padding: verticalPadding,
             physics: const BouncingScrollPhysics(),
