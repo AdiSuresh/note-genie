@@ -271,6 +271,7 @@ class _HomePageState extends State<HomePage>
                                 if (tabCtrl.offset != 0) {
                                   return;
                                 }
+                                searchCtrl.clear();
                                 bloc.add(
                                   const ToggleSearchEvent(),
                                 );
