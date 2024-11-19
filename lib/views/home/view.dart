@@ -268,6 +268,14 @@ class _HomePageState extends State<HomePage>
                             ),
                             IconButton(
                               onPressed: () {
+                                UiUtils.showProceedDialog(
+                                  title: 'title',
+                                  message: 'message',
+                                  context: context,
+                                  onYes: () {},
+                                  onNo: () {},
+                                );
+                                return;
                                 if (tabCtrl.offset != 0) {
                                   return;
                                 }
