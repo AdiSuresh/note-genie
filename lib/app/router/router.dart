@@ -42,7 +42,10 @@ class AppRouter {
                 );
               },
             );
-            return exit ?? false;
+            return switch (exit) {
+              bool() => exit,
+              _ => false,
+            };
           },
           builder: (context, state) {
             return MultiBlocProvider(
