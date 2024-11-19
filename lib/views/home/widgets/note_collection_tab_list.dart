@@ -5,6 +5,7 @@ import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
+import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 
 class NoteCollectionTabList extends StatelessWidget {
   static const animationDuration = Duration(
@@ -37,6 +38,9 @@ class NoteCollectionTabList extends StatelessWidget {
             vertical: 7.5,
           );
           final collections = state.noteCollections;
+          if (collections case []) {
+            return NoCollectionsMessage();
+          }
           final currentCollection = state.currentCollection;
           return SingleChildScrollView(
             key: const PageStorageKey(
