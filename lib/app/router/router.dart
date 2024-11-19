@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/app_navigator_observer.dart';
@@ -5,6 +6,7 @@ import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
 import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/utils/extensions/type.dart';
+import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/repository.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
@@ -24,6 +26,24 @@ class AppRouter {
   static List<GoRoute> get _routes => [
         GoRoute(
           path: HomePage.path,
+          onExit: (context, state) async {
+            final exit = await UiUtils.showProceedDialog(
+              title: 'Exit app?',
+              message: 'Would you like to exit the app?',
+              context: context,
+              onYes: () {
+                context.pop(
+                  true,
+                );
+              },
+              onNo: () {
+                context.pop(
+                  false,
+                );
+              },
+            );
+            return exit ?? false;
+          },
           builder: (context, state) {
             return MultiBlocProvider(
               providers: [
@@ -46,7 +66,10 @@ class AppRouter {
                   },
                 ),
               ],
-              child: const HomePage(),
+              child: PopScope(
+                canPop: false,
+                child: const HomePage(),
+              ),
             );
           },
           routes: [
