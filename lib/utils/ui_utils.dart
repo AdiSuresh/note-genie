@@ -94,8 +94,11 @@ class UiUtils {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                message,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  message,
+                ),
               ),
               const SizedBox(
                 height: 15,
