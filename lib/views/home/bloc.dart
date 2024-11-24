@@ -87,21 +87,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<SwitchTabEvent>(
       (event, emit) {
-        switch (state) {
-          case final IdleState state:
-            final showNotes = switch (event.index) {
-              0 || 1 => event.index == 0,
-              _ => null,
-            };
-            if (showNotes case bool _ when showNotes ^ state.showNotes) {
-              emit(
-                state.copyWith(
-                  showNotes: showNotes,
-                ),
-              );
-            }
-          case _:
+        final currentIdleState = switch (state) {
+          IdleState state => state,
+          SearchState(:final previousState) => previousState,
+        };
+        final showNotes = switch (event.index) {
+          0 || 1 => event.index == 0,
+          _ => null,
+        };
+        if (showNotes == null || showNotes == currentIdleState.showNotes) {
+          return;
         }
+        final nextIdleState = currentIdleState.copyWith(
+          showNotes: showNotes,
+        );
+        final result = switch (state) {
+          IdleState() => nextIdleState,
+          final SearchNotesState state => state.copyWith(
+              previousState: nextIdleState,
+            ),
+          final SearchNoteCollectionsState state => state.copyWith(
+              previousState: nextIdleState,
+            ),
+        };
+        emit(
+          result,
+        );
+        print('show notes: ${nextIdleState.showNotes}; state: $result');
       },
     );
     on<FetchNotesEvent>(
