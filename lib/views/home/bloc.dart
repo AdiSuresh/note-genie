@@ -113,7 +113,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         emit(
           result,
         );
-        print('show notes: ${nextIdleState.showNotes}; state: $result');
       },
     );
     on<FetchNotesEvent>(
