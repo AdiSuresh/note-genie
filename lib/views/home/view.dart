@@ -415,7 +415,12 @@ class _HomePageState extends State<HomePage>
                                 ):
                                 return prev.notes != curr.notes;
                               case (
-                                  _,
+                                  IdleState(),
+                                  SearchNotesState(),
+                                ):
+                                return false;
+                              case (
+                                  SearchNotesState(),
                                   SearchNotesState(),
                                 ):
                                 return true;
