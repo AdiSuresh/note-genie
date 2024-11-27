@@ -415,7 +415,12 @@ class _HomePageState extends State<HomePage>
                                 ):
                                 return prev.notes != curr.notes;
                               case (
-                                  _,
+                                  IdleState(),
+                                  SearchNotesState(),
+                                ):
+                                return false;
+                              case (
+                                  SearchNotesState(),
                                   SearchNotesState(),
                                 ):
                                 return true;
@@ -448,6 +453,14 @@ class _HomePageState extends State<HomePage>
                                   return const SizedBox();
                                 },
                               (final currentCollection, final notes) => () {
+                                  final key = switch (state) {
+                                    IdleState() => PageStorageKey(
+                                        currentCollection,
+                                      ),
+                                    SearchState() => ValueKey(
+                                        'note-list-search/q=${searchCtrl.text}',
+                                      ),
+                                  };
                                   return switch (notes) {
                                     [] => const Center(
                                         child: Text(
@@ -455,9 +468,7 @@ class _HomePageState extends State<HomePage>
                                         ),
                                       ),
                                     _ => ListView(
-                                        key: PageStorageKey(
-                                          currentCollection,
-                                        ),
+                                        key: key,
                                         children: <Widget>[
                                           for (final note in notes)
                                             NoteListTile(
