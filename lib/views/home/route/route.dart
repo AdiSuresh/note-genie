@@ -73,7 +73,7 @@ class HomeRoute extends GoRouteData {
             return;
           case _:
         }
-        final shouldExit = await UiUtils.showProceedDialog(
+        final exit = await UiUtils.showProceedDialog(
           title: 'Exit app?',
           message: 'Would you like to exit the app?',
           context: context,
@@ -88,7 +88,7 @@ class HomeRoute extends GoRouteData {
             );
           },
         );
-        if (shouldExit case true when context.mounted) {
+        if (exit case true when context.mounted) {
           SystemNavigator.pop();
         }
       },
