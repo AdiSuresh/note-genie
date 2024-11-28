@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -48,7 +49,6 @@ class HomeRoute extends GoRouteData {
               path: HomePage.path,
             );
             _bloc = result;
-            print('_bloc init');
             return result;
           },
         ),
@@ -73,7 +73,7 @@ class HomeRoute extends GoRouteData {
             return;
           case _:
         }
-        final exit = await UiUtils.showProceedDialog(
+        final shouldExit = await UiUtils.showProceedDialog(
           title: 'Exit app?',
           message: 'Would you like to exit the app?',
           context: context,
@@ -88,8 +88,8 @@ class HomeRoute extends GoRouteData {
             );
           },
         );
-        if (exit case true when context.mounted) {
-          context.pop();
+        if (shouldExit case true when context.mounted) {
+          SystemNavigator.pop();
         }
       },
       child: provider,
