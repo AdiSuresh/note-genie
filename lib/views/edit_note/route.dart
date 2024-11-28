@@ -18,11 +18,6 @@ class EditNoteRoute extends GoRouteData {
     };
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) {
-            return DraggableScrollableBloc();
-          },
-        ),
         RepositoryProvider(
           create: (context) {
             return EditNoteRepository();
@@ -37,6 +32,11 @@ class EditNoteRoute extends GoRouteData {
               ),
               repository: context.read<EditNoteRepository>(),
             );
+          },
+        ),
+        BlocProvider(
+          create: (context) {
+            return DraggableScrollableBloc();
           },
         ),
       ],
