@@ -18,6 +18,7 @@ class AppRouter {
     observers: [
       routeObserver,
     ],
+    debugLogDiagnostics: true,
   );
 
   static const _instance = AppRouter._();
