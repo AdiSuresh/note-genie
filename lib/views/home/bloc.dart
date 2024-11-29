@@ -144,9 +144,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 state,
               ),
             );
-          case final SearchState state:
+          case SearchState(
+              :final previousState,
+            ):
             emit(
-              state.previousState,
+              previousState,
             );
         }
       },
