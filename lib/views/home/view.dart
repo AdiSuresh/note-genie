@@ -202,7 +202,6 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final bloc = context.watch<HomeBloc>();
     final scaffold = Scaffold(
       body: SafeArea(
         child: Column(
@@ -212,7 +211,6 @@ class _HomePageState extends State<HomePage>
                 bottom: 7.5,
               ),
               child: BlocBuilder<HomeBloc, HomeState>(
-                bloc: bloc,
                 buildWhen: (previous, current) {
                   return previous.runtimeType != current.runtimeType;
                 },
@@ -359,7 +357,6 @@ class _HomePageState extends State<HomePage>
                       Column(
                         children: [
                           BlocBuilder<HomeBloc, HomeState>(
-                            bloc: bloc,
                             buildWhen: (previous, current) {
                               return previous.runtimeType !=
                                   current.runtimeType;
@@ -418,7 +415,6 @@ class _HomePageState extends State<HomePage>
                           ),
                           Expanded(
                             child: BlocBuilder<HomeBloc, HomeState>(
-                              bloc: bloc,
                               buildWhen: (previous, current) {
                                 switch ((previous, current)) {
                                   case (
@@ -508,7 +504,6 @@ class _HomePageState extends State<HomePage>
                         ],
                       ),
                       BlocBuilder<HomeBloc, HomeState>(
-                        bloc: bloc,
                         buildWhen: (prev, curr) {
                           switch ((prev, curr)) {
                             case (final IdleState prev, final IdleState curr):
