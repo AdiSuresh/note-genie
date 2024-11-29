@@ -682,7 +682,7 @@ class _HomePageState extends State<HomePage>
             );
           },
         );
-        if (exit case true when context.mounted) {
+        if (exit case true) {
           SystemNavigator.pop();
         }
       },
