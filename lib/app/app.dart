@@ -21,10 +21,12 @@ class _NoteMakerState extends State<NoteMaker> {
     NoteMaker,
   );
 
+  final router = AppRouter();
+
   @override
   void initState() {
     super.initState();
-    logger.i('init NoteMaker');
+    logger.i('init app');
   }
 
   @override
@@ -46,14 +48,14 @@ class _NoteMakerState extends State<NoteMaker> {
           create: (context) {
             return NavigationBloc(
               NavigationState(
-                currentPath: AppRouter.path,
+                currentPath: router.path,
               ),
             );
           },
         ),
       ],
       child: MaterialApp.router(
-        routerConfig: AppRouter.router,
+        routerConfig: router.router,
         title: 'Note-maker',
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.light,

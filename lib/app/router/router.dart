@@ -4,24 +4,22 @@ import 'package:note_maker/views/home/route/route.dart';
 import 'package:note_maker/views/home/view.dart';
 
 class AppRouter {
-  const AppRouter._();
+  AppRouter._();
 
-  static String get path {
+  String get path {
     return router.routeInformationProvider.value.uri.path;
   }
 
-  static final routeObserver = AppNavigatorObserver();
-
-  static final router = GoRouter(
+  final router = GoRouter(
     initialLocation: HomePage.path,
     routes: $appRoutes,
     observers: [
-      routeObserver,
+      AppNavigatorObserver(),
     ],
     debugLogDiagnostics: true,
   );
 
-  static const _instance = AppRouter._();
+  static final _instance = AppRouter._();
 
   factory AppRouter() {
     return _instance;
