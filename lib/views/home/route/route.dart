@@ -49,7 +49,7 @@ class HomeRoute extends GoRouteData {
               case _:
             }
             final exit = await UiUtils.showProceedDialog(
-              title: 'Exit app?',
+              title: 'App Exit',
               message: 'Would you like to exit the app?',
               context: context,
               onYes: () {
