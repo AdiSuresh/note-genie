@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
@@ -202,7 +203,7 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     super.build(context);
     final bloc = context.watch<HomeBloc>();
-    return Scaffold(
+    final scaffold = Scaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -638,6 +639,47 @@ class _HomePageState extends State<HomePage>
       floatingActionButton: HomeFab(
         onPressed: fabOnPressed,
       ),
+    );
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          return;
+        }
+        switch (context.read<HomeBloc>()) {
+          case HomeBloc(
+              state: IdleState(),
+            ):
+            break;
+          case HomeBloc(
+              :final add,
+              isClosed: false,
+            ):
+            add(
+              ToggleSearchEvent(),
+            );
+            return;
+        }
+        final exit = await UiUtils.showProceedDialog(
+          title: 'App Exit',
+          message: 'Would you like to exit the app?',
+          context: context,
+          onYes: () {
+            context.pop(
+              true,
+            );
+          },
+          onNo: () {
+            context.pop(
+              false,
+            );
+          },
+        );
+        if (exit case true when context.mounted) {
+          SystemNavigator.pop();
+        }
+      },
+      child: scaffold,
     );
   }
 }
