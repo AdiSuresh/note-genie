@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
@@ -201,8 +202,7 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final bloc = context.watch<HomeBloc>();
-    return Scaffold(
+    final scaffold = Scaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -211,7 +211,6 @@ class _HomePageState extends State<HomePage>
                 bottom: 7.5,
               ),
               child: BlocBuilder<HomeBloc, HomeState>(
-                bloc: bloc,
                 buildWhen: (previous, current) {
                   return previous.runtimeType != current.runtimeType;
                 },
@@ -342,294 +341,306 @@ class _HomePageState extends State<HomePage>
               ),
             ),
             Expanded(
-              child: TabBarView(
-                controller: tabCtrl,
-                children: [
-                  Column(
+              child: BlocBuilder<HomeBloc, HomeState>(
+                buildWhen: (previous, current) {
+                  return previous.runtimeType != current.runtimeType;
+                },
+                builder: (context, state) {
+                  final physics = switch (state) {
+                    IdleState() => null,
+                    _ => NeverScrollableScrollPhysics(),
+                  };
+                  return TabBarView(
+                    controller: tabCtrl,
+                    physics: physics,
                     children: [
-                      BlocBuilder<HomeBloc, HomeState>(
-                        bloc: bloc,
-                        buildWhen: (previous, current) {
-                          return previous.runtimeType != current.runtimeType;
-                        },
-                        builder: (context, state) {
-                          // if (state.noteCollectionsSub == null) {
-                          //   return const Center(
-                          //     child: Text(
-                          //       'Loading...',
-                          //     ),
-                          //   );
-                          // }
-                          const verticalPadding = EdgeInsets.symmetric(
-                            vertical: 7.5,
-                          );
-                          final child = switch (state) {
-                            IdleState() => Row(
-                                children: [
-                                  Expanded(
-                                    child: NoteCollectionTabList(),
-                                  ),
-                                  Padding(
-                                    padding: verticalPadding.copyWith(
-                                      left: 7.5,
-                                      right: 15,
-                                    ),
-                                    child: CollectionChip(
-                                      onTap: () {
-                                        putCollection(
-                                          NoteCollectionEntity.untitled(),
-                                        );
-                                      },
-                                      child: const Icon(
-                                        Icons.create_new_folder,
+                      Column(
+                        children: [
+                          BlocBuilder<HomeBloc, HomeState>(
+                            buildWhen: (previous, current) {
+                              return previous.runtimeType !=
+                                  current.runtimeType;
+                            },
+                            builder: (context, state) {
+                              // if (state.noteCollectionsSub == null) {
+                              //   return const Center(
+                              //     child: Text(
+                              //       'Loading...',
+                              //     ),
+                              //   );
+                              // }
+                              const verticalPadding = EdgeInsets.symmetric(
+                                vertical: 7.5,
+                              );
+                              final child = switch (state) {
+                                IdleState() => Row(
+                                    children: [
+                                      Expanded(
+                                        child: NoteCollectionTabList(),
                                       ),
-                                    ),
+                                      Padding(
+                                        padding: verticalPadding.copyWith(
+                                          left: 7.5,
+                                          right: 15,
+                                        ),
+                                        child: CollectionChip(
+                                          onTap: () {
+                                            putCollection(
+                                              NoteCollectionEntity.untitled(),
+                                            );
+                                          },
+                                          child: const Icon(
+                                            Icons.create_new_folder,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            _ => const SizedBox(),
-                          };
-                          return AnimatedSwitcher(
-                            duration: animationDuration,
-                            transitionBuilder: (child, animation) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: SizeTransition(
-                                  sizeFactor: animation,
-                                  child: child,
-                                ),
+                                _ => const SizedBox(),
+                              };
+                              return AnimatedSwitcher(
+                                duration: animationDuration,
+                                transitionBuilder: (child, animation) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: SizeTransition(
+                                      sizeFactor: animation,
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                child: child,
                               );
                             },
-                            child: child,
-                          );
-                        },
-                      ),
-                      Expanded(
-                        child: BlocBuilder<HomeBloc, HomeState>(
-                          bloc: bloc,
-                          buildWhen: (previous, current) {
-                            switch ((previous, current)) {
-                              case (
-                                  final IdleState prev,
-                                  final IdleState curr,
-                                ):
-                                return prev.notes != curr.notes;
-                              case (
-                                  IdleState(),
-                                  SearchNotesState(),
-                                ):
-                                return false;
-                              case (
-                                  SearchNotesState(),
-                                  SearchNotesState(),
-                                ):
-                                return true;
-                              case _:
-                            }
-                            return previous.runtimeType != current.runtimeType;
-                          },
-                          builder: (context, state) {
-                            final data = switch (state) {
-                              IdleState(
-                                :final currentCollection,
-                                :final notes,
-                              ) =>
-                                (
-                                  currentCollection,
-                                  notes,
-                                ),
-                              SearchNotesState(
-                                :final previousState,
-                                :final searchResults,
-                              ) =>
-                                (
-                                  previousState.currentCollection,
-                                  searchResults,
-                                ),
-                              _ => null,
-                            };
-                            final child = switch (data) {
-                              null => () {
-                                  return const SizedBox();
-                                },
-                              (final currentCollection, final notes) => () {
-                                  final key = switch (state) {
-                                    IdleState() => PageStorageKey(
-                                        currentCollection,
-                                      ),
-                                    SearchState() => ValueKey(
-                                        'note-list-search/q=${searchCtrl.text}',
-                                      ),
-                                  };
-                                  return switch (notes) {
-                                    [] => const Center(
-                                        child: Text(
-                                          'No notes yet',
-                                        ),
-                                      ),
-                                    _ => ListView(
-                                        key: key,
-                                        children: <Widget>[
-                                          for (final note in notes)
-                                            NoteListTile(
-                                              note: note,
-                                              onTap: () async {
-                                                context.extra = note;
-                                                context.go(
-                                                  (EditNote).asRoutePath(),
-                                                );
-                                              },
-                                            ),
-                                          const EmptyFooter(),
-                                        ],
-                                      ),
-                                  };
-                                },
-                            }();
-                            return CustomAnimatedSwitcher(
-                              child: child,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  BlocBuilder<HomeBloc, HomeState>(
-                    bloc: bloc,
-                    buildWhen: (prev, curr) {
-                      switch ((prev, curr)) {
-                        case (final IdleState prev, final IdleState curr):
-                          return prev.noteCollections != curr.noteCollections;
-                        case (
-                            final SearchNoteCollectionsState prev,
-                            final SearchNoteCollectionsState curr,
-                          ):
-                          return prev.searchResults != curr.searchResults;
-                        case _:
-                      }
-                      return prev.runtimeType != curr.runtimeType;
-                    },
-                    builder: (context, state) {
-                      // if (noteCollectionsSub == null) {
-                      //   return const Center(
-                      //     child: CircularProgressIndicator(),
-                      //   );
-                      // }
-                      final collections = switch (state) {
-                        IdleState() => state.noteCollections,
-                        SearchNoteCollectionsState(
-                          :final searchResults,
-                        ) =>
-                          searchResults,
-                        _ => null,
-                      };
-                      switch (collections) {
-                        case []:
-                          return const Center(
-                            child: NoCollectionsMessage(),
-                          );
-                        case null:
-                          return const SizedBox();
-                        case _:
-                      }
-                      return ListView(
-                        key: const PageStorageKey(
-                          'note-collection-list',
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 15,
-                        ).copyWith(
-                          top: 7.5,
-                        ),
-                        children: collections.map(
-                          (e) {
-                            return Builder(
-                              builder: (context) {
-                                var padding = const EdgeInsets.symmetric(
-                                  vertical: 7.5,
-                                );
-                                if (e == collections.first) {
-                                  padding = padding.copyWith(
-                                    top: 0,
-                                  );
-                                } else if (e == collections.last) {
-                                  padding = padding.copyWith(
-                                    bottom: 0,
-                                  );
+                          ),
+                          Expanded(
+                            child: BlocBuilder<HomeBloc, HomeState>(
+                              buildWhen: (previous, current) {
+                                switch ((previous, current)) {
+                                  case (
+                                      final IdleState prev,
+                                      final IdleState curr,
+                                    ):
+                                    return prev.notes != curr.notes;
+                                  case (
+                                      IdleState(),
+                                      SearchNotesState(),
+                                    ):
+                                    return false;
+                                  case (
+                                      SearchNotesState(),
+                                      SearchNotesState(),
+                                    ):
+                                    return true;
+                                  case _:
                                 }
-                                return Padding(
-                                  padding: padding,
-                                  child: CollectionListTile(
-                                    collection: e,
-                                    onTap: () async {
-                                      if (bloc.state case SearchState()) {
-                                        bloc.add(
-                                          ToggleSearchEvent(),
-                                        );
-                                        await Future.delayed(
-                                          animationDuration,
-                                        );
-                                      }
-                                      tabCtrl.animateTo(
-                                        0,
+                                return previous.runtimeType !=
+                                    current.runtimeType;
+                              },
+                              builder: (context, state) {
+                                final data = switch (state) {
+                                  IdleState(
+                                    :final currentCollection,
+                                    :final notes,
+                                  ) =>
+                                    (
+                                      currentCollection,
+                                      notes,
+                                    ),
+                                  SearchNotesState(
+                                    :final previousState,
+                                    :final searchResults,
+                                  ) =>
+                                    (
+                                      previousState.currentCollection,
+                                      searchResults,
+                                    ),
+                                  _ => null,
+                                };
+                                final child = switch (data) {
+                                  null => () {
+                                      return const SizedBox();
+                                    },
+                                  (final currentCollection, final notes) => () {
+                                      final key = switch (state) {
+                                        IdleState() => PageStorageKey(
+                                            currentCollection,
+                                          ),
+                                        SearchState() => ValueKey(
+                                            'note-list-search/q=${searchCtrl.text}',
+                                          ),
+                                      };
+                                      return switch (notes) {
+                                        [] => const Center(
+                                            child: Text(
+                                              'No notes yet',
+                                            ),
+                                          ),
+                                        _ => ListView(
+                                            key: key,
+                                            children: <Widget>[
+                                              for (final note in notes)
+                                                NoteListTile(
+                                                  note: note,
+                                                  onTap: () async {
+                                                    context.extra = note;
+                                                    context.go(
+                                                      (EditNote).asRoutePath(),
+                                                    );
+                                                  },
+                                                ),
+                                              const EmptyFooter(),
+                                            ],
+                                          ),
+                                      };
+                                    },
+                                }();
+                                return CustomAnimatedSwitcher(
+                                  child: child,
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      BlocBuilder<HomeBloc, HomeState>(
+                        buildWhen: (prev, curr) {
+                          switch ((prev, curr)) {
+                            case (final IdleState prev, final IdleState curr):
+                              return prev.noteCollections !=
+                                  curr.noteCollections;
+                            case (
+                                final SearchNoteCollectionsState prev,
+                                final SearchNoteCollectionsState curr,
+                              ):
+                              return prev.searchResults != curr.searchResults;
+                            case _:
+                          }
+                          return prev.runtimeType != curr.runtimeType;
+                        },
+                        builder: (context, state) {
+                          // if (noteCollectionsSub == null) {
+                          //   return const Center(
+                          //     child: CircularProgressIndicator(),
+                          //   );
+                          // }
+                          final collections = switch (state) {
+                            IdleState() => state.noteCollections,
+                            SearchNoteCollectionsState(
+                              :final searchResults,
+                            ) =>
+                              searchResults,
+                            _ => null,
+                          };
+                          switch (collections) {
+                            case []:
+                              return const Center(
+                                child: NoCollectionsMessage(),
+                              );
+                            case null:
+                              return const SizedBox();
+                            case _:
+                          }
+                          return ListView(
+                            key: const PageStorageKey(
+                              'note-collection-list',
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                            ).copyWith(
+                              top: 7.5,
+                            ),
+                            children: collections.map(
+                              (e) {
+                                return Builder(
+                                  builder: (context) {
+                                    var padding = const EdgeInsets.symmetric(
+                                      vertical: 7.5,
+                                    );
+                                    if (e == collections.first) {
+                                      padding = padding.copyWith(
+                                        top: 0,
                                       );
-                                      await Future.delayed(
-                                        animationDuration,
+                                    } else if (e == collections.last) {
+                                      padding = padding.copyWith(
+                                        bottom: 0,
                                       );
-                                      bloc.add(
-                                        SelectCollectionEvent(
-                                          collection: e,
-                                        ),
-                                      );
-                                      final key = GlobalObjectKey(
-                                        e,
-                                      );
-                                      switch (key.currentContext) {
-                                        case final BuildContext context
-                                            when context.mounted:
-                                          Scrollable.ensureVisible(
-                                            context,
-                                            alignment: .5,
-                                            duration: animationDuration,
+                                    }
+                                    return Padding(
+                                      padding: padding,
+                                      child: CollectionListTile(
+                                        collection: e,
+                                        onTap: () async {
+                                          if (bloc.state case SearchState()) {
+                                            bloc.add(
+                                              ToggleSearchEvent(),
+                                            );
+                                            await Future.delayed(
+                                              animationDuration,
+                                            );
+                                          }
+                                          tabCtrl.animateTo(
+                                            0,
                                           );
-                                        case _:
-                                      }
-                                    },
-                                    onEdit: () {
-                                      putCollection(
-                                        e,
-                                      );
-                                    },
-                                    onDelete: () {
-                                      final context = this.context;
-                                      UiUtils.showProceedDialog(
-                                        title: 'Delete collection?',
-                                        message:
-                                            'You are about to delete this collection.'
-                                            ' Once deleted its gone forever.'
-                                            '\n\nAre you sure you want to proceed?',
-                                        context: context,
-                                        onYes: () {
-                                          context.pop();
-                                          deleteCollection(
+                                          await Future.delayed(
+                                            animationDuration,
+                                          );
+                                          bloc.add(
+                                            SelectCollectionEvent(
+                                              collection: e,
+                                            ),
+                                          );
+                                          final key = GlobalObjectKey(
+                                            e,
+                                          );
+                                          switch (key.currentContext) {
+                                            case final BuildContext context
+                                                when context.mounted:
+                                              Scrollable.ensureVisible(
+                                                context,
+                                                alignment: .5,
+                                                duration: animationDuration,
+                                              );
+                                            case _:
+                                          }
+                                        },
+                                        onEdit: () {
+                                          putCollection(
                                             e,
                                           );
                                         },
-                                        onNo: () {
-                                          context.pop();
+                                        onDelete: () {
+                                          final context = this.context;
+                                          UiUtils.showProceedDialog(
+                                            title: 'Delete collection?',
+                                            message:
+                                                'You are about to delete this collection.'
+                                                ' Once deleted its gone forever.'
+                                                '\n\nAre you sure you want to proceed?',
+                                            context: context,
+                                            onYes: () {
+                                              context.pop();
+                                              deleteCollection(
+                                                e,
+                                              );
+                                            },
+                                            onNo: () {
+                                              context.pop();
+                                            },
+                                          );
                                         },
-                                      );
-                                    },
-                                  ),
+                                      ),
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                        ).toList(),
-                      );
-                    },
-                  ),
-                ],
+                            ).toList(),
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -638,6 +649,44 @@ class _HomePageState extends State<HomePage>
       floatingActionButton: HomeFab(
         onPressed: fabOnPressed,
       ),
+    );
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          return;
+        }
+        switch (bloc) {
+          case HomeBloc(
+              state: IdleState(),
+            ):
+            break;
+          case _:
+            bloc.add(
+              ToggleSearchEvent(),
+            );
+            return;
+        }
+        final exit = await UiUtils.showProceedDialog(
+          title: 'App Exit',
+          message: 'Would you like to exit the app?',
+          context: context,
+          onYes: () {
+            context.pop(
+              true,
+            );
+          },
+          onNo: () {
+            context.pop(
+              false,
+            );
+          },
+        );
+        if (exit case true) {
+          SystemNavigator.pop();
+        }
+      },
+      child: scaffold,
     );
   }
 }

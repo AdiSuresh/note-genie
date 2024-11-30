@@ -133,22 +133,21 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<ToggleSearchEvent>(
       (event, emit) {
-        switch (state) {
-          case final IdleState state:
-            final ctr = switch (state.showNotes) {
+        final nextState = switch (state) {
+          final IdleState state => switch (state.showNotes) {
               true => SearchNotesState.initial,
               _ => SearchNoteCollectionsState.initial,
-            };
-            emit(
-              ctr(
-                state,
-              ),
-            );
-          case final SearchState state:
-            emit(
-              state.previousState,
-            );
-        }
+            }(
+              state,
+            ),
+          SearchState(
+            :final previousState,
+          ) =>
+            previousState,
+        };
+        emit(
+          nextState,
+        );
       },
     );
     on<PerformSearchEvent>(

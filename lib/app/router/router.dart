@@ -4,11 +4,7 @@ import 'package:note_maker/views/home/route/route.dart';
 import 'package:note_maker/views/home/view.dart';
 
 class AppRouter {
-  AppRouter._();
-
-  String get path {
-    return router.routeInformationProvider.value.uri.path;
-  }
+  static final _instance = AppRouter._();
 
   final router = GoRouter(
     initialLocation: HomePage.path,
@@ -19,9 +15,13 @@ class AppRouter {
     debugLogDiagnostics: true,
   );
 
-  static final _instance = AppRouter._();
+  AppRouter._();
 
   factory AppRouter() {
     return _instance;
+  }
+
+  String get path {
+    return router.routeInformationProvider.value.uri.path;
   }
 }

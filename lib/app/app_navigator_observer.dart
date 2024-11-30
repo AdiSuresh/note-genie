@@ -17,12 +17,12 @@ class AppNavigatorObserver extends NavigatorObserver {
             :final context,
           ),
         ) when context.mounted) {
-      context.navBloc.add(
-        NavigationEvent(
-          type: eventType,
-          newPath: path,
-        ),
-      );
+      context.read<NavigationBloc>().add(
+            NavigationEvent(
+              type: eventType,
+              newPath: path,
+            ),
+          );
     }
   }
 
@@ -57,8 +57,4 @@ class AppNavigatorObserver extends NavigatorObserver {
       NavigationEventType.replace,
     );
   }
-}
-
-extension on BuildContext {
-  NavigationBloc get navBloc => read<NavigationBloc>();
 }
