@@ -332,7 +332,10 @@ class _HomePageState extends State<HomePage>
                           ),
                         );
                         return child;
-                      }
+                      },
+                    SelectItemsState() => () {
+                        return const SizedBox();
+                      },
                   }();
                   return CustomAnimatedSwitcher(
                     child: child,
@@ -466,8 +469,11 @@ class _HomePageState extends State<HomePage>
                                         IdleState() => PageStorageKey(
                                             currentCollection,
                                           ),
-                                        SearchState() => ValueKey(
+                                        SearchState() => PageStorageKey(
                                             'note-list-search/q=${searchCtrl.text}',
+                                          ),
+                                        SelectItemsState() => PageStorageKey(
+                                            'note-list-select',
                                           ),
                                       };
                                       return switch (notes) {
@@ -542,8 +548,11 @@ class _HomePageState extends State<HomePage>
                                   IdleState() => const PageStorageKey(
                                       'note-collection-list',
                                     ),
-                                  SearchState() => ValueKey(
+                                  SearchState() => PageStorageKey(
                                       'note-collection-list-search/q=${searchCtrl.text}',
+                                    ),
+                                  SelectItemsState() => PageStorageKey(
+                                      'note-collection-list-select',
                                     ),
                                 },
                                 padding: const EdgeInsets.symmetric(

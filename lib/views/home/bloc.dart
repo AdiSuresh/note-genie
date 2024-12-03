@@ -87,9 +87,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<SwitchTabEvent>(
       (event, emit) {
+        if (state case SelectItemsState()) {
+          return;
+        }
         final currentIdleState = switch (state) {
           IdleState state => state,
           SearchState(:final previousState) => previousState,
+          SelectItemsState(:final previousState) => previousState,
         };
         final showNotes = switch (event.index) {
           0 || 1 => event.index == 0,
@@ -109,7 +113,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           final SearchNoteCollectionsState state => state.copyWith(
               previousState: nextIdleState,
             ),
+          _ => null,
         };
+        if (result == null) {
+          return;
+        }
         emit(
           result,
         );
@@ -144,7 +152,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             :final previousState,
           ) =>
             previousState,
+          _ => null,
         };
+        if (nextState == null) {
+          return;
+        }
         emit(
           nextState,
         );

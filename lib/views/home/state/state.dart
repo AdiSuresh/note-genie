@@ -31,12 +31,19 @@ final class IdleState extends HomeState {
   }
 }
 
-sealed class SearchState<T extends BaseEntity> extends HomeState {
+sealed class EditState extends HomeState {
   final IdleState previousState;
+
+  const EditState({
+    required this.previousState,
+  });
+}
+
+sealed class SearchState<T extends BaseEntity> extends EditState {
   final List<T> searchResults;
 
   SearchState({
-    required this.previousState,
+    required super.previousState,
     required this.searchResults,
   });
 }
@@ -72,6 +79,64 @@ final class SearchNoteCollectionsState
     return SearchNoteCollectionsState(
       previousState: prevState,
       searchResults: prevState.noteCollections,
+    );
+  }
+}
+
+sealed class SelectItemsState<T extends BaseEntity> extends EditState {
+  final List<(T, bool)> items;
+
+  const SelectItemsState({
+    required super.previousState,
+    required this.items,
+  });
+
+  static List<(T, bool)> createItems<T extends BaseEntity>(
+    List<T> list,
+  ) {
+    return list
+        .map(
+          (e) => (e, false),
+        )
+        .toList(
+          growable: false,
+        );
+  }
+}
+
+final class SelectNotesState extends SelectItemsState<NoteEntity> {
+  const SelectNotesState({
+    required super.previousState,
+    required super.items,
+  });
+
+  factory SelectNotesState.initial(
+    IdleState prevState,
+  ) {
+    return SelectNotesState(
+      previousState: prevState,
+      items: SelectItemsState.createItems(
+        prevState.notes,
+      ),
+    );
+  }
+}
+
+final class SelectNoteCollectionsState
+    extends SelectItemsState<NoteCollectionEntity> {
+  const SelectNoteCollectionsState({
+    required super.previousState,
+    required super.items,
+  });
+
+  factory SelectNoteCollectionsState.initial(
+    IdleState prevState,
+  ) {
+    return SelectNoteCollectionsState(
+      previousState: prevState,
+      items: SelectItemsState.createItems(
+        prevState.noteCollections,
+      ),
     );
   }
 }
