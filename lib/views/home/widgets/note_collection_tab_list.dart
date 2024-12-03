@@ -6,7 +6,7 @@ import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
-import 'package:note_maker/views/home/widgets/selection_highlight.dart';
+import 'package:note_maker/widgets/selection_highlight.dart';
 
 class NoteCollectionTabList extends StatelessWidget {
   const NoteCollectionTabList({
