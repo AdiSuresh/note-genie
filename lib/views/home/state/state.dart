@@ -31,15 +31,15 @@ final class IdleState extends HomeState {
   }
 }
 
-sealed class EditState extends HomeState {
+sealed class NonIdleState extends HomeState {
   final IdleState previousState;
 
-  const EditState({
+  const NonIdleState({
     required this.previousState,
   });
 }
 
-sealed class SearchState<T extends BaseEntity> extends EditState {
+sealed class SearchState<T extends BaseEntity> extends NonIdleState {
   final List<T> searchResults;
 
   SearchState({
@@ -83,7 +83,7 @@ final class SearchNoteCollectionsState
   }
 }
 
-sealed class SelectItemsState<T extends BaseEntity> extends EditState {
+sealed class SelectItemsState<T extends BaseEntity> extends NonIdleState {
   final List<(T, bool)> items;
 
   const SelectItemsState({
