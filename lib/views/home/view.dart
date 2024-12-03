@@ -532,109 +532,116 @@ class _HomePageState extends State<HomePage>
                               searchResults,
                             _ => null,
                           };
-                          switch (collections) {
-                            case []:
-                              return const Center(
+                          final child = switch (collections) {
+                            [] => const Center(
                                 child: NoCollectionsMessage(),
-                              );
-                            case null:
-                              return const SizedBox();
-                            case _:
-                          }
-                          return ListView(
-                            key: const PageStorageKey(
-                              'note-collection-list',
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                            ).copyWith(
-                              top: 7.5,
-                            ),
-                            children: collections.map(
-                              (e) {
-                                return Builder(
-                                  builder: (context) {
-                                    var padding = const EdgeInsets.symmetric(
-                                      vertical: 7.5,
-                                    );
-                                    if (e == collections.first) {
-                                      padding = padding.copyWith(
-                                        top: 0,
-                                      );
-                                    } else if (e == collections.last) {
-                                      padding = padding.copyWith(
-                                        bottom: 0,
-                                      );
-                                    }
-                                    return Padding(
-                                      padding: padding,
-                                      child: CollectionListTile(
-                                        collection: e,
-                                        onTap: () async {
-                                          if (bloc.state case SearchState()) {
-                                            bloc.add(
-                                              ToggleSearchEvent(),
-                                            );
-                                            await Future.delayed(
-                                              animationDuration,
-                                            );
-                                          }
-                                          tabCtrl.animateTo(
-                                            0,
+                              ),
+                            null => const SizedBox(),
+                            _ => ListView(
+                                key: switch (state) {
+                                  IdleState() => const PageStorageKey(
+                                      'note-collection-list',
+                                    ),
+                                  SearchState() => ValueKey(
+                                      'note-collection-list-search/q=${searchCtrl.text}',
+                                    ),
+                                },
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                ).copyWith(
+                                  top: 7.5,
+                                ),
+                                children: collections.map(
+                                  (e) {
+                                    return Builder(
+                                      builder: (context) {
+                                        var padding =
+                                            const EdgeInsets.symmetric(
+                                          vertical: 7.5,
+                                        );
+                                        if (e == collections.first) {
+                                          padding = padding.copyWith(
+                                            top: 0,
                                           );
-                                          await Future.delayed(
-                                            animationDuration,
+                                        } else if (e == collections.last) {
+                                          padding = padding.copyWith(
+                                            bottom: 0,
                                           );
-                                          bloc.add(
-                                            SelectCollectionEvent(
-                                              collection: e,
-                                            ),
-                                          );
-                                          final key = GlobalObjectKey(
-                                            e,
-                                          );
-                                          switch (key.currentContext) {
-                                            case final BuildContext context
-                                                when context.mounted:
-                                              Scrollable.ensureVisible(
-                                                context,
-                                                alignment: .5,
-                                                duration: animationDuration,
+                                        }
+                                        return Padding(
+                                          padding: padding,
+                                          child: CollectionListTile(
+                                            collection: e,
+                                            onTap: () async {
+                                              if (bloc.state
+                                                  case SearchState()) {
+                                                bloc.add(
+                                                  ToggleSearchEvent(),
+                                                );
+                                                await Future.delayed(
+                                                  animationDuration,
+                                                );
+                                              }
+                                              tabCtrl.animateTo(
+                                                0,
                                               );
-                                            case _:
-                                          }
-                                        },
-                                        onEdit: () {
-                                          putCollection(
-                                            e,
-                                          );
-                                        },
-                                        onDelete: () {
-                                          final context = this.context;
-                                          UiUtils.showProceedDialog(
-                                            title: 'Delete collection?',
-                                            message:
-                                                'You are about to delete this collection.'
-                                                ' Once deleted its gone forever.'
-                                                '\n\nAre you sure you want to proceed?',
-                                            context: context,
-                                            onYes: () {
-                                              context.pop();
-                                              deleteCollection(
+                                              await Future.delayed(
+                                                animationDuration,
+                                              );
+                                              bloc.add(
+                                                SelectCollectionEvent(
+                                                  collection: e,
+                                                ),
+                                              );
+                                              final key = GlobalObjectKey(
+                                                e,
+                                              );
+                                              switch (key.currentContext) {
+                                                case final BuildContext context
+                                                    when context.mounted:
+                                                  Scrollable.ensureVisible(
+                                                    context,
+                                                    alignment: .5,
+                                                    duration: animationDuration,
+                                                  );
+                                                case _:
+                                              }
+                                            },
+                                            onEdit: () {
+                                              putCollection(
                                                 e,
                                               );
                                             },
-                                            onNo: () {
-                                              context.pop();
+                                            onDelete: () {
+                                              final context = this.context;
+                                              UiUtils.showProceedDialog(
+                                                title: 'Delete collection?',
+                                                message:
+                                                    'You are about to delete this collection.'
+                                                    ' Once deleted its gone forever.'
+                                                    '\n\nAre you sure you want to proceed?',
+                                                context: context,
+                                                onYes: () {
+                                                  context.pop();
+                                                  deleteCollection(
+                                                    e,
+                                                  );
+                                                },
+                                                onNo: () {
+                                                  context.pop();
+                                                },
+                                              );
                                             },
-                                          );
-                                        },
-                                      ),
+                                          ),
+                                        );
+                                      },
                                     );
                                   },
-                                );
-                              },
-                            ).toList(),
+                                ).toList(),
+                              ),
+                          };
+                          return CustomAnimatedSwitcher(
+                            child: child,
                           );
                         },
                       ),
