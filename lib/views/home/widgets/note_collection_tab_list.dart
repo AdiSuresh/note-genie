@@ -6,12 +6,9 @@ import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
+import 'package:note_maker/widgets/selection_highlight.dart';
 
 class NoteCollectionTabList extends StatelessWidget {
-  static const animationDuration = Duration(
-    milliseconds: 150,
-  );
-
   const NoteCollectionTabList({
     super.key,
   });
@@ -20,7 +17,6 @@ class NoteCollectionTabList extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<HomeBloc>();
     return BlocBuilder<HomeBloc, HomeState>(
-      bloc: bloc,
       buildWhen: (previous, current) {
         switch ((previous, current)) {
           case (final IdleState previous, final IdleState current):
@@ -66,30 +62,10 @@ class NoteCollectionTabList extends StatelessWidget {
                         );
                       }
                       final selected = collection.id == currentCollection?.id;
-                      final scale = selected ? 1.05 : 1.0;
-                      final borderColor = switch (selected) {
-                        true => Colors.blueGrey.withOpacity(
-                            .5,
-                          ),
-                        _ => Colors.transparent,
-                      };
                       return Padding(
                         padding: padding,
-                        child: AnimatedContainer(
-                          duration: animationDuration,
-                          transform: Transform.scale(
-                            scale: scale,
-                          ).transform,
-                          transformAlignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: borderColor,
-                              strokeAlign: BorderSide.strokeAlignOutside,
-                            ),
-                            borderRadius: BorderRadius.circular(
-                              15,
-                            ),
-                          ),
+                        child: SelectionHighlight(
+                          selected: selected,
                           child: CollectionChip(
                             onTap: () {
                               bloc.add(

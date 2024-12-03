@@ -31,46 +31,112 @@ final class IdleState extends HomeState {
   }
 }
 
-sealed class SearchState<T extends BaseEntity> extends HomeState {
+sealed class NonIdleState extends HomeState {
   final IdleState previousState;
+
+  const NonIdleState({
+    required this.previousState,
+  });
+}
+
+sealed class SearchState<T extends BaseEntity> extends NonIdleState {
   final List<T> searchResults;
 
   SearchState({
-    required this.previousState,
+    required super.previousState,
     required this.searchResults,
   });
 }
 
 @CopyWith()
-class SearchNotesState extends SearchState<NoteEntity> {
+final class SearchNotesState extends SearchState<NoteEntity> {
   SearchNotesState({
     required super.previousState,
     required super.searchResults,
   });
 
   factory SearchNotesState.initial(
-    IdleState prevState,
+    IdleState previousState,
   ) {
     return SearchNotesState(
-      previousState: prevState,
-      searchResults: prevState.notes,
+      previousState: previousState,
+      searchResults: previousState.notes,
     );
   }
 }
 
 @CopyWith()
-class SearchNoteCollectionsState extends SearchState<NoteCollectionEntity> {
+final class SearchNoteCollectionsState
+    extends SearchState<NoteCollectionEntity> {
   SearchNoteCollectionsState({
     required super.previousState,
     required super.searchResults,
   });
 
   factory SearchNoteCollectionsState.initial(
-    IdleState prevState,
+    IdleState previousState,
   ) {
     return SearchNoteCollectionsState(
-      previousState: prevState,
-      searchResults: prevState.noteCollections,
+      previousState: previousState,
+      searchResults: previousState.noteCollections,
+    );
+  }
+}
+
+sealed class SelectItemsState<T extends BaseEntity> extends NonIdleState {
+  final List<(T, bool)> items;
+
+  const SelectItemsState({
+    required super.previousState,
+    required this.items,
+  });
+
+  static List<(T, bool)> createItems<T extends BaseEntity>(
+    List<T> list,
+  ) {
+    return list
+        .map(
+          (e) => (e, false),
+        )
+        .toList(
+          growable: false,
+        );
+  }
+}
+
+final class SelectNotesState extends SelectItemsState<NoteEntity> {
+  const SelectNotesState({
+    required super.previousState,
+    required super.items,
+  });
+
+  factory SelectNotesState.initial(
+    IdleState previousState,
+  ) {
+    return SelectNotesState(
+      previousState: previousState,
+      items: SelectItemsState.createItems(
+        previousState.notes,
+      ),
+    );
+  }
+}
+
+final class SelectNoteCollectionsState
+    extends SelectItemsState<NoteCollectionEntity> {
+  const SelectNoteCollectionsState({
+    required super.previousState,
+    required super.items,
+  });
+
+  factory SelectNoteCollectionsState.initial(
+    IdleState previousState,
+  ) {
+    return SelectNoteCollectionsState(
+      previousState: previousState,
+      items: SelectItemsState.createItems(
+        previousState.noteCollections,
+      ),
     );
   }
 }
