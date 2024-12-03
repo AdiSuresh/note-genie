@@ -20,7 +20,6 @@ class NoteCollectionTabList extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<HomeBloc>();
     return BlocBuilder<HomeBloc, HomeState>(
-      bloc: bloc,
       buildWhen: (previous, current) {
         switch ((previous, current)) {
           case (final IdleState previous, final IdleState current):
