@@ -520,6 +520,8 @@ class _HomePageState extends State<HomePage>
                                 final SearchNoteCollectionsState curr,
                               ):
                               return prev.searchResults != curr.searchResults;
+                            case (IdleState(), SearchNoteCollectionsState()):
+                              return false;
                             case _:
                           }
                           return prev.runtimeType != curr.runtimeType;
