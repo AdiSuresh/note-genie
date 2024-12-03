@@ -56,11 +56,11 @@ final class SearchNotesState extends SearchState<NoteEntity> {
   });
 
   factory SearchNotesState.initial(
-    IdleState prevState,
+    IdleState previousState,
   ) {
     return SearchNotesState(
-      previousState: prevState,
-      searchResults: prevState.notes,
+      previousState: previousState,
+      searchResults: previousState.notes,
     );
   }
 }
@@ -74,11 +74,11 @@ final class SearchNoteCollectionsState
   });
 
   factory SearchNoteCollectionsState.initial(
-    IdleState prevState,
+    IdleState previousState,
   ) {
     return SearchNoteCollectionsState(
-      previousState: prevState,
-      searchResults: prevState.noteCollections,
+      previousState: previousState,
+      searchResults: previousState.noteCollections,
     );
   }
 }
@@ -111,12 +111,12 @@ final class SelectNotesState extends SelectItemsState<NoteEntity> {
   });
 
   factory SelectNotesState.initial(
-    IdleState prevState,
+    IdleState previousState,
   ) {
     return SelectNotesState(
-      previousState: prevState,
+      previousState: previousState,
       items: SelectItemsState.createItems(
-        prevState.notes,
+        previousState.notes,
       ),
     );
   }
@@ -130,12 +130,12 @@ final class SelectNoteCollectionsState
   });
 
   factory SelectNoteCollectionsState.initial(
-    IdleState prevState,
+    IdleState previousState,
   ) {
     return SelectNoteCollectionsState(
-      previousState: prevState,
+      previousState: previousState,
       items: SelectItemsState.createItems(
-        prevState.noteCollections,
+        previousState.noteCollections,
       ),
     );
   }
