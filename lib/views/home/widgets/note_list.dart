@@ -69,9 +69,9 @@ class NoteList extends StatelessWidget {
                 switch (state) {
                   IdleState() => currentCollection,
                   SearchState(
-                    :final query,
+                    :final searchResults,
                   ) =>
-                    'note-list-search/q=$query',
+                    searchResults,
                   SelectItemsState() => 'note-list-select',
                 },
               );
