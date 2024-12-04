@@ -32,6 +32,15 @@ class NoteList extends StatelessWidget {
             ):
             return false;
           case (
+              SearchNotesState(
+                searchResults: [],
+              ),
+              SearchNotesState(
+                searchResults: [],
+              ),
+            ):
+            return false;
+          case (
               SearchNotesState(),
               SearchNotesState(),
             ):
@@ -67,7 +76,7 @@ class NoteList extends StatelessWidget {
           (final currentCollection, final notes) => () {
               final key = PageStorageKey(
                 switch (state) {
-                  IdleState() => currentCollection,
+                  IdleState() => currentCollection ?? 'note-list',
                   SearchState(
                     :final searchResults,
                   ) =>

@@ -460,8 +460,10 @@ class _HomePageState extends State<HomePage>
                                 key: PageStorageKey(
                                   switch (state) {
                                     IdleState() => 'note-collection-list',
-                                    SearchState() =>
-                                      'note-collection-list-search/q=${searchCtrl.text}',
+                                    SearchState(
+                                      :final searchResults,
+                                    ) =>
+                                      searchResults,
                                     SelectItemsState() =>
                                       'note-collection-list-select',
                                   },
