@@ -40,10 +40,12 @@ sealed class NonIdleState extends HomeState {
 }
 
 sealed class SearchState<T extends BaseEntity> extends NonIdleState {
+  final String query;
   final List<T> searchResults;
 
   SearchState({
     required super.previousState,
+    required this.query,
     required this.searchResults,
   });
 }
@@ -52,6 +54,7 @@ sealed class SearchState<T extends BaseEntity> extends NonIdleState {
 final class SearchNotesState extends SearchState<NoteEntity> {
   SearchNotesState({
     required super.previousState,
+    required super.query,
     required super.searchResults,
   });
 
@@ -60,6 +63,7 @@ final class SearchNotesState extends SearchState<NoteEntity> {
   ) {
     return SearchNotesState(
       previousState: previousState,
+      query: '',
       searchResults: previousState.notes,
     );
   }
@@ -70,6 +74,7 @@ final class SearchNoteCollectionsState
     extends SearchState<NoteCollectionEntity> {
   SearchNoteCollectionsState({
     required super.previousState,
+    required super.query,
     required super.searchResults,
   });
 
@@ -78,6 +83,7 @@ final class SearchNoteCollectionsState
   ) {
     return SearchNoteCollectionsState(
       previousState: previousState,
+      query: '',
       searchResults: previousState.noteCollections,
     );
   }

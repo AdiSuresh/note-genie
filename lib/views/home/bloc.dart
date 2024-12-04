@@ -188,6 +188,21 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
+    on<SelectNoteEvent>(
+      (event, emit) {
+        switch (state) {
+          case IdleState state:
+            emit(
+              SelectNotesState.initial(
+                state,
+              ),
+            );
+          case SelectNotesState _:
+          // use copyWith
+          case _:
+        }
+      },
+    );
     _startNavigationSub();
     _startNoteCollectionsSub();
     add(

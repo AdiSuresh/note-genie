@@ -20,12 +20,11 @@ import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/home_page_title.dart';
 import 'package:note_maker/views/home/widgets/note_collection_tab_list.dart';
+import 'package:note_maker/views/home/widgets/note_list.dart';
 import 'package:note_maker/widgets/collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/home_fab.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
-import 'package:note_maker/views/home/widgets/note_list_tile.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
-import 'package:note_maker/widgets/empty_footer.dart';
 
 class HomePage extends StatefulWidget {
   static const path = '/';
@@ -417,95 +416,7 @@ class _HomePageState extends State<HomePage>
                             },
                           ),
                           Expanded(
-                            child: BlocBuilder<HomeBloc, HomeState>(
-                              buildWhen: (previous, current) {
-                                switch ((previous, current)) {
-                                  case (
-                                      final IdleState prev,
-                                      final IdleState curr,
-                                    ):
-                                    return prev.notes != curr.notes;
-                                  case (
-                                      IdleState(),
-                                      SearchNotesState(),
-                                    ):
-                                    return false;
-                                  case (
-                                      SearchNotesState(),
-                                      SearchNotesState(),
-                                    ):
-                                    return true;
-                                  case _:
-                                }
-                                return previous.runtimeType !=
-                                    current.runtimeType;
-                              },
-                              builder: (context, state) {
-                                final data = switch (state) {
-                                  IdleState(
-                                    :final currentCollection,
-                                    :final notes,
-                                  ) =>
-                                    (
-                                      currentCollection,
-                                      notes,
-                                    ),
-                                  SearchNotesState(
-                                    :final previousState,
-                                    :final searchResults,
-                                  ) =>
-                                    (
-                                      previousState.currentCollection,
-                                      searchResults,
-                                    ),
-                                  _ => null,
-                                };
-                                final child = switch (data) {
-                                  null => () {
-                                      return const SizedBox();
-                                    },
-                                  (final currentCollection, final notes) => () {
-                                      final key = switch (state) {
-                                        IdleState() => PageStorageKey(
-                                            currentCollection,
-                                          ),
-                                        SearchState() => PageStorageKey(
-                                            'note-list-search/q=${searchCtrl.text}',
-                                          ),
-                                        SelectItemsState() => PageStorageKey(
-                                            'note-list-select',
-                                          ),
-                                      };
-                                      return switch (notes) {
-                                        [] => const Center(
-                                            child: Text(
-                                              'No notes yet',
-                                            ),
-                                          ),
-                                        _ => ListView(
-                                            key: key,
-                                            children: <Widget>[
-                                              for (final note in notes)
-                                                NoteListTile(
-                                                  note: note,
-                                                  onTap: () async {
-                                                    context.extra = note;
-                                                    context.go(
-                                                      (EditNote).asRoutePath(),
-                                                    );
-                                                  },
-                                                ),
-                                              const EmptyFooter(),
-                                            ],
-                                          ),
-                                      };
-                                    },
-                                }();
-                                return CustomAnimatedSwitcher(
-                                  child: child,
-                                );
-                              },
-                            ),
+                            child: NoteList(),
                           ),
                         ],
                       ),
