@@ -457,17 +457,15 @@ class _HomePageState extends State<HomePage>
                               ),
                             null => const SizedBox(),
                             _ => ListView(
-                                key: switch (state) {
-                                  IdleState() => const PageStorageKey(
-                                      'note-collection-list',
-                                    ),
-                                  SearchState() => PageStorageKey(
+                                key: PageStorageKey(
+                                  switch (state) {
+                                    IdleState() => 'note-collection-list',
+                                    SearchState() =>
                                       'note-collection-list-search/q=${searchCtrl.text}',
-                                    ),
-                                  SelectItemsState() => PageStorageKey(
+                                    SelectItemsState() =>
                                       'note-collection-list-select',
-                                    ),
-                                },
+                                  },
+                                ),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 15,
                                 ).copyWith(

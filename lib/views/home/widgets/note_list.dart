@@ -65,20 +65,16 @@ class NoteList extends StatelessWidget {
               return const SizedBox();
             },
           (final currentCollection, final notes) => () {
-              final key = switch (state) {
-                IdleState() => PageStorageKey(
-                    currentCollection,
-                  ),
-                SearchState(
-                  :final query,
-                ) =>
-                  PageStorageKey(
+              final key = PageStorageKey(
+                switch (state) {
+                  IdleState() => currentCollection,
+                  SearchState(
+                    :final query,
+                  ) =>
                     'note-list-search/q=$query',
-                  ),
-                SelectItemsState() => PageStorageKey(
-                    'note-list-select',
-                  ),
-              };
+                  SelectItemsState() => 'note-list-select',
+                },
+              );
               return switch (notes) {
                 [] => const Center(
                     child: Text(
