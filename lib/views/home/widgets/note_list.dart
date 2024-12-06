@@ -10,11 +10,71 @@ import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/note_list_tile.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/empty_footer.dart';
+import 'package:note_maker/widgets/selection_highlight.dart';
 
 class NoteList extends StatelessWidget {
   const NoteList({
     super.key,
   });
+
+  Widget _buildTile(
+    BuildContext context,
+    int i,
+  ) {
+    final state = context.bloc.state;
+    final note = switch (state) {
+      IdleState state => state.notes[i],
+      NonIdleState state => state.previousState.notes[i],
+    };
+    final tile = NoteListTile(
+      note: note,
+      onTap: () {
+        switch (state) {
+          case IdleState() || SearchNotesState():
+            context
+              ..extra = note
+              ..go(
+                (EditNote).asRoutePath(),
+              );
+          case SelectNotesState():
+            context.bloc.add(
+              SelectNoteEvent(
+                index: i,
+              ),
+            );
+          case _:
+        }
+      },
+      onLongPress: switch (state) {
+        IdleState() => () {
+            context.bloc.add(
+              SelectNoteEvent(
+                index: i,
+              ),
+            );
+          },
+        _ => null,
+      },
+    );
+    final selected = switch (state) {
+      SelectNotesState(
+        selected: final items,
+      ) =>
+        items[i],
+      _ => false,
+    };
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 7.5,
+        horizontal: 15,
+      ),
+      child: SelectionHighlight(
+        selected: selected,
+        scaleFactor: 1.0125,
+        child: tile,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +105,11 @@ class NoteList extends StatelessWidget {
               SearchNotesState(),
             ):
             return true;
+          case (
+              IdleState() || SelectNotesState(),
+              SelectNotesState(),
+            ):
+            return true;
           case _:
         }
         return previous.runtimeType != current.runtimeType;
@@ -67,6 +132,13 @@ class NoteList extends StatelessWidget {
               previousState.currentCollection,
               searchResults,
             ),
+          SelectNotesState(
+            :final previousState,
+          ) =>
+            (
+              previousState.currentCollection,
+              previousState.notes,
+            ),
           _ => null,
         };
         final child = switch (data) {
@@ -76,12 +148,13 @@ class NoteList extends StatelessWidget {
           (final currentCollection, final notes) => () {
               final key = PageStorageKey(
                 switch (state) {
-                  IdleState() => currentCollection ?? 'note-list',
+                  IdleState() ||
+                  SelectItemsState() =>
+                    currentCollection ?? 'note-list',
                   SearchState(
                     :final searchResults,
                   ) =>
                     searchResults,
-                  SelectItemsState() => 'note-list-select',
                 },
               );
               return switch (notes) {
@@ -93,36 +166,10 @@ class NoteList extends StatelessWidget {
                 _ => ListView(
                     key: key,
                     children: <Widget>[
-                      for (final note in notes)
-                        NoteListTile(
-                          note: note,
-                          onTap: () {
-                            switch (state) {
-                              case IdleState() || SearchNotesState():
-                                context
-                                  ..extra = note
-                                  ..go(
-                                    (EditNote).asRoutePath(),
-                                  );
-                              case SelectNotesState():
-                                context.bloc.add(
-                                  SelectNoteEvent(
-                                    item: note,
-                                  ),
-                                );
-                              case _:
-                            }
-                          },
-                          onLongPress: switch (state) {
-                            IdleState() => () {
-                                context.bloc.add(
-                                  SelectNoteEvent(
-                                    item: note,
-                                  ),
-                                );
-                              },
-                            _ => null,
-                          },
+                      for (final (i, _) in notes.indexed)
+                        _buildTile(
+                          context,
+                          i,
                         ),
                       const EmptyFooter(),
                     ],

@@ -200,14 +200,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<SelectNoteEvent>(
       (event, emit) {
         switch (state) {
-          case IdleState state:
+          case final IdleState state:
             emit(
               SelectNotesState.initial(
                 state,
+                event.index,
               ),
             );
-          case SelectNotesState _:
-          // use copyWith
+          case final SelectNotesState state:
+            final selected = !state.selected[event.index];
+            state.selected[event.index] = selected;
+            emit(
+              state.copyWith(),
+            );
           case _:
         }
       },
