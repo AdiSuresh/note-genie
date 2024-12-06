@@ -46,6 +46,10 @@ class FetchNotesEvent extends HomeEvent {
   const FetchNotesEvent();
 }
 
+class ResetStateEvent extends HomeEvent {
+  const ResetStateEvent();
+}
+
 class ToggleSearchEvent extends HomeEvent {
   const ToggleSearchEvent();
 }
@@ -59,22 +63,22 @@ class PerformSearchEvent extends HomeEvent {
 }
 
 sealed class SelectItemEvent<T extends BaseEntity> extends HomeEvent {
-  final T item;
+  final int index;
 
   const SelectItemEvent({
-    required this.item,
+    required this.index,
   });
 }
 
 final class SelectNoteEvent extends SelectItemEvent<NoteEntity> {
   const SelectNoteEvent({
-    required super.item,
+    required super.index,
   });
 }
 
 final class SelectNoteCollectionEvent
     extends SelectItemEvent<NoteCollectionEntity> {
   const SelectNoteCollectionEvent({
-    required super.item,
+    required super.index,
   });
 }

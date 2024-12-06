@@ -84,19 +84,19 @@ final class SearchNoteCollectionsState
 }
 
 sealed class SelectItemsState<T extends BaseEntity> extends NonIdleState {
-  final List<(T, bool)> items;
+  final List<bool> selected;
 
   const SelectItemsState({
     required super.previousState,
-    required this.items,
+    required this.selected,
   });
 
-  static List<(T, bool)> createItems<T extends BaseEntity>(
+  static List<bool> createItems<T extends BaseEntity>(
     List<T> list,
   ) {
     return list
         .map(
-          (e) => (e, false),
+          (e) => false,
         )
         .toList(
           growable: false,
@@ -104,39 +104,43 @@ sealed class SelectItemsState<T extends BaseEntity> extends NonIdleState {
   }
 }
 
+@CopyWith()
 final class SelectNotesState extends SelectItemsState<NoteEntity> {
   const SelectNotesState({
     required super.previousState,
-    required super.items,
+    required super.selected,
   });
 
   factory SelectNotesState.initial(
     IdleState previousState,
+    int index,
   ) {
     return SelectNotesState(
       previousState: previousState,
-      items: SelectItemsState.createItems(
+      selected: SelectItemsState.createItems(
         previousState.notes,
-      ),
+      )..[index] = true,
     );
   }
 }
 
+@CopyWith()
 final class SelectNoteCollectionsState
     extends SelectItemsState<NoteCollectionEntity> {
   const SelectNoteCollectionsState({
     required super.previousState,
-    required super.items,
+    required super.selected,
   });
 
   factory SelectNoteCollectionsState.initial(
     IdleState previousState,
+    int index,
   ) {
     return SelectNoteCollectionsState(
       previousState: previousState,
-      items: SelectItemsState.createItems(
+      selected: SelectItemsState.createItems(
         previousState.noteCollections,
-      ),
+      )..[index] = true,
     );
   }
 }

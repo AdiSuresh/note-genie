@@ -14,7 +14,7 @@ class SelectionHighlight extends StatelessWidget {
     required this.selected,
     this.scaleFactor = 1.05,
     required this.child,
-  });
+  }) : assert(scaleFactor > 1);
 
   @override
   Widget build(BuildContext context) {
