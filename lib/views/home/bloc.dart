@@ -24,6 +24,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required this.repository,
     required this.path,
   }) {
+    on<ResetStateEvent>(
+      (event, emit) {
+        if (state case NonIdleState(:final previousState)) {
+          emit(
+            previousState,
+          );
+        }
+      },
+    );
     on<UpdateNoteCollectionsEvent>(
       (event, emit) {
         switch (state) {

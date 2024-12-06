@@ -592,7 +592,7 @@ class _HomePageState extends State<HomePage>
             break;
           case _:
             bloc.add(
-              ToggleSearchEvent(),
+              ResetStateEvent(),
             );
             return;
         }
