@@ -23,8 +23,12 @@ class NoteList extends StatelessWidget {
   ) {
     final state = context.bloc.state;
     final note = switch (state) {
-      IdleState state => state.notes[i],
-      NonIdleState state => state.previousState.notes[i],
+      final IdleState state => state.notes[i],
+      final NonIdleState state => state.previousState.notes[i],
+    };
+    final splash = switch (state) {
+      SelectNotesState() => false,
+      _ => true,
     };
     final tile = NoteListTile(
       note: note,
@@ -55,12 +59,13 @@ class NoteList extends StatelessWidget {
           },
         _ => null,
       },
+      splash: splash,
     );
     final selected = switch (state) {
       SelectNotesState(
-        selected: final items,
+        :final selected,
       ) =>
-        items[i],
+        selected[i],
       _ => false,
     };
     return Padding(
