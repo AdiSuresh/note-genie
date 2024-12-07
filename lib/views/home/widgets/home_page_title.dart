@@ -34,14 +34,6 @@ class HomePageTitle extends StatelessWidget {
         return false;
       },
       builder: (context, state) {
-        if (state case SelectItemsState()) {
-          [
-            state.count,
-            'selected',
-            if (state.previousState.currentCollection?.name case String name)
-              'in $name',
-          ];
-        }
         final pageTitle = switch (state) {
           IdleState() => state.pageTitle,
           final SelectItemsState state => [
