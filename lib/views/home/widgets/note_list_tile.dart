@@ -5,12 +5,14 @@ class NoteListTile extends StatelessWidget {
   final NoteEntity note;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final bool splash;
 
   const NoteListTile({
     super.key,
     required this.note,
     this.onTap,
     this.onLongPress,
+    this.splash = true,
   });
 
   @override
@@ -27,6 +29,7 @@ class NoteListTile extends StatelessWidget {
         onTap: onTap,
         onLongPress: onLongPress,
         borderRadius: borderRadius,
+        splashColor: splash ? null : Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.all(15),
           child: Column(

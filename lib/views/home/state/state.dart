@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:note_maker/models/base_entity.dart';
 import 'package:note_maker/models/note_collection/model.dart';
@@ -85,10 +87,14 @@ final class SearchNoteCollectionsState
 
 sealed class SelectItemsState<T extends BaseEntity> extends NonIdleState {
   final List<bool> selected;
+  final HashSet<int> itemIds;
+  final int count;
 
   const SelectItemsState({
     required super.previousState,
     required this.selected,
+    required this.itemIds,
+    required this.count,
   });
 
   static List<bool> createItems<T extends BaseEntity>(
@@ -109,17 +115,20 @@ final class SelectNotesState extends SelectItemsState<NoteEntity> {
   const SelectNotesState({
     required super.previousState,
     required super.selected,
+    required super.itemIds,
+    required super.count,
   });
 
   factory SelectNotesState.initial(
     IdleState previousState,
-    int index,
   ) {
     return SelectNotesState(
       previousState: previousState,
       selected: SelectItemsState.createItems(
         previousState.notes,
-      )..[index] = true,
+      ),
+      itemIds: HashSet(),
+      count: 0,
     );
   }
 }
@@ -130,17 +139,20 @@ final class SelectNoteCollectionsState
   const SelectNoteCollectionsState({
     required super.previousState,
     required super.selected,
+    required super.itemIds,
+    required super.count,
   });
 
   factory SelectNoteCollectionsState.initial(
     IdleState previousState,
-    int index,
   ) {
     return SelectNoteCollectionsState(
       previousState: previousState,
       selected: SelectItemsState.createItems(
         previousState.noteCollections,
-      )..[index] = true,
+      ),
+      itemIds: HashSet(),
+      count: 0,
     );
   }
 }

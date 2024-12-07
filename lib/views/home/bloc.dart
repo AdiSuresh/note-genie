@@ -201,18 +201,42 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (event, emit) {
         switch (state) {
           case final IdleState state:
+            final nestState = SelectNotesState.initial(
+              state,
+            )
+              ..selected[event.index] = true
+              ..itemIds.add(
+                state.notes[event.index].id,
+              );
             emit(
-              SelectNotesState.initial(
-                state,
-                event.index,
+              nestState.copyWith(
+                count: 1,
               ),
             );
           case final SelectNotesState state:
             final selected = !state.selected[event.index];
             state.selected[event.index] = selected;
-            emit(
-              state.copyWith(),
+            final note = state.previousState.notes[event.index];
+            final update = switch (selected) {
+              true => state.itemIds.add,
+              false => state.itemIds.remove,
+            };
+            update(
+              note.id,
             );
+            final count = state.itemIds.length;
+            switch (count) {
+              case > 0:
+                emit(
+                  state.copyWith(
+                    count: count,
+                  ),
+                );
+              case _:
+                add(
+                  ResetStateEvent(),
+                );
+            }
           case _:
         }
       },

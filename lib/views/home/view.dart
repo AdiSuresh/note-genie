@@ -217,6 +217,9 @@ class _HomePageState extends State<HomePage>
                   final child = switch (state) {
                     IdleState() => () {
                         final child = Row(
+                          key: ValueKey(
+                            'page-title',
+                          ),
                           children: [
                             HomePageTitle(),
                             const Spacer(),
@@ -333,7 +336,15 @@ class _HomePageState extends State<HomePage>
                         return child;
                       },
                     SelectItemsState() => () {
-                        return const SizedBox();
+                        final child = Row(
+                          key: ValueKey(
+                            'selected-count',
+                          ),
+                          children: [
+                            HomePageTitle(),
+                          ],
+                        );
+                        return child;
                       },
                   }();
                   return CustomAnimatedSwitcher(
