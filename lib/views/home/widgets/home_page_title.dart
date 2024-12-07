@@ -42,7 +42,6 @@ class HomePageTitle extends StatelessWidget {
               'in $name',
           ];
         }
-        ;
         final pageTitle = switch (state) {
           IdleState() => state.pageTitle,
           final SelectItemsState state => [
