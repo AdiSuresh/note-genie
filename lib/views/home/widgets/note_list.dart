@@ -154,7 +154,8 @@ class NoteList extends StatelessWidget {
               final key = PageStorageKey(
                 switch (state) {
                   IdleState() ||
-                  SelectItemsState() =>
+                  SelectItemsState() ||
+                  DeleteItemsState() =>
                     currentCollection ?? 'note-list',
                   SearchState(
                     :final searchResults,

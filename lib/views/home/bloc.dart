@@ -101,8 +101,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         final currentIdleState = switch (state) {
           IdleState state => state,
-          SearchState(:final previousState) => previousState,
-          SelectItemsState(:final previousState) => previousState,
+          NonIdleState(:final previousState) => previousState,
         };
         final showNotes = switch (event.index) {
           0 || 1 => event.index == 0,
@@ -201,7 +200,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (event, emit) {
         switch (state) {
           case final IdleState state:
-            final nestState = SelectNotesState.initial(
+            final nextState = SelectNotesState.initial(
               state,
             )
               ..selected[event.index] = true
@@ -209,7 +208,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 state.notes[event.index].id,
               );
             emit(
-              nestState.copyWith(
+              nextState.copyWith(
                 count: 1,
               ),
             );
@@ -241,10 +240,46 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
+    on<DeleteNotesEvent>(
+      (event, emit) async {
+        switch (state) {
+          case final SelectNotesState state:
+            final future = repository.removeNotes(
+              state.itemIds,
+            );
+            emit(
+              DeleteItemsState(
+                previousState: state.previousState,
+                future: future,
+              ),
+            );
+            emit(
+              state.previousState.copyWith(
+                notes: state.previousState.notes.indexed.where(
+                  (element) {
+                    final (i, _) = element;
+                    return !state.selected[i];
+                  },
+                ).map(
+                  (element) {
+                    final (_, e) = element;
+                    return e;
+                  },
+                ).toList(),
+              ),
+            );
+            await future;
+            add(
+              const FetchNotesEvent(),
+            );
+          case _:
+        }
+      },
+    );
     _startNavigationSub();
     _startNoteCollectionsSub();
     add(
-      FetchNotesEvent(),
+      const FetchNotesEvent(),
     );
   }
 
@@ -294,7 +329,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         print('fetch notes from _navigationSub');
         add(
-          FetchNotesEvent(),
+          const FetchNotesEvent(),
         );
       },
     );

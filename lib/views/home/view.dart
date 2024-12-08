@@ -21,7 +21,7 @@ import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/home_page_title.dart';
 import 'package:note_maker/views/home/widgets/note_collection_tab_list.dart';
 import 'package:note_maker/views/home/widgets/note_list.dart';
-import 'package:note_maker/widgets/collection_list_tile.dart';
+import 'package:note_maker/widgets/note_collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/home_fab.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
@@ -68,6 +68,7 @@ class _HomePageState extends State<HomePage>
   final searchCtrl = TextEditingController();
 
   late final TabController tabCtrl;
+  late final StreamSubscription<HomeState> stateSub;
 
   HomeBloc get bloc => context.read<HomeBloc>();
   HomeRepository get repo => context.read<HomeRepository>();
@@ -84,6 +85,24 @@ class _HomePageState extends State<HomePage>
     tabCtrl.addListener(
       handleSwitchTabEvent,
     );
+    stateSub = bloc.stream.listen(
+      (state) async {
+        switch (state) {
+          case DeleteItemsState(
+              future: final future,
+            ):
+            final count = await future;
+            if (!mounted) {
+              return;
+            }
+            UiUtils.showSnackBar(
+              context,
+              content: 'Deleted $count items',
+            );
+          case _:
+        }
+      },
+    );
   }
 
   @override
@@ -96,6 +115,7 @@ class _HomePageState extends State<HomePage>
       'disposing home',
     );
     collectionNameCtrl.dispose();
+    stateSub.cancel();
     super.dispose();
   }
 
@@ -221,7 +241,7 @@ class _HomePageState extends State<HomePage>
                             'page-title',
                           ),
                           children: [
-                            HomePageTitle(),
+                            const HomePageTitle(),
                             const Spacer(),
                             Builder(
                               builder: (context) {
@@ -341,11 +361,37 @@ class _HomePageState extends State<HomePage>
                             'selected-count',
                           ),
                           children: [
-                            HomePageTitle(),
+                            IconButton(
+                              tooltip: 'Cancel selection',
+                              onPressed: () {
+                                bloc.add(
+                                  const ResetStateEvent(),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.close_rounded,
+                              ),
+                            ),
+                            const HomePageTitle(),
+                            const Spacer(),
+                            IconButton(
+                              tooltip: 'Delete selected',
+                              onPressed: () {
+                                bloc.add(
+                                  const DeleteNotesEvent(),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.delete,
+                              ),
+                            ),
                           ],
                         );
                         return child;
                       },
+                    _ => () {
+                        return const SizedBox();
+                      }
                   }();
                   return CustomAnimatedSwitcher(
                     child: child,
@@ -477,6 +523,8 @@ class _HomePageState extends State<HomePage>
                                       searchResults,
                                     SelectItemsState() =>
                                       'note-collection-list-select',
+                                    DeleteItemsState() =>
+                                      'note-collection-list-delete',
                                   },
                                 ),
                                 padding: const EdgeInsets.symmetric(
@@ -503,7 +551,7 @@ class _HomePageState extends State<HomePage>
                                         }
                                         return Padding(
                                           padding: padding,
-                                          child: CollectionListTile(
+                                          child: NoteCollectionListTile(
                                             collection: e,
                                             onTap: () async {
                                               if (bloc.state
@@ -603,7 +651,7 @@ class _HomePageState extends State<HomePage>
             break;
           case _:
             bloc.add(
-              ResetStateEvent(),
+              const ResetStateEvent(),
             );
             return;
         }
