@@ -360,6 +360,7 @@ class _HomePageState extends State<HomePage>
                           key: ValueKey(
                             'selected-count',
                           ),
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             IconButton(
                               tooltip: 'Cancel selection',
@@ -372,17 +373,33 @@ class _HomePageState extends State<HomePage>
                                 Icons.close_rounded,
                               ),
                             ),
-                            const SizedBox(
-                              width: 7.5,
-                            ),
                             const HomePageTitle(),
-                            const Spacer(),
                             IconButton(
                               tooltip: 'Delete selected',
                               onPressed: () {
-                                bloc.add(
-                                  const DeleteNotesEvent(),
-                                );
+                                if (bloc.state
+                                    case SelectNotesState(
+                                      :final count,
+                                    )) {
+                                  final word = switch (count) {
+                                    1 => 'item',
+                                    _ => 'items',
+                                  };
+                                  UiUtils.showProceedDialog(
+                                    title: 'Delete notes',
+                                    message: 'Delete $count $word?',
+                                    context: context,
+                                    onYes: () {
+                                      context.pop();
+                                      bloc.add(
+                                        const DeleteNotesEvent(),
+                                      );
+                                    },
+                                    onNo: () {
+                                      context.pop();
+                                    },
+                                  );
+                                }
                               },
                               icon: const Icon(
                                 Icons.delete,
