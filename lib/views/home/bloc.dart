@@ -101,8 +101,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         final currentIdleState = switch (state) {
           IdleState state => state,
-          SearchState(:final previousState) => previousState,
-          SelectItemsState(:final previousState) => previousState,
+          NonIdleState(:final previousState) => previousState,
         };
         final showNotes = switch (event.index) {
           0 || 1 => event.index == 0,
@@ -245,12 +244,31 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (event, emit) async {
         switch (state) {
           case final SelectNotesState state:
-            await repository.removeNotes(
+            final future = repository.removeNotes(
               state.itemIds,
             );
             emit(
-              state.previousState,
+              DeleteItemsState(
+                previousState: state.previousState,
+                future: future,
+              ),
             );
+            emit(
+              state.previousState.copyWith(
+                notes: state.previousState.notes.indexed.where(
+                  (element) {
+                    final (i, _) = element;
+                    return !state.selected[i];
+                  },
+                ).map(
+                  (element) {
+                    final (_, e) = element;
+                    return e;
+                  },
+                ).toList(),
+              ),
+            );
+            await future;
             add(
               const FetchNotesEvent(),
             );

@@ -11,6 +11,15 @@ sealed class HomeState {
   const HomeState();
 }
 
+final class DeleteItemsState extends NonIdleState {
+  final Future<int> future;
+
+  const DeleteItemsState({
+    required super.previousState,
+    required this.future,
+  });
+}
+
 @CopyWith()
 final class IdleState extends HomeState {
   final bool showNotes;

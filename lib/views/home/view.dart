@@ -68,6 +68,7 @@ class _HomePageState extends State<HomePage>
   final searchCtrl = TextEditingController();
 
   late final TabController tabCtrl;
+  late final StreamSubscription<HomeState> stateSub;
 
   HomeBloc get bloc => context.read<HomeBloc>();
   HomeRepository get repo => context.read<HomeRepository>();
@@ -84,6 +85,24 @@ class _HomePageState extends State<HomePage>
     tabCtrl.addListener(
       handleSwitchTabEvent,
     );
+    stateSub = bloc.stream.listen(
+      (state) async {
+        switch (state) {
+          case DeleteItemsState(
+              future: final future,
+            ):
+            final count = await future;
+            if (!mounted) {
+              return;
+            }
+            UiUtils.showSnackBar(
+              context,
+              content: 'Deleted $count items',
+            );
+          case _:
+        }
+      },
+    );
   }
 
   @override
@@ -96,6 +115,7 @@ class _HomePageState extends State<HomePage>
       'disposing home',
     );
     collectionNameCtrl.dispose();
+    stateSub.cancel();
     super.dispose();
   }
 
@@ -369,6 +389,9 @@ class _HomePageState extends State<HomePage>
                         );
                         return child;
                       },
+                    _ => () {
+                        return const SizedBox();
+                      }
                   }();
                   return CustomAnimatedSwitcher(
                     child: child,
@@ -500,6 +523,8 @@ class _HomePageState extends State<HomePage>
                                       searchResults,
                                     SelectItemsState() =>
                                       'note-collection-list-select',
+                                    DeleteItemsState() =>
+                                      'note-collection-list-delete',
                                   },
                                 ),
                                 padding: const EdgeInsets.symmetric(
