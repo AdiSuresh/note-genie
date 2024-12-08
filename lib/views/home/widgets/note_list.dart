@@ -32,22 +32,22 @@ class NoteList extends StatelessWidget {
     };
     final tile = NoteListTile(
       note: note,
-      onTap: () {
-        switch (state) {
-          case IdleState() || SearchNotesState():
+      onTap: switch (state) {
+        IdleState() || SearchNotesState() => () {
             context
               ..extra = note
               ..go(
                 (EditNote).asRoutePath(),
               );
-          case SelectNotesState():
+          },
+        SelectNotesState() => () {
             context.bloc.add(
               SelectNoteEvent(
                 index: i,
               ),
             );
-          case _:
-        }
+          },
+        _ => null,
       },
       onLongPress: switch (state) {
         IdleState() => () {

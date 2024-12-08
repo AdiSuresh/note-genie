@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
@@ -19,6 +18,7 @@ import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/home_page_title.dart';
+import 'package:note_maker/views/home/widgets/home_pop_scope.dart';
 import 'package:note_maker/views/home/widgets/note_collection_tab_list.dart';
 import 'package:note_maker/views/home/widgets/note_list.dart';
 import 'package:note_maker/widgets/note_collection_list_tile.dart';
@@ -658,42 +658,7 @@ class _HomePageState extends State<HomePage>
         onPressed: fabOnPressed,
       ),
     );
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) {
-          return;
-        }
-        switch (bloc) {
-          case HomeBloc(
-              state: IdleState(),
-            ):
-            break;
-          case _:
-            bloc.add(
-              const ResetStateEvent(),
-            );
-            return;
-        }
-        final exit = await UiUtils.showProceedDialog(
-          title: 'App Exit',
-          message: 'Would you like to exit the app?',
-          context: context,
-          onYes: () {
-            context.pop(
-              true,
-            );
-          },
-          onNo: () {
-            context.pop(
-              false,
-            );
-          },
-        );
-        if (exit case true) {
-          SystemNavigator.pop();
-        }
-      },
+    return HomePopScope(
       child: scaffold,
     );
   }

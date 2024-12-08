@@ -253,19 +253,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 future: future,
               ),
             );
+            final notes = state.previousState.notes.indexed.where(
+              (element) {
+                final (i, _) = element;
+                return !state.selected[i];
+              },
+            ).map(
+              (element) {
+                final (_, e) = element;
+                return e;
+              },
+            ).toList();
             emit(
               state.previousState.copyWith(
-                notes: state.previousState.notes.indexed.where(
-                  (element) {
-                    final (i, _) = element;
-                    return !state.selected[i];
-                  },
-                ).map(
-                  (element) {
-                    final (_, e) = element;
-                    return e;
-                  },
-                ).toList(),
+                notes: notes,
               ),
             );
             await future;
