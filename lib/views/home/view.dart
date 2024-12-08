@@ -372,6 +372,9 @@ class _HomePageState extends State<HomePage>
                                 Icons.close_rounded,
                               ),
                             ),
+                            const SizedBox(
+                              width: 7.5,
+                            ),
                             const HomePageTitle(),
                             const Spacer(),
                             IconButton(
