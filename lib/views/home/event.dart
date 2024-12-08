@@ -82,3 +82,16 @@ final class SelectNoteCollectionEvent
     required super.index,
   });
 }
+
+sealed class DeleteItemsEvent<T extends BaseEntity> extends HomeEvent {
+  const DeleteItemsEvent();
+}
+
+final class DeleteNotesEvent extends DeleteItemsEvent<NoteEntity> {
+  const DeleteNotesEvent();
+}
+
+final class DeleteNoteCollectionsEvent
+    extends DeleteItemsEvent<NoteCollectionEntity> {
+  const DeleteNoteCollectionsEvent();
+}

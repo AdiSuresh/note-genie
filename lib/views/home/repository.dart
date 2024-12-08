@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:note_maker/data/services/mixins/local_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
@@ -102,5 +104,14 @@ class HomeRepository with LocalDBServiceMixin {
           (query) => query.find(),
         );
     return result;
+  }
+
+  Future<int> removeNotes(
+    HashSet<int> ids,
+  ) async {
+    final box = await noteBox;
+    return await box.removeManyAsync(
+      ids.toList(),
+    );
   }
 }

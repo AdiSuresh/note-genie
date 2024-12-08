@@ -221,7 +221,7 @@ class _HomePageState extends State<HomePage>
                             'page-title',
                           ),
                           children: [
-                            HomePageTitle(),
+                            const HomePageTitle(),
                             const Spacer(),
                             Builder(
                               builder: (context) {
@@ -341,7 +341,30 @@ class _HomePageState extends State<HomePage>
                             'selected-count',
                           ),
                           children: [
-                            HomePageTitle(),
+                            IconButton(
+                              tooltip: 'Cancel selection',
+                              onPressed: () {
+                                bloc.add(
+                                  const ResetStateEvent(),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.close_rounded,
+                              ),
+                            ),
+                            const HomePageTitle(),
+                            const Spacer(),
+                            IconButton(
+                              tooltip: 'Delete selected',
+                              onPressed: () {
+                                bloc.add(
+                                  const DeleteNotesEvent(),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.delete,
+                              ),
+                            ),
                           ],
                         );
                         return child;
@@ -603,7 +626,7 @@ class _HomePageState extends State<HomePage>
             break;
           case _:
             bloc.add(
-              ResetStateEvent(),
+              const ResetStateEvent(),
             );
             return;
         }
