@@ -10,10 +10,10 @@ import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/event.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
-import 'package:note_maker/widgets/collection_list_tile.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/draggable_scrollable_bloc/bloc.dart';
 import 'package:note_maker/widgets/draggable_scrollable_bloc/state.dart';
+import 'package:note_maker/widgets/note_collection_list_tile.dart';
 
 class NoteCollectionListSheet extends StatefulWidget {
   const NoteCollectionListSheet({
@@ -125,7 +125,7 @@ class _NoteCollectionListSheetState extends State<NoteCollectionListSheet> {
                     true => (() => removeFromCollection(collection), null),
                     _ => (null, () => addToCollection(collection)),
                   };
-                  return CollectionListTile(
+                  return NoteCollectionListTile(
                     collection: collection,
                     onRemoveNote: removeNote,
                     onAddNote: addNote,

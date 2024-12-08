@@ -20,10 +20,6 @@ class HomePageTitle extends StatelessWidget {
               final IdleState current,
             ):
             return previous.pageTitle != current.pageTitle;
-          case (_, IdleState()):
-            return true;
-          case (IdleState(), SelectItemsState()):
-            return true;
           case (
               final SelectItemsState previous,
               final SelectItemsState current,

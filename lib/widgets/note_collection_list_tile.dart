@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 
-class CollectionListTile extends StatelessWidget {
+class NoteCollectionListTile extends StatelessWidget {
   final NoteCollectionEntity collection;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onAddNote;
   final VoidCallback? onRemoveNote;
+  final bool splash;
 
-  const CollectionListTile({
+  const NoteCollectionListTile({
     super.key,
     required this.collection,
     this.onTap,
@@ -17,6 +18,7 @@ class CollectionListTile extends StatelessWidget {
     this.onDelete,
     this.onAddNote,
     this.onRemoveNote,
+    this.splash = true,
   });
 
   @override
@@ -45,6 +47,7 @@ class CollectionListTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: borderRadius,
+        splashColor: splash ? null : Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.all(15),
           child: Row(

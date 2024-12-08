@@ -21,7 +21,7 @@ import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/home_page_title.dart';
 import 'package:note_maker/views/home/widgets/note_collection_tab_list.dart';
 import 'package:note_maker/views/home/widgets/note_list.dart';
-import 'package:note_maker/widgets/collection_list_tile.dart';
+import 'package:note_maker/widgets/note_collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/home_fab.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
@@ -503,7 +503,7 @@ class _HomePageState extends State<HomePage>
                                         }
                                         return Padding(
                                           padding: padding,
-                                          child: CollectionListTile(
+                                          child: NoteCollectionListTile(
                                             collection: e,
                                             onTap: () async {
                                               if (bloc.state
