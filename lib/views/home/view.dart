@@ -360,7 +360,6 @@ class _HomePageState extends State<HomePage>
                           key: ValueKey(
                             'selected-count',
                           ),
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             IconButton(
                               tooltip: 'Cancel selection',
@@ -376,7 +375,12 @@ class _HomePageState extends State<HomePage>
                                 Icons.close_rounded,
                               ),
                             ),
-                            const HomePageTitle(),
+                            const Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(7.5),
+                                child: HomePageTitle(),
+                              ),
+                            ),
                             IconButton(
                               tooltip: 'Delete selected',
                               onPressed: () {

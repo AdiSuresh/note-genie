@@ -54,6 +54,8 @@ class HomePageTitle extends StatelessWidget {
           _ => Text(
               pageTitle,
               style: context.themeData.textTheme.titleLarge,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
         };
       },
