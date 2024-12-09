@@ -355,7 +355,7 @@ class _HomePageState extends State<HomePage>
                         );
                         return child;
                       },
-                    SelectItemsState() => () {
+                    SelectItemsState() || DeleteItemsState() => () {
                         final child = Row(
                           key: ValueKey(
                             'selected-count',
@@ -365,6 +365,9 @@ class _HomePageState extends State<HomePage>
                             IconButton(
                               tooltip: 'Cancel selection',
                               onPressed: () {
+                                if (bloc.state case DeleteItemsState()) {
+                                  return;
+                                }
                                 bloc.add(
                                   const ResetStateEvent(),
                                 );

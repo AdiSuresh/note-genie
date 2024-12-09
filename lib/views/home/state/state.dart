@@ -11,12 +11,27 @@ sealed class HomeState {
   const HomeState();
 }
 
-final class DeleteItemsState extends NonIdleState {
+sealed class DeleteItemsState<T extends BaseEntity> extends HomeState {
+  final SelectItemsState<T> previousState;
   final Future<int> future;
 
   const DeleteItemsState({
-    required super.previousState,
+    required this.previousState,
     required this.future,
+  });
+}
+
+final class DeleteNotesState extends DeleteItemsState<NoteEntity> {
+  const DeleteNotesState({
+    required super.previousState,
+    required super.future,
+  });
+}
+
+final class DeleteNoteCollectionsState extends DeleteItemsState<NoteEntity> {
+  const DeleteNoteCollectionsState({
+    required super.previousState,
+    required super.future,
   });
 }
 

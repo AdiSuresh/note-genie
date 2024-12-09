@@ -25,6 +25,12 @@ class NoteList extends StatelessWidget {
     final note = switch (state) {
       final IdleState state => state.notes[i],
       final NonIdleState state => state.previousState.notes[i],
+      DeleteItemsState(
+        previousState: NonIdleState(
+          :final previousState,
+        ),
+      ) =>
+        previousState.notes[i],
     };
     final splash = switch (state) {
       SelectNotesState() => false,
@@ -68,16 +74,39 @@ class NoteList extends StatelessWidget {
         selected[i],
       _ => false,
     };
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 7.5,
-        horizontal: 15,
+    return AnimatedSwitcher(
+      duration: const Duration(
+        milliseconds: 250,
       ),
-      child: SelectionHighlight(
-        selected: selected,
-        scaleFactor: 1.0125,
-        child: tile,
-      ),
+      transitionBuilder: (child, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SizeTransition(
+            sizeFactor: animation,
+            child: child,
+          ),
+        );
+      },
+      child: switch (state) {
+        DeleteNotesState(
+          previousState: SelectNotesState(
+            :final selected,
+          ),
+        )
+            when selected[i] =>
+          const SizedBox(),
+        _ => Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 7.5,
+              horizontal: 15,
+            ),
+            child: SelectionHighlight(
+              selected: selected,
+              scaleFactor: 1.0125,
+              child: tile,
+            ),
+          ),
+      },
     );
   }
 
@@ -139,6 +168,15 @@ class NoteList extends StatelessWidget {
             ),
           SelectNotesState(
             :final previousState,
+          ) =>
+            (
+              previousState.currentCollection,
+              previousState.notes,
+            ),
+          DeleteNotesState(
+            previousState: SelectNotesState(
+              :final previousState,
+            ),
           ) =>
             (
               previousState.currentCollection,
