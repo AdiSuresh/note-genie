@@ -156,9 +156,15 @@ class _HomePageState extends State<HomePage>
       titleCtrl: collectionNameCtrl,
       onOk: () async {
         if (collectionNameFormKey.currentState?.validate() case true) {
+          final collectionUpdated = collection.copyWith(
+            name: collectionNameCtrl.text.trim(),
+          );
           repo.putCollection(
-            collection.copyWith(
-              name: collectionNameCtrl.text.trim(),
+            collectionUpdated,
+          );
+          bloc.add(
+            SelectCollectionEvent(
+              collection: collectionUpdated,
             ),
           );
           if (mounted) {
