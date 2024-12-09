@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
@@ -19,6 +18,7 @@ import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
 import 'package:note_maker/views/home/widgets/home_page_title.dart';
+import 'package:note_maker/views/home/widgets/home_pop_scope.dart';
 import 'package:note_maker/views/home/widgets/note_collection_tab_list.dart';
 import 'package:note_maker/views/home/widgets/note_list.dart';
 import 'package:note_maker/widgets/note_collection_list_tile.dart';
@@ -156,9 +156,15 @@ class _HomePageState extends State<HomePage>
       titleCtrl: collectionNameCtrl,
       onOk: () async {
         if (collectionNameFormKey.currentState?.validate() case true) {
+          final collectionUpdated = collection.copyWith(
+            name: collectionNameCtrl.text.trim(),
+          );
           repo.putCollection(
-            collection.copyWith(
-              name: collectionNameCtrl.text.trim(),
+            collectionUpdated,
+          );
+          bloc.add(
+            SelectCollectionEvent(
+              collection: collectionUpdated,
             ),
           );
           if (mounted) {
@@ -355,7 +361,7 @@ class _HomePageState extends State<HomePage>
                         );
                         return child;
                       },
-                    SelectItemsState() => () {
+                    SelectItemsState() || DeleteItemsState() => () {
                         final child = Row(
                           key: ValueKey(
                             'selected-count',
@@ -364,6 +370,9 @@ class _HomePageState extends State<HomePage>
                             IconButton(
                               tooltip: 'Cancel selection',
                               onPressed: () {
+                                if (bloc.state case DeleteItemsState()) {
+                                  return;
+                                }
                                 bloc.add(
                                   const ResetStateEvent(),
                                 );
@@ -372,14 +381,40 @@ class _HomePageState extends State<HomePage>
                                 Icons.close_rounded,
                               ),
                             ),
-                            const HomePageTitle(),
-                            const Spacer(),
+                            const Expanded(
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(7.5),
+                                  child: HomePageTitle(),
+                                ),
+                              ),
+                            ),
                             IconButton(
                               tooltip: 'Delete selected',
                               onPressed: () {
-                                bloc.add(
-                                  const DeleteNotesEvent(),
-                                );
+                                if (bloc.state
+                                    case SelectNotesState(
+                                      :final count,
+                                    )) {
+                                  final word = switch (count) {
+                                    1 => 'item',
+                                    _ => 'items',
+                                  };
+                                  UiUtils.showProceedDialog(
+                                    title: 'Delete notes',
+                                    message: 'Delete $count $word?',
+                                    context: context,
+                                    onYes: () {
+                                      context.pop();
+                                      bloc.add(
+                                        const DeleteNotesEvent(),
+                                      );
+                                    },
+                                    onNo: () {
+                                      context.pop();
+                                    },
+                                  );
+                                }
                               },
                               icon: const Icon(
                                 Icons.delete,
@@ -638,42 +673,7 @@ class _HomePageState extends State<HomePage>
         onPressed: fabOnPressed,
       ),
     );
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) {
-          return;
-        }
-        switch (bloc) {
-          case HomeBloc(
-              state: IdleState(),
-            ):
-            break;
-          case _:
-            bloc.add(
-              const ResetStateEvent(),
-            );
-            return;
-        }
-        final exit = await UiUtils.showProceedDialog(
-          title: 'App Exit',
-          message: 'Would you like to exit the app?',
-          context: context,
-          onYes: () {
-            context.pop(
-              true,
-            );
-          },
-          onNo: () {
-            context.pop(
-              false,
-            );
-          },
-        );
-        if (exit case true) {
-          SystemNavigator.pop();
-        }
-      },
+    return HomePopScope(
       child: scaffold,
     );
   }

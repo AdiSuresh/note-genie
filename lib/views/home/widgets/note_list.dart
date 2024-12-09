@@ -17,70 +17,6 @@ class NoteList extends StatelessWidget {
     super.key,
   });
 
-  Widget _buildTile(
-    BuildContext context,
-    int i,
-  ) {
-    final state = context.bloc.state;
-    final note = switch (state) {
-      final IdleState state => state.notes[i],
-      final NonIdleState state => state.previousState.notes[i],
-    };
-    final splash = switch (state) {
-      SelectNotesState() => false,
-      _ => true,
-    };
-    final tile = NoteListTile(
-      note: note,
-      onTap: () {
-        switch (state) {
-          case IdleState() || SearchNotesState():
-            context
-              ..extra = note
-              ..go(
-                (EditNote).asRoutePath(),
-              );
-          case SelectNotesState():
-            context.bloc.add(
-              SelectNoteEvent(
-                index: i,
-              ),
-            );
-          case _:
-        }
-      },
-      onLongPress: switch (state) {
-        IdleState() => () {
-            context.bloc.add(
-              SelectNoteEvent(
-                index: i,
-              ),
-            );
-          },
-        _ => null,
-      },
-      splash: splash,
-    );
-    final selected = switch (state) {
-      SelectNotesState(
-        :final selected,
-      ) =>
-        selected[i],
-      _ => false,
-    };
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 7.5,
-        horizontal: 15,
-      ),
-      child: SelectionHighlight(
-        selected: selected,
-        scaleFactor: 1.0125,
-        child: tile,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
@@ -144,6 +80,15 @@ class NoteList extends StatelessWidget {
               previousState.currentCollection,
               previousState.notes,
             ),
+          DeleteNotesState(
+            previousState: SelectNotesState(
+              :final previousState,
+            ),
+          ) =>
+            (
+              previousState.currentCollection,
+              previousState.notes,
+            ),
           _ => null,
         };
         final child = switch (data) {
@@ -173,9 +118,8 @@ class NoteList extends StatelessWidget {
                     key: key,
                     children: <Widget>[
                       for (final (i, _) in notes.indexed)
-                        _buildTile(
-                          context,
-                          i,
+                        _NoteListTileWrapper(
+                          index: i,
                         ),
                       const EmptyFooter(),
                     ],
@@ -191,8 +135,102 @@ class NoteList extends StatelessWidget {
   }
 }
 
-extension on BuildContext {
-  HomeBloc get bloc {
-    return read<HomeBloc>();
+class _NoteListTileWrapper extends StatelessWidget {
+  final int index;
+
+  const _NoteListTileWrapper({
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<HomeBloc>();
+    final state = bloc.state;
+    final note = switch (state) {
+      final IdleState state => state.notes[index],
+      final NonIdleState state => state.previousState.notes[index],
+      DeleteItemsState(
+        previousState: NonIdleState(
+          :final previousState,
+        ),
+      ) =>
+        previousState.notes[index],
+    };
+    final splash = switch (state) {
+      SelectNotesState() => false,
+      _ => true,
+    };
+    final tile = NoteListTile(
+      note: note,
+      onTap: switch (state) {
+        IdleState() || SearchNotesState() => () {
+            context
+              ..extra = note
+              ..go(
+                (EditNote).asRoutePath(),
+              );
+          },
+        SelectNotesState() => () {
+            bloc.add(
+              SelectNoteEvent(
+                index: index,
+              ),
+            );
+          },
+        _ => null,
+      },
+      onLongPress: switch (state) {
+        IdleState() => () {
+            bloc.add(
+              SelectNoteEvent(
+                index: index,
+              ),
+            );
+          },
+        _ => null,
+      },
+      splash: splash,
+    );
+    final selected = switch (state) {
+      SelectNotesState(
+        :final selected,
+      ) =>
+        selected[index],
+      _ => false,
+    };
+    return AnimatedSwitcher(
+      duration: const Duration(
+        milliseconds: 250,
+      ),
+      transitionBuilder: (child, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SizeTransition(
+            sizeFactor: animation,
+            child: child,
+          ),
+        );
+      },
+      child: switch (state) {
+        DeleteNotesState(
+          previousState: SelectNotesState(
+            :final selected,
+          ),
+        )
+            when selected[index] =>
+          const SizedBox(),
+        _ => Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 7.5,
+              horizontal: 15,
+            ),
+            child: SelectionHighlight(
+              selected: selected,
+              scaleFactor: 1.0125,
+              child: tile,
+            ),
+          ),
+      },
+    );
   }
 }
