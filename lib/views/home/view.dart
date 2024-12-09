@@ -382,9 +382,11 @@ class _HomePageState extends State<HomePage>
                               ),
                             ),
                             const Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.all(7.5),
-                                child: HomePageTitle(),
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(7.5),
+                                  child: HomePageTitle(),
+                                ),
                               ),
                             ),
                             IconButton(

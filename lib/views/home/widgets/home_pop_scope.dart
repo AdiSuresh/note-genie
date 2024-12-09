@@ -24,11 +24,12 @@ class HomePopScope extends StatelessWidget {
         if (didPop) {
           return;
         }
-        switch (bloc) {
-          case HomeBloc(
-              state: IdleState(),
-            ):
+        final state = bloc.state;
+        switch (state) {
+          case IdleState():
             break;
+          case DeleteItemsState():
+            return;
           case _:
             bloc.add(
               const ResetStateEvent(),
