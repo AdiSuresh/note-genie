@@ -26,6 +26,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }) {
     on<ResetStateEvent>(
       (event, emit) {
+        if (state case DeleteItemsState()) {
+          return;
+        }
         if (state case NonIdleState(:final previousState)) {
           emit(
             previousState,

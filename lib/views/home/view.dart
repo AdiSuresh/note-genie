@@ -370,9 +370,6 @@ class _HomePageState extends State<HomePage>
                             IconButton(
                               tooltip: 'Cancel selection',
                               onPressed: () {
-                                if (bloc.state case DeleteItemsState()) {
-                                  return;
-                                }
                                 bloc.add(
                                   const ResetStateEvent(),
                                 );
