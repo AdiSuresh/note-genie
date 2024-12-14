@@ -33,11 +33,13 @@ class NoteCollectionTabList extends StatelessWidget {
           const verticalPadding = EdgeInsets.symmetric(
             vertical: 7.5,
           );
-          final collections = state.noteCollections;
-          if (collections case []) {
+          final IdleState(
+            :noteCollections,
+            :currentCollection,
+          ) = state;
+          if (noteCollections case []) {
             return NoCollectionsMessage();
           }
-          final currentCollection = state.currentCollection;
           return SingleChildScrollView(
             key: const PageStorageKey(
               'note-collection-tab-list',
@@ -46,7 +48,7 @@ class NoteCollectionTabList extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: collections.map(
+              children: noteCollections.map(
                 (collection) {
                   return Builder(
                     key: GlobalObjectKey(
@@ -56,7 +58,7 @@ class NoteCollectionTabList extends StatelessWidget {
                       var padding = const EdgeInsets.symmetric(
                         horizontal: 7.5,
                       );
-                      if (collection == collections.first) {
+                      if (collection == noteCollections.first) {
                         padding = padding.copyWith(
                           left: 15,
                         );

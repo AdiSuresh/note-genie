@@ -28,8 +28,6 @@ class HomePopScope extends StatelessWidget {
         switch (state) {
           case IdleState():
             break;
-          case DeleteItemsState():
-            return;
           case _:
             bloc.add(
               const ResetStateEvent(),

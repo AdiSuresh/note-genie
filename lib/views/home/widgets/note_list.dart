@@ -92,41 +92,34 @@ class NoteList extends StatelessWidget {
           _ => null,
         };
         final child = switch (data) {
-          null => () {
-              return const SizedBox();
-            },
-          (final currentCollection, final notes) => () {
-              final key = PageStorageKey(
+          null => const SizedBox(),
+          (_, []) => const Center(
+              child: Text(
+                'No notes yet',
+              ),
+            ),
+          (final currentCollection, final notes) => ListView(
+              key: PageStorageKey(
                 switch (state) {
                   IdleState() ||
                   SelectItemsState() ||
                   DeleteItemsState() =>
-                    currentCollection ?? 'note-list',
+                    currentCollection ?? notes,
                   SearchState(
                     :final searchResults,
                   ) =>
                     searchResults,
                 },
-              );
-              return switch (notes) {
-                [] => const Center(
-                    child: Text(
-                      'No notes yet',
-                    ),
+              ),
+              children: <Widget>[
+                for (final (i, _) in notes.indexed)
+                  _NoteListTileWrapper(
+                    index: i,
                   ),
-                _ => ListView(
-                    key: key,
-                    children: <Widget>[
-                      for (final (i, _) in notes.indexed)
-                        _NoteListTileWrapper(
-                          index: i,
-                        ),
-                      const EmptyFooter(),
-                    ],
-                  ),
-              };
-            },
-        }();
+                const EmptyFooter(),
+              ],
+            ),
+        };
         return CustomAnimatedSwitcher(
           child: child,
         );
