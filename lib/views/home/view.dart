@@ -579,39 +579,46 @@ class _HomePageState extends State<HomePage>
                                       padding: padding,
                                       child: NoteCollectionListTile(
                                         collection: e,
-                                        onTap: () async {
-                                          if (bloc.state case SearchState()) {
-                                            bloc.add(
-                                              ToggleSearchEvent(),
-                                            );
-                                            await Future.delayed(
-                                              animationDuration,
-                                            );
-                                          }
-                                          tabCtrl.animateTo(
-                                            0,
-                                          );
-                                          await Future.delayed(
-                                            animationDuration,
-                                          );
-                                          bloc.add(
-                                            SelectCollectionEvent(
-                                              collection: e,
-                                            ),
-                                          );
-                                          final key = GlobalObjectKey(
-                                            e,
-                                          );
-                                          switch (key.currentContext) {
-                                            case final BuildContext context
-                                                when context.mounted:
-                                              Scrollable.ensureVisible(
-                                                context,
-                                                alignment: .5,
-                                                duration: animationDuration,
+                                        onTap: switch (state) {
+                                          IdleState() ||
+                                          SearchState() =>
+                                            () async {
+                                              if (bloc.state
+                                                  case SearchState()) {
+                                                bloc.add(
+                                                  ToggleSearchEvent(),
+                                                );
+                                                await Future.delayed(
+                                                  animationDuration,
+                                                );
+                                              }
+                                              tabCtrl.animateTo(
+                                                0,
                                               );
-                                            case _:
-                                          }
+                                              await Future.delayed(
+                                                animationDuration,
+                                              );
+                                              bloc.add(
+                                                SelectCollectionEvent(
+                                                  collection: e,
+                                                ),
+                                              );
+                                              final key = GlobalObjectKey(
+                                                e,
+                                              );
+                                              switch (key.currentContext) {
+                                                case final BuildContext context
+                                                    when context.mounted:
+                                                  Scrollable.ensureVisible(
+                                                    context,
+                                                    alignment: .5,
+                                                    duration: animationDuration,
+                                                  );
+                                                case _:
+                                              }
+                                            },
+                                          DeleteItemsState() => () {},
+                                          _ => null,
                                         },
                                         onLongPress: () {},
                                         onEdit: () {
