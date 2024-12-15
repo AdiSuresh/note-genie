@@ -24,20 +24,6 @@ final class ViewNoteCollectionEvent extends HomeEvent {
   });
 }
 
-sealed class UpdateCollectionEvent extends HomeEvent {
-  final NoteCollectionEntity? collection;
-
-  const UpdateCollectionEvent({
-    required this.collection,
-  });
-}
-
-class SelectCollectionEvent extends UpdateCollectionEvent {
-  const SelectCollectionEvent({
-    required super.collection,
-  });
-}
-
 class SwitchTabEvent extends HomeEvent {
   final int index;
 
