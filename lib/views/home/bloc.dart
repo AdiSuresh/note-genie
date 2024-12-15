@@ -29,10 +29,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         if (state case DeleteItemsState()) {
           return;
         }
-        if (state case NonIdleState(:final previousState)) {
-          emit(
-            previousState,
-          );
+        switch (state) {
+          case NonIdleState(
+              :final previousState,
+            ):
+            emit(
+              previousState,
+            );
+          case _:
         }
       },
     );
