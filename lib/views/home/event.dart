@@ -14,17 +14,21 @@ class UpdateNoteCollectionsEvent extends HomeEvent {
   });
 }
 
+final class ViewNoteCollectionEvent extends HomeEvent {
+  final NoteCollectionEntity? collection;
+  final bool toggle;
+
+  const ViewNoteCollectionEvent({
+    required this.collection,
+    this.toggle = false,
+  });
+}
+
 sealed class UpdateCollectionEvent extends HomeEvent {
   final NoteCollectionEntity? collection;
 
   const UpdateCollectionEvent({
     required this.collection,
-  });
-}
-
-class ToggleCollectionEvent extends UpdateCollectionEvent {
-  const ToggleCollectionEvent({
-    required super.collection,
   });
 }
 

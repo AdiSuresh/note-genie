@@ -53,14 +53,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
-    on<ToggleCollectionEvent>(
+    on<ViewNoteCollectionEvent>(
       (event, emit) {
         switch (state) {
           case final IdleState state:
-            final collection = switch (state.currentCollection?.id) {
+            var collection = switch (state.currentCollection?.id) {
               final int id when id == event.collection?.id => null,
               _ => event.collection,
             };
+            if (collection case null when !event.toggle) {
+              collection = event.collection;
+            }
             emit(
               state.copyWith(
                 currentCollection: collection,
