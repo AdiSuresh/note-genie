@@ -4,6 +4,7 @@ import 'package:note_maker/models/note_collection/model.dart';
 class NoteCollectionListTile extends StatelessWidget {
   final NoteCollectionEntity collection;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onAddNote;
@@ -14,6 +15,7 @@ class NoteCollectionListTile extends StatelessWidget {
     super.key,
     required this.collection,
     this.onTap,
+    this.onLongPress,
     this.onEdit,
     this.onDelete,
     this.onAddNote,
@@ -46,6 +48,7 @@ class NoteCollectionListTile extends StatelessWidget {
       margin: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: borderRadius,
         splashColor: splash ? null : Colors.transparent,
         child: Padding(

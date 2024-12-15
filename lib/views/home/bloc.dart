@@ -29,10 +29,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         if (state case DeleteItemsState()) {
           return;
         }
-        if (state case NonIdleState(:final previousState)) {
-          emit(
-            previousState,
-          );
+        switch (state) {
+          case NonIdleState(
+              :final previousState,
+            ):
+            emit(
+              previousState,
+            );
+          case _:
         }
       },
     );
@@ -49,12 +53,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
-    on<ToggleCollectionEvent>(
+    on<ViewNoteCollectionEvent>(
       (event, emit) {
         switch (state) {
           case final IdleState state:
             final collection = switch (state.currentCollection?.id) {
-              final int id when id == event.collection?.id => null,
+              final int id when id == event.collection?.id && event.toggle =>
+                null,
               _ => event.collection,
             };
             emit(
@@ -65,27 +70,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             add(
               const FetchNotesEvent(),
             );
-          case _:
-        }
-      },
-    );
-    on<SelectCollectionEvent>(
-      (event, emit) async {
-        switch (state) {
-          case final IdleState state:
-            switch (state.currentCollection?.id) {
-              case final int id when id == event.collection?.id:
-              // ignored
-              case _:
-                emit(
-                  state.copyWith(
-                    currentCollection: event.collection,
-                  ),
-                );
-                add(
-                  const FetchNotesEvent(),
-                );
-            }
           case SearchNoteCollectionsState():
             add(
               ToggleSearchEvent(),

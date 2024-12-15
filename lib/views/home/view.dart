@@ -163,8 +163,8 @@ class _HomePageState extends State<HomePage>
             collectionUpdated,
           );
           bloc.add(
-            SelectCollectionEvent(
-              collection: collectionUpdated,
+            ViewNoteCollectionEvent(
+              collection: collection,
             ),
           );
           if (mounted) {
@@ -421,9 +421,6 @@ class _HomePageState extends State<HomePage>
                         );
                         return child;
                       },
-                    _ => () {
-                        return const SizedBox();
-                      }
                   }();
                   return CustomAnimatedSwitcher(
                     child: child,
@@ -566,26 +563,26 @@ class _HomePageState extends State<HomePage>
                                 ),
                                 children: collections.map(
                                   (e) {
-                                    return Builder(
-                                      builder: (context) {
-                                        var padding =
-                                            const EdgeInsets.symmetric(
-                                          vertical: 7.5,
-                                        );
-                                        if (e == collections.first) {
-                                          padding = padding.copyWith(
-                                            top: 0,
-                                          );
-                                        } else if (e == collections.last) {
-                                          padding = padding.copyWith(
-                                            bottom: 0,
-                                          );
-                                        }
-                                        return Padding(
-                                          padding: padding,
-                                          child: NoteCollectionListTile(
-                                            collection: e,
-                                            onTap: () async {
+                                    var padding = const EdgeInsets.symmetric(
+                                      vertical: 7.5,
+                                    );
+                                    if (e == collections.first) {
+                                      padding = padding.copyWith(
+                                        top: 0,
+                                      );
+                                    } else if (e == collections.last) {
+                                      padding = padding.copyWith(
+                                        bottom: 0,
+                                      );
+                                    }
+                                    return Padding(
+                                      padding: padding,
+                                      child: NoteCollectionListTile(
+                                        collection: e,
+                                        onTap: switch (state) {
+                                          IdleState() ||
+                                          SearchState() =>
+                                            () async {
                                               if (bloc.state
                                                   case SearchState()) {
                                                 bloc.add(
@@ -602,7 +599,7 @@ class _HomePageState extends State<HomePage>
                                                 animationDuration,
                                               );
                                               bloc.add(
-                                                SelectCollectionEvent(
+                                                ViewNoteCollectionEvent(
                                                   collection: e,
                                                 ),
                                               );
@@ -620,34 +617,36 @@ class _HomePageState extends State<HomePage>
                                                 case _:
                                               }
                                             },
-                                            onEdit: () {
-                                              putCollection(
+                                          DeleteItemsState() => () {},
+                                          _ => null,
+                                        },
+                                        onLongPress: () {},
+                                        onEdit: () {
+                                          putCollection(
+                                            e,
+                                          );
+                                        },
+                                        onDelete: () {
+                                          final context = this.context;
+                                          UiUtils.showProceedDialog(
+                                            title: 'Delete collection?',
+                                            message:
+                                                'You are about to delete this collection.'
+                                                ' Once deleted its gone forever.'
+                                                '\n\nAre you sure you want to proceed?',
+                                            context: context,
+                                            onYes: () {
+                                              context.pop();
+                                              deleteCollection(
                                                 e,
                                               );
                                             },
-                                            onDelete: () {
-                                              final context = this.context;
-                                              UiUtils.showProceedDialog(
-                                                title: 'Delete collection?',
-                                                message:
-                                                    'You are about to delete this collection.'
-                                                    ' Once deleted its gone forever.'
-                                                    '\n\nAre you sure you want to proceed?',
-                                                context: context,
-                                                onYes: () {
-                                                  context.pop();
-                                                  deleteCollection(
-                                                    e,
-                                                  );
-                                                },
-                                                onNo: () {
-                                                  context.pop();
-                                                },
-                                              );
+                                            onNo: () {
+                                              context.pop();
                                             },
-                                          ),
-                                        );
-                                      },
+                                          );
+                                        },
+                                      ),
                                     );
                                   },
                                 ).toList(),

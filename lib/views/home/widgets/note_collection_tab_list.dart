@@ -71,8 +71,9 @@ class NoteCollectionTabList extends StatelessWidget {
                           child: CollectionChip(
                             onTap: () {
                               bloc.add(
-                                ToggleCollectionEvent(
+                                ViewNoteCollectionEvent(
                                   collection: collection,
+                                  toggle: true,
                                 ),
                               );
                             },
