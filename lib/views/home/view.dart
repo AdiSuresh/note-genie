@@ -421,9 +421,6 @@ class _HomePageState extends State<HomePage>
                         );
                         return child;
                       },
-                    _ => () {
-                        return const SizedBox();
-                      }
                   }();
                   return CustomAnimatedSwitcher(
                     child: child,

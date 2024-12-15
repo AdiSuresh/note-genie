@@ -24,8 +24,8 @@ class SelectionHighlight extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(
           color: switch (selected) {
-            true => Colors.blueGrey.withOpacity(
-                .5,
+            true => Colors.blueGrey.withValues(
+                alpha: .5,
               ),
             _ => Colors.transparent,
           },
