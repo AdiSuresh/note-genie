@@ -163,8 +163,8 @@ class _HomePageState extends State<HomePage>
             collectionUpdated,
           );
           bloc.add(
-            SelectCollectionEvent(
-              collection: collectionUpdated,
+            ViewNoteCollectionEvent(
+              collection: collection,
             ),
           );
           if (mounted) {
@@ -599,7 +599,7 @@ class _HomePageState extends State<HomePage>
                                                 animationDuration,
                                               );
                                               bloc.add(
-                                                SelectCollectionEvent(
+                                                ViewNoteCollectionEvent(
                                                   collection: e,
                                                 ),
                                               );
