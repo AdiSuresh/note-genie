@@ -234,6 +234,26 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
+    on<SelectNoteCollectionEvent>(
+      (event, emit) {
+        switch (state) {
+          case final IdleState state:
+            final nextState = SelectNoteCollectionsState.initial(
+              state,
+            )
+              ..selected[event.index] = true
+              ..itemIds.add(
+                state.noteCollections[event.index].id,
+              );
+            emit(
+              nextState.copyWith(
+                count: 1,
+              ),
+            );
+          case _:
+        }
+      },
+    );
     on<DeleteNotesEvent>(
       (event, emit) async {
         if (state case DeleteItemsState()) {
