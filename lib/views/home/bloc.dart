@@ -192,65 +192,61 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<SelectNoteEvent>(
       (event, emit) {
-        switch (state) {
-          case final IdleState state:
-            final nextState = SelectNotesState.initial(
+        final nextState = switch (state) {
+          final IdleState state => SelectNotesState.initial(
               state,
-            )
-              ..selected[event.index] = true
-              ..itemIds.add(
-                state.notes[event.index].id,
-              );
+            ),
+          final SelectNotesState state => state,
+          _ => null,
+        };
+        if (nextState case null) {
+          return;
+        }
+        final count = nextState.updateWithItem(
+          event.index,
+          nextState.previousState.notes,
+        );
+        switch (count) {
+          case > 0:
             emit(
               nextState.copyWith(
-                count: 1,
+                count: count,
               ),
             );
-          case final SelectNotesState state:
-            final selected = !state.selected[event.index];
-            state.selected[event.index] = selected;
-            final note = state.previousState.notes[event.index];
-            final update = switch (selected) {
-              true => state.itemIds.add,
-              false => state.itemIds.remove,
-            };
-            update(
-              note.id,
-            );
-            final count = state.itemIds.length;
-            switch (count) {
-              case > 0:
-                emit(
-                  state.copyWith(
-                    count: count,
-                  ),
-                );
-              case _:
-                add(
-                  ResetStateEvent(),
-                );
-            }
           case _:
+            add(
+              ResetStateEvent(),
+            );
         }
       },
     );
     on<SelectNoteCollectionEvent>(
       (event, emit) {
-        switch (state) {
-          case final IdleState state:
-            final nextState = SelectNoteCollectionsState.initial(
+        final nextState = switch (state) {
+          final IdleState state => SelectNoteCollectionsState.initial(
               state,
-            )
-              ..selected[event.index] = true
-              ..itemIds.add(
-                state.noteCollections[event.index].id,
-              );
+            ),
+          final SelectNoteCollectionsState state => state,
+          _ => null,
+        };
+        if (nextState case null) {
+          return;
+        }
+        final count = nextState.updateWithItem(
+          event.index,
+          nextState.previousState.noteCollections,
+        );
+        switch (count) {
+          case > 0:
             emit(
               nextState.copyWith(
-                count: 1,
+                count: count,
               ),
             );
           case _:
+            add(
+              ResetStateEvent(),
+            );
         }
       },
     );
