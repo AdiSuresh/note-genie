@@ -132,6 +132,23 @@ sealed class SelectItemsState<T extends BaseEntity> extends NonIdleState {
           growable: false,
         );
   }
+
+  int updateWithItem(
+    int index,
+    List<T> list,
+  ) {
+    final selected = !this.selected[index];
+    this.selected[index] = selected;
+    final item = list[index];
+    final update = switch (selected) {
+      true => itemIds.add,
+      false => itemIds.remove,
+    };
+    update(
+      item.id,
+    );
+    return itemIds.length;
+  }
 }
 
 @CopyWith()
