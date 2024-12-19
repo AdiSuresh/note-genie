@@ -267,7 +267,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 milliseconds: 500,
               ),
             );
-            final notes = state.previousState.notes.indexed.where(
+            final notes = state.items.indexed.where(
               (element) {
                 final (i, _) = element;
                 return !state.selected[i];

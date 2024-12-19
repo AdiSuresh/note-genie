@@ -535,6 +535,10 @@ class _HomePageState extends State<HomePage>
                               :final searchResults,
                             ) =>
                               searchResults,
+                            SelectNoteCollectionsState(
+                              :final previousState,
+                            ) =>
+                              previousState.noteCollections,
                             _ => null,
                           };
                           final child = switch (collections) {
@@ -561,8 +565,9 @@ class _HomePageState extends State<HomePage>
                                 ).copyWith(
                                   top: 7.5,
                                 ),
-                                children: collections.map(
-                                  (e) {
+                                children: collections.indexed.map(
+                                  (element) {
+                                    final (i, e) = element;
                                     var padding = const EdgeInsets.symmetric(
                                       vertical: 7.5,
                                     );
@@ -620,7 +625,13 @@ class _HomePageState extends State<HomePage>
                                           DeleteItemsState() => () {},
                                           _ => null,
                                         },
-                                        onLongPress: () {},
+                                        onLongPress: () {
+                                          bloc.add(
+                                            SelectNoteCollectionEvent(
+                                              index: i,
+                                            ),
+                                          );
+                                        },
                                         onEdit: () {
                                           putCollection(
                                             e,
