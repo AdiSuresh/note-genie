@@ -25,6 +25,7 @@ import 'package:note_maker/widgets/note_collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/home_fab.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
+import 'package:note_maker/widgets/selection_highlight.dart';
 
 class HomePage extends StatefulWidget {
   static const path = '/';
@@ -519,6 +520,11 @@ class _HomePageState extends State<HomePage>
                               return prev.searchResults != curr.searchResults;
                             case (IdleState(), SearchNoteCollectionsState()):
                               return false;
+                            case (
+                                SelectNoteCollectionsState(),
+                                SelectNoteCollectionsState(),
+                              ):
+                              return true;
                             case _:
                           }
                           return prev.runtimeType != curr.runtimeType;
@@ -560,104 +566,140 @@ class _HomePageState extends State<HomePage>
                                       'note-collection-list-delete',
                                   },
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 15,
-                                ).copyWith(
-                                  top: 7.5,
-                                ),
                                 children: collections.indexed.map(
                                   (element) {
                                     final (i, e) = element;
-                                    var padding = const EdgeInsets.symmetric(
-                                      vertical: 7.5,
-                                    );
-                                    if (e == collections.first) {
-                                      padding = padding.copyWith(
-                                        top: 0,
-                                      );
-                                    } else if (e == collections.last) {
-                                      padding = padding.copyWith(
-                                        bottom: 0,
-                                      );
-                                    }
-                                    return Padding(
-                                      padding: padding,
-                                      child: NoteCollectionListTile(
-                                        collection: e,
-                                        onTap: switch (state) {
-                                          IdleState() ||
-                                          SearchState() =>
-                                            () async {
-                                              if (bloc.state
-                                                  case SearchState()) {
-                                                bloc.add(
-                                                  ToggleSearchEvent(),
-                                                );
-                                                await Future.delayed(
-                                                  animationDuration,
-                                                );
-                                              }
-                                              tabCtrl.animateTo(
-                                                0,
+                                    final splash = switch (state) {
+                                      SelectNoteCollectionsState() => false,
+                                      _ => true,
+                                    };
+                                    final tile = NoteCollectionListTile(
+                                      collection: e,
+                                      splash: splash,
+                                      onTap: switch (state) {
+                                        IdleState() ||
+                                        SearchState() =>
+                                          () async {
+                                            if (bloc.state case SearchState()) {
+                                              bloc.add(
+                                                ToggleSearchEvent(),
                                               );
                                               await Future.delayed(
                                                 animationDuration,
                                               );
-                                              bloc.add(
-                                                ViewNoteCollectionEvent(
-                                                  collection: e,
-                                                ),
-                                              );
-                                              final key = GlobalObjectKey(
-                                                e,
-                                              );
-                                              switch (key.currentContext) {
-                                                case final BuildContext context
-                                                    when context.mounted:
-                                                  Scrollable.ensureVisible(
-                                                    context,
-                                                    alignment: .5,
-                                                    duration: animationDuration,
-                                                  );
-                                                case _:
-                                              }
-                                            },
-                                          DeleteItemsState() => () {},
-                                          _ => null,
-                                        },
-                                        onLongPress: () {
-                                          bloc.add(
-                                            SelectNoteCollectionEvent(
-                                              index: i,
-                                            ),
-                                          );
-                                        },
-                                        onEdit: () {
-                                          putCollection(
-                                            e,
-                                          );
-                                        },
-                                        onDelete: () {
-                                          final context = this.context;
-                                          UiUtils.showProceedDialog(
-                                            title: 'Delete collection?',
-                                            message:
-                                                'You are about to delete this collection.'
-                                                ' Once deleted its gone forever.'
-                                                '\n\nAre you sure you want to proceed?',
-                                            context: context,
-                                            onYes: () {
-                                              context.pop();
-                                              deleteCollection(
-                                                e,
-                                              );
-                                            },
-                                            onNo: () {
-                                              context.pop();
-                                            },
-                                          );
-                                        },
+                                            }
+                                            tabCtrl.animateTo(
+                                              0,
+                                            );
+                                            await Future.delayed(
+                                              animationDuration,
+                                            );
+                                            bloc.add(
+                                              ViewNoteCollectionEvent(
+                                                collection: e,
+                                              ),
+                                            );
+                                            final key = GlobalObjectKey(
+                                              e,
+                                            );
+                                            switch (key.currentContext) {
+                                              case final BuildContext context
+                                                  when context.mounted:
+                                                Scrollable.ensureVisible(
+                                                  context,
+                                                  alignment: .5,
+                                                  duration: animationDuration,
+                                                );
+                                              case _:
+                                            }
+                                          },
+                                        SelectNoteCollectionsState() => () {
+                                            bloc.add(
+                                              SelectNoteCollectionEvent(
+                                                index: i,
+                                              ),
+                                            );
+                                          },
+                                        _ => null,
+                                      },
+                                      onLongPress: switch (state) {
+                                        IdleState() => () {
+                                            bloc.add(
+                                              SelectNoteCollectionEvent(
+                                                index: i,
+                                              ),
+                                            );
+                                          },
+                                        _ => null,
+                                      },
+                                      onEdit: () {
+                                        putCollection(
+                                          e,
+                                        );
+                                      },
+                                      onDelete: () {
+                                        final context = this.context;
+                                        UiUtils.showProceedDialog(
+                                          title: 'Delete collection?',
+                                          message:
+                                              'You are about to delete this collection.'
+                                              ' Once deleted its gone forever.'
+                                              '\n\nAre you sure you want to proceed?',
+                                          context: context,
+                                          onYes: () {
+                                            context.pop();
+                                            deleteCollection(
+                                              e,
+                                            );
+                                          },
+                                          onNo: () {
+                                            context.pop();
+                                          },
+                                        );
+                                      },
+                                    );
+                                    final padding = const EdgeInsets.symmetric(
+                                      vertical: 7.5,
+                                      horizontal: 15,
+                                    );
+                                    final selected = switch (state) {
+                                      SelectNoteCollectionsState(
+                                        :final selected,
+                                      ) =>
+                                        selected[i],
+                                      _ => false,
+                                    };
+                                    return AnimatedSwitcher(
+                                      duration: const Duration(
+                                        milliseconds: 250,
                                       ),
+                                      transitionBuilder: (child, animation) {
+                                        return FadeTransition(
+                                          opacity: animation,
+                                          child: SizeTransition(
+                                            sizeFactor: animation,
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: switch (state) {
+                                        DeleteNoteCollectionsState(
+                                          previousState:
+                                              SelectNoteCollectionsState(
+                                            :final selected,
+                                          ),
+                                        )
+                                            when selected[i] =>
+                                          const SizedBox(),
+                                        _ => Padding(
+                                            padding: padding,
+                                            child: SelectionHighlight(
+                                              selected: selected,
+                                              scaleFactor: 1.0125,
+                                              child: tile,
+                                            ),
+                                          ),
+                                      },
                                     );
                                   },
                                 ).toList(),
