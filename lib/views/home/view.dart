@@ -403,7 +403,8 @@ class _HomePageState extends State<HomePage>
                                   _ => 'items',
                                 };
                                 UiUtils.showProceedDialog(
-                                  title: 'Delete notes',
+                                  title:
+                                      'Delete ${currentState.previousState.pageTitle.toLowerCase()}',
                                   message: 'Delete $count $word?',
                                   context: context,
                                   onYes: () {
