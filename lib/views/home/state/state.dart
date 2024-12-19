@@ -133,13 +133,14 @@ sealed class SelectItemsState<T extends BaseEntity> extends NonIdleState {
         );
   }
 
+  List<T> get items;
+
   int updateWithItem(
     int index,
-    List<T> list,
   ) {
     final selected = !this.selected[index];
     this.selected[index] = selected;
-    final item = list[index];
+    final item = items[index];
     final update = switch (selected) {
       true => itemIds.add,
       false => itemIds.remove,
@@ -172,6 +173,9 @@ final class SelectNotesState extends SelectItemsState<NoteEntity> {
       count: 0,
     );
   }
+
+  @override
+  List<NoteEntity> get items => previousState.notes;
 }
 
 @CopyWith()
@@ -196,4 +200,7 @@ final class SelectNoteCollectionsState
       count: 0,
     );
   }
+
+  @override
+  List<NoteCollectionEntity> get items => previousState.noteCollections;
 }
