@@ -390,29 +390,37 @@ class _HomePageState extends State<HomePage>
                             IconButton(
                               tooltip: 'Delete selected',
                               onPressed: () {
-                                if (bloc.state
-                                    case SelectNotesState(
-                                      :final count,
-                                    )) {
-                                  final word = switch (count) {
-                                    1 => 'item',
-                                    _ => 'items',
-                                  };
-                                  UiUtils.showProceedDialog(
-                                    title: 'Delete notes',
-                                    message: 'Delete $count $word?',
-                                    context: context,
-                                    onYes: () {
-                                      context.pop();
-                                      bloc.add(
-                                        const DeleteNotesEvent(),
-                                      );
-                                    },
-                                    onNo: () {
-                                      context.pop();
-                                    },
-                                  );
+                                final currentState = switch (state) {
+                                  SelectItemsState() => state,
+                                  _ => null,
+                                };
+                                if (currentState case null) {
+                                  return;
                                 }
+                                final count = currentState.count;
+                                final word = switch (count) {
+                                  1 => 'item',
+                                  _ => 'items',
+                                };
+                                UiUtils.showProceedDialog(
+                                  title: 'Delete notes',
+                                  message: 'Delete $count $word?',
+                                  context: context,
+                                  onYes: () {
+                                    context.pop();
+                                    final event = switch (currentState) {
+                                      SelectNotesState() =>
+                                        const DeleteNotesEvent(),
+                                      _ => const DeleteNoteCollectionsEvent(),
+                                    };
+                                    bloc.add(
+                                      event,
+                                    );
+                                  },
+                                  onNo: () {
+                                    context.pop();
+                                  },
+                                );
                               },
                               icon: const Icon(
                                 Icons.delete,
