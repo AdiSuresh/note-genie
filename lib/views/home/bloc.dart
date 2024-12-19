@@ -204,20 +204,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         final count = nextState.updateWithItem(
           event.index,
-          nextState.previousState.notes,
         );
-        switch (count) {
-          case > 0:
-            emit(
-              nextState.copyWith(
-                count: count,
-              ),
-            );
-          case _:
-            add(
-              ResetStateEvent(),
-            );
+        if (count case 0) {
+          add(
+            ResetStateEvent(),
+          );
+          return;
         }
+        emit(
+          nextState.copyWith(
+            count: count,
+          ),
+        );
       },
     );
     on<SelectNoteCollectionEvent>(
@@ -234,20 +232,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         final count = nextState.updateWithItem(
           event.index,
-          nextState.previousState.noteCollections,
         );
-        switch (count) {
-          case > 0:
-            emit(
-              nextState.copyWith(
-                count: count,
-              ),
-            );
-          case _:
-            add(
-              ResetStateEvent(),
-            );
+        if (count case 0) {
+          add(
+            ResetStateEvent(),
+          );
+          return;
         }
+        emit(
+          nextState.copyWith(
+            count: count,
+          ),
+        );
       },
     );
     on<DeleteNotesEvent>(
