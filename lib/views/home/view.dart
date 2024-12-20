@@ -551,9 +551,15 @@ class _HomePageState extends State<HomePage>
                             ) =>
                               searchResults,
                             SelectNoteCollectionsState(
-                              :final previousState,
+                              :final items,
                             ) =>
-                              previousState.noteCollections,
+                              items,
+                            DeleteNoteCollectionsState(
+                              previousState: SelectNoteCollectionsState(
+                                :final items,
+                              ),
+                            ) =>
+                              items,
                             _ => null,
                           };
                           final child = switch (collections) {
@@ -563,17 +569,7 @@ class _HomePageState extends State<HomePage>
                             null => const SizedBox(),
                             _ => ListView(
                                 key: PageStorageKey(
-                                  switch (state) {
-                                    IdleState() => 'note-collection-list',
-                                    SearchState(
-                                      :final searchResults,
-                                    ) =>
-                                      searchResults,
-                                    SelectItemsState() =>
-                                      'note-collection-list-select',
-                                    DeleteItemsState() =>
-                                      'note-collection-list-delete',
-                                  },
+                                  collections,
                                 ),
                                 children: collections.indexed.map(
                                   (element) {
