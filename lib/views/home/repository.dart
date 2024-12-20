@@ -114,4 +114,13 @@ class HomeRepository with LocalDBServiceMixin {
       ids.toList(),
     );
   }
+
+  Future<int> removeNoteCollections(
+    HashSet<int> ids,
+  ) async {
+    final box = await noteCollectionBox;
+    return await box.removeManyAsync(
+      ids.toList(),
+    );
+  }
 }

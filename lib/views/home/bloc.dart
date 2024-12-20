@@ -291,6 +291,51 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       },
     );
+    on<DeleteNoteCollectionsEvent>(
+      (event, emit) async {
+        if (state case DeleteItemsState()) {
+          return;
+        }
+        switch (state) {
+          case final SelectNoteCollectionsState state:
+            final future = repository.removeNoteCollections(
+              state.itemIds,
+            );
+            emit(
+              DeleteNoteCollectionsState(
+                previousState: state,
+                future: future,
+              ),
+            );
+            await Future.delayed(
+              const Duration(
+                milliseconds: 500,
+              ),
+            );
+            final noteCollections = state.items.indexed.where(
+              (element) {
+                final (i, _) = element;
+                return !state.selected[i];
+              },
+            ).map(
+              (element) {
+                final (_, e) = element;
+                return e;
+              },
+            ).toList();
+            emit(
+              state.previousState.copyWith(
+                noteCollections: noteCollections,
+              ),
+            );
+            await future;
+            add(
+              const FetchNotesEvent(),
+            );
+          case _:
+        }
+      },
+    );
     _startNavigationSub();
     _startNoteCollectionsSub();
     add(

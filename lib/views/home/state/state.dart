@@ -28,7 +28,8 @@ final class DeleteNotesState extends DeleteItemsState<NoteEntity> {
   });
 }
 
-final class DeleteNoteCollectionsState extends DeleteItemsState<NoteEntity> {
+final class DeleteNoteCollectionsState
+    extends DeleteItemsState<NoteCollectionEntity> {
   const DeleteNoteCollectionsState({
     required super.previousState,
     required super.future,
