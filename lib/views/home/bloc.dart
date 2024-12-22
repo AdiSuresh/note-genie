@@ -26,30 +26,21 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }) {
     on<ResetStateEvent>(
       (event, emit) {
-        if (state case DeleteItemsState()) {
-          return;
-        }
-        switch (state) {
-          case NonIdleState(
-              :final previousState,
-            ):
-            emit(
-              previousState,
-            );
-          case _:
+        if (state case final NonIdleState state) {
+          emit(
+            state.previousState,
+          );
         }
       },
     );
     on<UpdateNoteCollectionsEvent>(
       (event, emit) {
-        switch (state) {
-          case final IdleState state:
-            emit(
-              state.copyWith(
-                noteCollections: event.noteCollections,
-              ),
-            );
-          case _:
+        if (state case final IdleState state) {
+          emit(
+            state.copyWith(
+              noteCollections: event.noteCollections,
+            ),
+          );
         }
       },
     );
@@ -127,17 +118,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     on<FetchNotesEvent>(
       (event, emit) async {
-        switch (state) {
-          case final IdleState state:
-            final notes = await repository.fetchNotes(
-              currentCollection: state.currentCollection,
-            );
-            emit(
-              state.copyWith(
-                notes: notes,
-              ),
-            );
-          case _:
+        if (state case final IdleState state) {
+          final notes = await repository.fetchNotes(
+            currentCollection: state.currentCollection,
+          );
+          emit(
+            state.copyWith(
+              notes: notes,
+            ),
+          );
         }
       },
     );
