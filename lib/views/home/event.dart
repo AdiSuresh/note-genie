@@ -36,6 +36,10 @@ class FetchNotesEvent extends HomeEvent {
   const FetchNotesEvent();
 }
 
+class FetchNoteCollectionsEvent extends HomeEvent {
+  const FetchNoteCollectionsEvent();
+}
+
 class ResetStateEvent extends HomeEvent {
   const ResetStateEvent();
 }

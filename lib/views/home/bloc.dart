@@ -323,9 +323,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 return e;
               },
             ).toList();
+            final currentCollectionDeleted = state.itemIds.contains(
+              state.previousState.currentCollection?.id,
+            );
+            final currentCollection = switch (currentCollectionDeleted) {
+              true => null,
+              _ => state.previousState.currentCollection,
+            };
             emit(
               state.previousState.copyWith(
                 noteCollections: noteCollections,
+                currentCollection: currentCollection,
               ),
             );
             await future;
