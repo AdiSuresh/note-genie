@@ -23,10 +23,10 @@ class NoteList extends StatelessWidget {
       buildWhen: (previous, current) {
         switch ((previous, current)) {
           case (
-              final IdleState prev,
-              final IdleState curr,
+              final IdleState previous,
+              final IdleState current,
             ):
-            return prev.notes != curr.notes;
+            return previous.notes != current.notes;
           case (
               IdleState(),
               SearchNotesState(),
@@ -47,10 +47,15 @@ class NoteList extends StatelessWidget {
             ):
             return true;
           case (
-              IdleState() || SelectNotesState(),
+              SelectNotesState(),
               SelectNotesState(),
             ):
             return true;
+          case (
+              DeleteNotesState(),
+              IdleState(),
+            ):
+            return false;
           case _:
         }
         return previous.runtimeType != current.runtimeType;
@@ -101,14 +106,8 @@ class NoteList extends StatelessWidget {
           (final currentCollection, final notes) => ListView(
               key: PageStorageKey(
                 switch (state) {
-                  IdleState() ||
-                  SelectItemsState() ||
-                  DeleteItemsState() =>
-                    currentCollection ?? notes,
-                  SearchState(
-                    :final searchResults,
-                  ) =>
-                    searchResults,
+                  SearchState() => notes,
+                  _ => currentCollection ?? notes,
                 },
               ),
               children: <Widget>[

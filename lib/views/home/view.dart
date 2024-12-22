@@ -534,6 +534,11 @@ class _HomePageState extends State<HomePage>
                                 SelectNoteCollectionsState(),
                               ):
                               return true;
+                            case (
+                                DeleteNoteCollectionsState(),
+                                IdleState(),
+                              ):
+                              return false;
                             case _:
                           }
                           return prev.runtimeType != curr.runtimeType;
