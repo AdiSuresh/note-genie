@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/widgets/custom_animated_switcher.dart';
 
 class NoteCollectionListTile extends StatelessWidget {
   final NoteCollectionEntity collection;
@@ -33,7 +34,7 @@ class NoteCollectionListTile extends StatelessWidget {
       ('Add to collection', onAddNote, Icons.add_circle_outline),
       ('Remove from collection', onRemoveNote, Icons.remove_circle_outline),
     ];
-    final actionButtons = [
+    final actionButtons = <Widget>[
       for (final (tooltip, onPressed, icon) in actionButtonData)
         if (onPressed != null)
           IconButton(
@@ -60,9 +61,22 @@ class NoteCollectionListTile extends StatelessWidget {
                 collection.name,
                 style: textTheme.titleMedium,
               ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: actionButtons,
+              CustomAnimatedSwitcher(
+                child: switch (actionButtons) {
+                  [] => Opacity(
+                      opacity: 0,
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.abc,
+                        ),
+                      ),
+                    ),
+                  _ => Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: actionButtons,
+                    ),
+                },
               ),
             ],
           ),

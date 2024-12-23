@@ -642,30 +642,40 @@ class _HomePageState extends State<HomePage>
                                           },
                                         _ => null,
                                       },
-                                      onEdit: () {
-                                        putCollection(
-                                          e,
-                                        );
-                                      },
-                                      onDelete: () {
-                                        final context = this.context;
-                                        UiUtils.showProceedDialog(
-                                          title: 'Delete collection?',
-                                          message:
-                                              'You are about to delete this collection.'
-                                              ' Once deleted its gone forever.'
-                                              '\n\nAre you sure you want to proceed?',
-                                          context: context,
-                                          onYes: () {
-                                            context.pop();
-                                            deleteCollection(
+                                      onEdit: switch (state) {
+                                        IdleState() ||
+                                        SearchNoteCollectionsState() =>
+                                          () {
+                                            putCollection(
                                               e,
                                             );
                                           },
-                                          onNo: () {
-                                            context.pop();
+                                        _ => null,
+                                      },
+                                      onDelete: switch (state) {
+                                        IdleState() ||
+                                        SearchNoteCollectionsState() =>
+                                          () {
+                                            final context = this.context;
+                                            UiUtils.showProceedDialog(
+                                              title: 'Delete collection?',
+                                              message:
+                                                  'You are about to delete this collection.'
+                                                  ' Once deleted its gone forever.'
+                                                  '\n\nAre you sure you want to proceed?',
+                                              context: context,
+                                              onYes: () {
+                                                context.pop();
+                                                deleteCollection(
+                                                  e,
+                                                );
+                                              },
+                                              onNo: () {
+                                                context.pop();
+                                              },
+                                            );
                                           },
-                                        );
+                                        _ => null,
                                       },
                                     );
                                     final padding = const EdgeInsets.symmetric(
