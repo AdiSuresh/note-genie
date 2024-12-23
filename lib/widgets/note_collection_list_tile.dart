@@ -33,7 +33,7 @@ class NoteCollectionListTile extends StatelessWidget {
       ('Add to collection', onAddNote, Icons.add_circle_outline),
       ('Remove from collection', onRemoveNote, Icons.remove_circle_outline),
     ];
-    final actionButtons = [
+    final actionButtons = <Widget>[
       for (final (tooltip, onPressed, icon) in actionButtonData)
         if (onPressed != null)
           IconButton(
@@ -44,6 +44,19 @@ class NoteCollectionListTile extends StatelessWidget {
             ),
           ),
     ];
+    if (actionButtons case []) {
+      actionButtons.add(
+        Opacity(
+          opacity: 0,
+          child: IconButton(
+            onPressed: () {},
+            icon: Icon(
+              Icons.abc,
+            ),
+          ),
+        ),
+      );
+    }
     final card = Card(
       margin: EdgeInsets.zero,
       child: InkWell(
