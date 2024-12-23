@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:note_maker/models/note_collection/model.dart';
+import 'package:note_maker/widgets/custom_animated_switcher.dart';
 
 class NoteCollectionListTile extends StatelessWidget {
   final NoteCollectionEntity collection;
@@ -44,19 +45,6 @@ class NoteCollectionListTile extends StatelessWidget {
             ),
           ),
     ];
-    if (actionButtons case []) {
-      actionButtons.add(
-        Opacity(
-          opacity: 0,
-          child: IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.abc,
-            ),
-          ),
-        ),
-      );
-    }
     final card = Card(
       margin: EdgeInsets.zero,
       child: InkWell(
@@ -73,9 +61,22 @@ class NoteCollectionListTile extends StatelessWidget {
                 collection.name,
                 style: textTheme.titleMedium,
               ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: actionButtons,
+              CustomAnimatedSwitcher(
+                child: switch (actionButtons) {
+                  [] => Opacity(
+                      opacity: 0,
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.abc,
+                        ),
+                      ),
+                    ),
+                  _ => Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: actionButtons,
+                    ),
+                },
               ),
             ],
           ),
