@@ -7,7 +7,6 @@ class NoteCollectionListTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
   final VoidCallback? onAddNote;
   final VoidCallback? onRemoveNote;
   final bool splash;
@@ -18,7 +17,6 @@ class NoteCollectionListTile extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.onEdit,
-    this.onDelete,
     this.onAddNote,
     this.onRemoveNote,
     this.splash = true,
@@ -30,7 +28,6 @@ class NoteCollectionListTile extends StatelessWidget {
     final borderRadius = BorderRadius.circular(15);
     final actionButtonData = [
       ('Edit title', onEdit, Icons.edit_outlined),
-      ('Delete collection', onDelete, Icons.delete_outlined),
       ('Add to collection', onAddNote, Icons.add_circle_outline),
       ('Remove from collection', onRemoveNote, Icons.remove_circle_outline),
     ];

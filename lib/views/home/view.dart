@@ -181,25 +181,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Future<void> deleteCollection(
-    NoteCollectionEntity collection,
-  ) async {
-    final deleted = await repo.removeCollection(
-      collection,
-    );
-    final title = "'${collection.name}'";
-    final content = switch (deleted) {
-      true => '$title was deleted successfully',
-      _ => 'Could not delete $title',
-    };
-    if (mounted) {
-      UiUtils.showSnackBar(
-        context,
-        content: content,
-      );
-    }
-  }
-
   void fabOnPressed() async {
     final state = bloc.state;
     if (state is! IdleState) {
@@ -648,31 +629,6 @@ class _HomePageState extends State<HomePage>
                                           () {
                                             putCollection(
                                               e,
-                                            );
-                                          },
-                                        _ => null,
-                                      },
-                                      onDelete: switch (state) {
-                                        IdleState() ||
-                                        SearchNoteCollectionsState() =>
-                                          () {
-                                            final context = this.context;
-                                            UiUtils.showProceedDialog(
-                                              title: 'Delete collection?',
-                                              message:
-                                                  'You are about to delete this collection.'
-                                                  ' Once deleted its gone forever.'
-                                                  '\n\nAre you sure you want to proceed?',
-                                              context: context,
-                                              onYes: () {
-                                                context.pop();
-                                                deleteCollection(
-                                                  e,
-                                                );
-                                              },
-                                              onNo: () {
-                                                context.pop();
-                                              },
                                             );
                                           },
                                         _ => null,
