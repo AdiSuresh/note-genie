@@ -678,15 +678,9 @@ class _HomePageState extends State<HomePage>
                                         _ => null,
                                       },
                                     );
-                                    final padding = const EdgeInsets.symmetric(
-                                      vertical: 7.5,
-                                      horizontal: 15,
-                                    );
                                     final selected = switch (state) {
-                                      SelectNoteCollectionsState(
-                                        :final selected,
-                                      ) =>
-                                        selected[i],
+                                      SelectNoteCollectionsState() =>
+                                        state.selected[i],
                                       _ => false,
                                     };
                                     return AnimatedSwitcher(
@@ -712,7 +706,10 @@ class _HomePageState extends State<HomePage>
                                             when selected[i] =>
                                           const SizedBox(),
                                         _ => Padding(
-                                            padding: padding,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 7.5,
+                                              horizontal: 15,
+                                            ),
                                             child: SelectionHighlight(
                                               selected: selected,
                                               scaleFactor: 1.0125,
