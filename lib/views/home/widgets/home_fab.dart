@@ -12,6 +12,30 @@ class HomeFab extends StatelessWidget {
     required this.onPressed,
   });
 
+  String _getTitle(
+    IdleState state,
+  ) {
+    final suffix = switch (state.showNotes) {
+      true => 'note',
+      _ => 'collection',
+    };
+    return 'Add $suffix';
+  }
+
+  Widget _getTransition(
+    Animation<double> animation,
+    Widget? child,
+  ) {
+    return FadeTransition(
+      opacity: animation,
+      child: SizeTransition(
+        sizeFactor: animation,
+        axis: Axis.horizontal,
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
@@ -26,16 +50,59 @@ class HomeFab extends StatelessWidget {
       },
       builder: (context, state) {
         final child = switch (state) {
-          IdleState() => FloatingActionButton(
-              onPressed: onPressed,
-              tooltip: switch (state.showNotes) {
-                true => 'Add note',
-                _ => 'Add collection',
-              },
-              child: const Icon(
-                Icons.add,
-              ),
-            ),
+          IdleState() => () {
+              final title = _getTitle(
+                state,
+              );
+              final keyValue = switch (state.showNotes) {
+                true => 'add-note-fab-title',
+                _ => 'add-note-collection-fab-title',
+              };
+              return FloatingActionButton.extended(
+                onPressed: onPressed,
+                label: AnimatedSwitcher(
+                  duration: const Duration(
+                    milliseconds: 150,
+                  ),
+                  switchInCurve: Curves.easeIn,
+                  switchOutCurve: Curves.easeOut,
+                  transitionBuilder: (child, animation) {
+                    return DualTransitionBuilder(
+                      animation: animation,
+                      forwardBuilder: (context, animation, child) {
+                        return _getTransition(
+                          animation,
+                          child,
+                        );
+                      },
+                      reverseBuilder: (context, animation, child) {
+                        animation = Tween(
+                          begin: 1.0,
+                          end: 0.0,
+                        ).animate(
+                          animation,
+                        );
+                        return _getTransition(
+                          animation,
+                          child,
+                        );
+                      },
+                      child: child,
+                    );
+                  },
+                  child: Text(
+                    title,
+                    key: ValueKey(
+                      keyValue,
+                    ),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                icon: const Icon(
+                  Icons.add,
+                ),
+              );
+            }(),
           _ => const SizedBox(),
         };
         return CustomAnimatedSwitcher(
