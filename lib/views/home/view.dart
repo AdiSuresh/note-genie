@@ -181,25 +181,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Future<void> deleteCollection(
-    NoteCollectionEntity collection,
-  ) async {
-    final deleted = await repo.removeCollection(
-      collection,
-    );
-    final title = "'${collection.name}'";
-    final content = switch (deleted) {
-      true => '$title was deleted successfully',
-      _ => 'Could not delete $title',
-    };
-    if (mounted) {
-      UiUtils.showSnackBar(
-        context,
-        content: content,
-      );
-    }
-  }
-
   void fabOnPressed() async {
     final state = bloc.state;
     if (state is! IdleState) {
@@ -481,14 +462,17 @@ class _HomePageState extends State<HomePage>
                                           left: 7.5,
                                           right: 15,
                                         ),
-                                        child: CollectionChip(
-                                          onTap: () {
-                                            putCollection(
-                                              NoteCollectionEntity.untitled(),
-                                            );
-                                          },
-                                          child: const Icon(
-                                            Icons.create_new_folder,
+                                        child: Tooltip(
+                                          message: 'Add collection',
+                                          child: CollectionChip(
+                                            onTap: () {
+                                              putCollection(
+                                                NoteCollectionEntity.untitled(),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.create_new_folder,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -592,7 +576,7 @@ class _HomePageState extends State<HomePage>
                                           () async {
                                             if (bloc.state case SearchState()) {
                                               bloc.add(
-                                                ToggleSearchEvent(),
+                                                const ToggleSearchEvent(),
                                               );
                                               await Future.delayed(
                                                 animationDuration,
@@ -652,41 +636,10 @@ class _HomePageState extends State<HomePage>
                                           },
                                         _ => null,
                                       },
-                                      onDelete: switch (state) {
-                                        IdleState() ||
-                                        SearchNoteCollectionsState() =>
-                                          () {
-                                            final context = this.context;
-                                            UiUtils.showProceedDialog(
-                                              title: 'Delete collection?',
-                                              message:
-                                                  'You are about to delete this collection.'
-                                                  ' Once deleted its gone forever.'
-                                                  '\n\nAre you sure you want to proceed?',
-                                              context: context,
-                                              onYes: () {
-                                                context.pop();
-                                                deleteCollection(
-                                                  e,
-                                                );
-                                              },
-                                              onNo: () {
-                                                context.pop();
-                                              },
-                                            );
-                                          },
-                                        _ => null,
-                                      },
-                                    );
-                                    final padding = const EdgeInsets.symmetric(
-                                      vertical: 7.5,
-                                      horizontal: 15,
                                     );
                                     final selected = switch (state) {
-                                      SelectNoteCollectionsState(
-                                        :final selected,
-                                      ) =>
-                                        selected[i],
+                                      SelectNoteCollectionsState() =>
+                                        state.selected[i],
                                       _ => false,
                                     };
                                     return AnimatedSwitcher(
@@ -712,7 +665,10 @@ class _HomePageState extends State<HomePage>
                                             when selected[i] =>
                                           const SizedBox(),
                                         _ => Padding(
-                                            padding: padding,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 7.5,
+                                              horizontal: 15,
+                                            ),
                                             child: SelectionHighlight(
                                               selected: selected,
                                               scaleFactor: 1.0125,
