@@ -462,14 +462,17 @@ class _HomePageState extends State<HomePage>
                                           left: 7.5,
                                           right: 15,
                                         ),
-                                        child: CollectionChip(
-                                          onTap: () {
-                                            putCollection(
-                                              NoteCollectionEntity.untitled(),
-                                            );
-                                          },
-                                          child: const Icon(
-                                            Icons.create_new_folder,
+                                        child: Tooltip(
+                                          message: 'Add collection',
+                                          child: CollectionChip(
+                                            onTap: () {
+                                              putCollection(
+                                                NoteCollectionEntity.untitled(),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.create_new_folder,
+                                            ),
                                           ),
                                         ),
                                       ),
