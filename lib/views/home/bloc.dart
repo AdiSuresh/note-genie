@@ -63,7 +63,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             );
           case SearchNoteCollectionsState():
             add(
-              ToggleSearchEvent(),
+              const ToggleSearchEvent(),
             );
             add(
               event,
@@ -196,7 +196,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
         if (count case 0) {
           add(
-            ResetStateEvent(),
+            const ResetStateEvent(),
           );
           return;
         }
@@ -224,7 +224,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
         if (count case 0) {
           add(
-            ResetStateEvent(),
+            const ResetStateEvent(),
           );
           return;
         }

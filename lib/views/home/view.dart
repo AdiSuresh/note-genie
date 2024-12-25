@@ -576,7 +576,7 @@ class _HomePageState extends State<HomePage>
                                           () async {
                                             if (bloc.state case SearchState()) {
                                               bloc.add(
-                                                ToggleSearchEvent(),
+                                                const ToggleSearchEvent(),
                                               );
                                               await Future.delayed(
                                                 animationDuration,
