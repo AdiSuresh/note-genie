@@ -22,20 +22,6 @@ class HomeFab extends StatelessWidget {
     return 'Add $suffix';
   }
 
-  Widget _getTransition(
-    Animation<double> animation,
-    Widget? child,
-  ) {
-    return FadeTransition(
-      opacity: animation,
-      child: SizeTransition(
-        sizeFactor: animation,
-        axis: Axis.horizontal,
-        child: child,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
@@ -67,27 +53,13 @@ class HomeFab extends StatelessWidget {
                   switchInCurve: Curves.easeIn,
                   switchOutCurve: Curves.easeOut,
                   transitionBuilder: (child, animation) {
-                    return DualTransitionBuilder(
-                      animation: animation,
-                      forwardBuilder: (context, animation, child) {
-                        return _getTransition(
-                          animation,
-                          child,
-                        );
-                      },
-                      reverseBuilder: (context, animation, child) {
-                        animation = Tween(
-                          begin: 1.0,
-                          end: 0.0,
-                        ).animate(
-                          animation,
-                        );
-                        return _getTransition(
-                          animation,
-                          child,
-                        );
-                      },
-                      child: child,
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        axis: Axis.horizontal,
+                        child: child,
+                      ),
                     );
                   },
                   child: Text(

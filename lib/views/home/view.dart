@@ -213,9 +213,12 @@ class _HomePageState extends State<HomePage>
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(15).copyWith(
-                bottom: 7.5,
+            Container(
+              height: 75,
+              alignment: Alignment.center,
+              margin: const EdgeInsets.all(15).copyWith(
+                top: 7.5,
+                bottom: 0,
               ),
               child: BlocBuilder<HomeBloc, HomeState>(
                 buildWhen: (previous, current) {
