@@ -722,7 +722,11 @@ class _HomePageState extends State<HomePage>
       ),
     );
     return HomePopScope(
-      child: scaffold,
+      child: Stack(
+        children: [
+          scaffold,
+        ],
+      ),
     );
   }
 }
