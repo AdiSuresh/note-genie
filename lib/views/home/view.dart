@@ -239,65 +239,7 @@ class _HomePageState extends State<HomePage>
                                 Icons.menu,
                               ),
                             ),
-                            // const SizedBox(
-                            //   width: 15,
-                            // ),
                             const HomePageTitle(),
-                            // const Spacer(),
-                            // Builder(
-                            //   builder: (context) {
-                            //     const padding = EdgeInsets.zero;
-                            //     final borderRadius = BorderRadius.circular(
-                            //       15,
-                            //     );
-                            //     return Container(
-                            //       decoration: BoxDecoration(
-                            //         color: Colors.black12,
-                            //         borderRadius: borderRadius,
-                            //       ),
-                            //       child: TabBar(
-                            //         controller: tabCtrl,
-                            //         automaticIndicatorColorAdjustment: false,
-                            //         tabAlignment: TabAlignment.center,
-                            //         indicator: BoxDecoration(
-                            //           borderRadius: borderRadius,
-                            //           color:
-                            //               context.themeData.primaryColorLight,
-                            //         ),
-                            //         overlayColor: WidgetStateProperty.all(
-                            //           Colors.transparent,
-                            //         ),
-                            //         padding: padding,
-                            //         indicatorPadding: padding,
-                            //         labelPadding: padding,
-                            //         dividerColor: Colors.transparent,
-                            //         labelColor: Colors.white,
-                            //         unselectedLabelColor: Colors.black,
-                            //         tabs: tabIcons.map(
-                            //           (e) {
-                            //             return Padding(
-                            //               padding: const EdgeInsets.all(15),
-                            //               child: e,
-                            //             );
-                            //           },
-                            //         ).toList(),
-                            //       ),
-                            //     );
-                            //   },
-                            // ),
-                            // const SizedBox(
-                            //   width: 15,
-                            // ),
-                            // IconButton(
-                            //   onPressed: () {
-                            //     context.go(
-                            //       '/chats',
-                            //     );
-                            //   },
-                            //   icon: const Icon(
-                            //     Icons.chat,
-                            //   ),
-                            // ),
                             IconButton(
                               onPressed: () {
                                 if (tabCtrl.offset != 0) {
@@ -780,7 +722,7 @@ class _HomePageState extends State<HomePage>
                               IconButton(
                                 onPressed: () {
                                   context.go(
-                                    '/chats',
+                                    '/chat',
                                   );
                                 },
                                 icon: const Icon(
