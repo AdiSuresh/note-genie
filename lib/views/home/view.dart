@@ -717,14 +717,90 @@ class _HomePageState extends State<HomePage>
           ],
         ),
       ),
-      floatingActionButton: HomeFab(
-        onPressed: fabOnPressed,
-      ),
     );
     return HomePopScope(
       child: Stack(
         children: [
           scaffold,
+          Positioned(
+            left: 0,
+            bottom: 0,
+            child: SizedBox(
+              width: MediaQuery.sizeOf(context).width,
+              child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    Material(
+                      elevation: 2.5,
+                      shape: StadiumBorder(),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            children: [
+                              TabBar(
+                                controller: tabCtrl,
+                                tabAlignment: TabAlignment.center,
+                                indicator: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: context.themeData.primaryColorLight,
+                                ),
+                                overlayColor: WidgetStateProperty.all(
+                                  Colors.transparent,
+                                ),
+                                labelPadding: EdgeInsets.zero,
+                                dividerColor: Colors.transparent,
+                                labelColor: Colors.white,
+                                unselectedLabelColor: Colors.black,
+                                tabs: tabIcons.map(
+                                  (e) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: e,
+                                    );
+                                  },
+                                ).toList(),
+                              ),
+                              const SizedBox(
+                                width: 7.5,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7.5,
+                                ),
+                                child: VerticalDivider(
+                                  width: 0,
+                                  thickness: 1.5,
+                                  color: Colors.grey,
+                                  indent: 5,
+                                  endIndent: 5,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  context.go(
+                                    '/chats',
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.chat,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    HomeFab(
+                      onPressed: fabOnPressed,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
