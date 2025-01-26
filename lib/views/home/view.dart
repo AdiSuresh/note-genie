@@ -239,65 +239,7 @@ class _HomePageState extends State<HomePage>
                                 Icons.menu,
                               ),
                             ),
-                            // const SizedBox(
-                            //   width: 15,
-                            // ),
                             const HomePageTitle(),
-                            // const Spacer(),
-                            // Builder(
-                            //   builder: (context) {
-                            //     const padding = EdgeInsets.zero;
-                            //     final borderRadius = BorderRadius.circular(
-                            //       15,
-                            //     );
-                            //     return Container(
-                            //       decoration: BoxDecoration(
-                            //         color: Colors.black12,
-                            //         borderRadius: borderRadius,
-                            //       ),
-                            //       child: TabBar(
-                            //         controller: tabCtrl,
-                            //         automaticIndicatorColorAdjustment: false,
-                            //         tabAlignment: TabAlignment.center,
-                            //         indicator: BoxDecoration(
-                            //           borderRadius: borderRadius,
-                            //           color:
-                            //               context.themeData.primaryColorLight,
-                            //         ),
-                            //         overlayColor: WidgetStateProperty.all(
-                            //           Colors.transparent,
-                            //         ),
-                            //         padding: padding,
-                            //         indicatorPadding: padding,
-                            //         labelPadding: padding,
-                            //         dividerColor: Colors.transparent,
-                            //         labelColor: Colors.white,
-                            //         unselectedLabelColor: Colors.black,
-                            //         tabs: tabIcons.map(
-                            //           (e) {
-                            //             return Padding(
-                            //               padding: const EdgeInsets.all(15),
-                            //               child: e,
-                            //             );
-                            //           },
-                            //         ).toList(),
-                            //       ),
-                            //     );
-                            //   },
-                            // ),
-                            // const SizedBox(
-                            //   width: 15,
-                            // ),
-                            // IconButton(
-                            //   onPressed: () {
-                            //     context.go(
-                            //       '/chats',
-                            //     );
-                            //   },
-                            //   icon: const Icon(
-                            //     Icons.chat,
-                            //   ),
-                            // ),
                             IconButton(
                               onPressed: () {
                                 if (tabCtrl.offset != 0) {
@@ -725,78 +667,80 @@ class _HomePageState extends State<HomePage>
           Positioned(
             left: 0,
             bottom: 0,
-            child: SizedBox(
-              width: MediaQuery.sizeOf(context).width,
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: Row(
-                  children: [
-                    Material(
-                      elevation: 2.5,
-                      shape: StadiumBorder(),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: IntrinsicHeight(
-                          child: Row(
-                            children: [
-                              TabBar(
-                                controller: tabCtrl,
-                                tabAlignment: TabAlignment.center,
-                                indicator: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: context.themeData.primaryColorLight,
+            child: SafeArea(
+              child: SizedBox(
+                width: MediaQuery.sizeOf(context).width,
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    children: [
+                      Material(
+                        elevation: 2.5,
+                        shape: StadiumBorder(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: IntrinsicHeight(
+                            child: Row(
+                              children: [
+                                TabBar(
+                                  controller: tabCtrl,
+                                  tabAlignment: TabAlignment.center,
+                                  indicator: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: context.themeData.primaryColorLight,
+                                  ),
+                                  overlayColor: WidgetStateProperty.all(
+                                    Colors.transparent,
+                                  ),
+                                  labelPadding: EdgeInsets.zero,
+                                  dividerColor: Colors.transparent,
+                                  labelColor: Colors.white,
+                                  unselectedLabelColor: Colors.black,
+                                  tabs: tabIcons.map(
+                                    (e) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(15),
+                                        child: e,
+                                      );
+                                    },
+                                  ).toList(),
                                 ),
-                                overlayColor: WidgetStateProperty.all(
-                                  Colors.transparent,
+                                const SizedBox(
+                                  width: 7.5,
                                 ),
-                                labelPadding: EdgeInsets.zero,
-                                dividerColor: Colors.transparent,
-                                labelColor: Colors.white,
-                                unselectedLabelColor: Colors.black,
-                                tabs: tabIcons.map(
-                                  (e) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(15),
-                                      child: e,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7.5,
+                                  ),
+                                  child: VerticalDivider(
+                                    width: 0,
+                                    thickness: 1.5,
+                                    color: Colors.grey,
+                                    indent: 5,
+                                    endIndent: 5,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    context.go(
+                                      '/chat',
                                     );
                                   },
-                                ).toList(),
-                              ),
-                              const SizedBox(
-                                width: 7.5,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 7.5,
+                                  icon: const Icon(
+                                    Icons.chat,
+                                  ),
                                 ),
-                                child: VerticalDivider(
-                                  width: 0,
-                                  thickness: 1.5,
-                                  color: Colors.grey,
-                                  indent: 5,
-                                  endIndent: 5,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  context.go(
-                                    '/chats',
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.chat,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const Spacer(),
-                    HomeFab(
-                      onPressed: fabOnPressed,
-                    ),
-                  ],
+                      const Spacer(),
+                      HomeFab(
+                        onPressed: fabOnPressed,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

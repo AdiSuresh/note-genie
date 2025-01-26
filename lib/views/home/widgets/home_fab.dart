@@ -12,16 +12,6 @@ class HomeFab extends StatelessWidget {
     required this.onPressed,
   });
 
-  String _getTitle(
-    IdleState state,
-  ) {
-    final suffix = switch (state.showNotes) {
-      true => 'note',
-      _ => 'collection',
-    };
-    return 'Add $suffix';
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
@@ -37,40 +27,9 @@ class HomeFab extends StatelessWidget {
       builder: (context, state) {
         final child = switch (state) {
           IdleState() => () {
-              final title = _getTitle(
-                state,
-              );
-              final keyValue = switch (state.showNotes) {
-                true => 'add-note-fab-title',
-                _ => 'add-note-collection-fab-title',
-              };
-              return FloatingActionButton.extended(
+              return FloatingActionButton(
                 onPressed: onPressed,
-                label: AnimatedSwitcher(
-                  duration: const Duration(
-                    milliseconds: 150,
-                  ),
-                  switchInCurve: Curves.easeIn,
-                  switchOutCurve: Curves.easeOut,
-                  transitionBuilder: (child, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SizeTransition(
-                        sizeFactor: animation,
-                        axis: Axis.horizontal,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Text(
-                    title,
-                    key: ValueKey(
-                      keyValue,
-                    ),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                icon: const Icon(
+                child: const Icon(
                   Icons.add,
                 ),
               );

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
+import 'package:note_maker/views/chat/route.dart';
 import 'package:note_maker/views/edit_note/route.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/repository.dart';
@@ -17,6 +18,9 @@ part 'route.g.dart';
   routes: <TypedGoRoute<GoRouteData>>[
     TypedGoRoute<EditNoteRoute>(
       path: 'edit-note',
+    ),
+    TypedGoRoute<ChatRoute>(
+      path: 'chat',
     ),
   ],
 )
