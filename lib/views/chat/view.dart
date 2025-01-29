@@ -34,10 +34,15 @@ class _ChatPageState extends State<ChatPage> {
               padding: const EdgeInsets.all(15),
               child: TextField(
                 controller: textCtrl,
-                autofocus: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
+                  ),
+                  suffixIcon: IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.send,
+                    ),
                   ),
                 ),
               ),
