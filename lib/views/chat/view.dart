@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:note_maker/views/chat/bloc.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({
@@ -12,6 +14,8 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final textCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
+
+  ChatBloc get bloc => context.read<ChatBloc>();
 
   @override
   void dispose() {
@@ -34,10 +38,15 @@ class _ChatPageState extends State<ChatPage> {
               padding: const EdgeInsets.all(15),
               child: TextField(
                 controller: textCtrl,
-                autofocus: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
+                  ),
+                  suffixIcon: IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.send,
+                    ),
                   ),
                 ),
               ),
