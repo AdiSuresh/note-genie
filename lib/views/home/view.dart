@@ -21,6 +21,7 @@ import 'package:note_maker/views/home/widgets/home_page_title.dart';
 import 'package:note_maker/views/home/widgets/home_pop_scope.dart';
 import 'package:note_maker/views/home/widgets/note_collection_tab_list.dart';
 import 'package:note_maker/views/home/widgets/note_list.dart';
+import 'package:note_maker/widgets/app_bar_wrapper.dart';
 import 'package:note_maker/widgets/note_collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/home_fab.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
@@ -213,13 +214,7 @@ class _HomePageState extends State<HomePage>
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              height: 75,
-              alignment: Alignment.center,
-              margin: const EdgeInsets.all(15).copyWith(
-                top: 7.5,
-                bottom: 0,
-              ),
+            AppBarWrapper(
               child: BlocBuilder<HomeBloc, HomeState>(
                 buildWhen: (previous, current) {
                   return previous.runtimeType != current.runtimeType;

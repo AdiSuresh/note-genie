@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/views/chat/bloc.dart';
+import 'package:note_maker/views/chat/state/state.dart';
+import 'package:note_maker/views/chat/widgets/page_title.dart';
+import 'package:note_maker/widgets/app_bar_wrapper.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({
@@ -29,10 +32,23 @@ class _ChatPageState extends State<ChatPage> {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(
-              child: ListView(
-                controller: scrollCtrl,
-              ),
+            AppBarWrapper(
+              child: ChatPageTitle(),
+            ),
+            BlocBuilder<ChatBloc, ChatState>(
+              buildWhen: (previous, current) {
+                switch ((previous, current)) {
+                  case (IdleState previous, IdleState current):
+                    return previous.messages.length != current.messages.length;
+                }
+              },
+              builder: (context, state) {
+                return Expanded(
+                  child: ListView(
+                    controller: scrollCtrl,
+                  ),
+                );
+              },
             ),
             Padding(
               padding: const EdgeInsets.all(15),
