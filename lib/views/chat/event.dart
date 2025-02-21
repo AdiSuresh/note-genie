@@ -2,10 +2,10 @@ sealed class ChatEvent {
   const ChatEvent();
 }
 
-final class SendMessage extends ChatEvent {
+final class SendMessageEvent extends ChatEvent {
   final String message;
 
-  const SendMessage({
+  const SendMessageEvent({
     required this.message,
   });
 }

@@ -12,6 +12,9 @@ class UserChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      elevation: 2.5,
+      color: Colors.lightBlue[100],
+      borderRadius: BorderRadius.circular(15),
       child: Padding(
         padding: EdgeInsets.all(15),
         child: Text(
