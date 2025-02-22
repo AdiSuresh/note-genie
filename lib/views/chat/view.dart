@@ -9,6 +9,7 @@ import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/widgets/chat_bubble_wrapper.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
 import 'package:note_maker/widgets/app_bar_wrapper.dart';
+import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({
@@ -159,7 +160,9 @@ class _ChatPageState extends State<ChatPage> {
       onPointerUp: (event) {
         pointerDown = false;
       },
-      child: scaffold,
+      child: DismissKeyboard(
+        child: scaffold,
+      ),
     );
   }
 }
