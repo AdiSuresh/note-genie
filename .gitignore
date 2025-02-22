@@ -46,3 +46,7 @@ app.*.map.json
 
 # Generated files
 *.g.dart
+**/.cxx
+
+# Environment files
+*.env

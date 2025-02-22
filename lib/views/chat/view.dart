@@ -1,9 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/views/chat/bloc.dart';
+import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
+import 'package:note_maker/views/chat/widgets/chat_bubble_wrapper.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
 import 'package:note_maker/widgets/app_bar_wrapper.dart';
+import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({
@@ -15,10 +21,20 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  static final logger = AppLogger(
+    ChatPage,
+  );
+
   final textCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
 
   ChatBloc get bloc => context.read<ChatBloc>();
+
+  @override
+  void initState() {
+    super.initState();
+    logger.i('init state');
+  }
 
   @override
   void dispose() {
@@ -26,9 +42,38 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
+  var pointerDown = false;
+
+  void scrollToBottom() {
+    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+    scrollCtrl.animateTo(
+      maxScrollExtent,
+      duration: const Duration(
+        milliseconds: 50,
+      ),
+      curve: Curves.ease,
+    );
+    // scrollCtrl.jumpTo(
+    //   maxScrollExtent,
+    // );
+  }
+
+  void autoScroll() {
+    final currentScrollExtent = scrollCtrl.offset;
+    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+    final diff = max(
+      0,
+      maxScrollExtent - currentScrollExtent,
+    );
+    logger.i('diff: $diff');
+    if (diff case > 0 && < 100 when !pointerDown) {
+      scrollToBottom();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final scaffold = Scaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -39,15 +84,41 @@ class _ChatPageState extends State<ChatPage> {
               buildWhen: (previous, current) {
                 switch ((previous, current)) {
                   case (IdleState previous, IdleState current):
+                    switch ((previous, current)) {
+                      case (
+                            IdleState(
+                              messages: final m1,
+                            ),
+                            IdleState(
+                              messages: final m2,
+                            ),
+                          )
+                          when m1.length == m2.length && m1.isNotEmpty:
+                        final result = m1.last != m2.last;
+                        if (result) {
+                          autoScroll();
+                        }
+                        return result;
+                    }
                     return previous.messages.length != current.messages.length;
                 }
               },
               builder: (context, state) {
-                return Expanded(
-                  child: ListView(
-                    controller: scrollCtrl,
-                  ),
-                );
+                switch (state) {
+                  case IdleState():
+                    return Expanded(
+                      child: ListView(
+                        controller: scrollCtrl,
+                        children: state.messages.map(
+                          (e) {
+                            return ChatBubbleWrapper(
+                              message: e,
+                            );
+                          },
+                        ).toList(),
+                      ),
+                    );
+                }
               },
             ),
             Padding(
@@ -59,7 +130,18 @@ class _ChatPageState extends State<ChatPage> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   suffixIcon: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (textCtrl.text case '') {
+                        return;
+                      }
+                      bloc.add(
+                        SendMessageEvent(
+                          message: textCtrl.text,
+                        ),
+                      );
+                      scrollToBottom();
+                      textCtrl.clear();
+                    },
                     icon: Icon(
                       Icons.send,
                     ),
@@ -69,6 +151,17 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ],
         ),
+      ),
+    );
+    return Listener(
+      onPointerDown: (event) {
+        pointerDown = true;
+      },
+      onPointerUp: (event) {
+        pointerDown = false;
+      },
+      child: DismissKeyboard(
+        child: scaffold,
       ),
     );
   }
