@@ -13,7 +13,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatBloc,
   );
 
-  final _env = EnvVarData();
+  final _env = EnvVarLoader();
 
   ChatBloc(
     super.initialState,

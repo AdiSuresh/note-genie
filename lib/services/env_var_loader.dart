@@ -1,11 +1,11 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class EnvVarData {
-  static final _instance = EnvVarData._();
+class EnvVarLoader {
+  static final _instance = EnvVarLoader._();
 
-  EnvVarData._();
+  EnvVarLoader._();
 
-  factory EnvVarData() {
+  factory EnvVarLoader() {
     return _instance;
   }
 
