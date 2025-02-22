@@ -93,13 +93,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               chunks.add(
                 value,
               );
-              final messages = updatedState.messages;
-              messages[index] = messages[index].copyWith(
+              final updatedMessages = List<ChatMessage>.from(
+                updatedState.messages,
+              );
+              updatedMessages[index] = updatedMessages[index].copyWith(
                 data: chunks.join(),
               );
               emit(
                 IdleState(
-                  messages: messages,
+                  messages: updatedMessages,
                 ),
               );
             }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
@@ -39,9 +41,38 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
+  var pointerDown = false;
+
+  void scrollToBottom() {
+    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+    scrollCtrl.animateTo(
+      maxScrollExtent,
+      duration: const Duration(
+        milliseconds: 50,
+      ),
+      curve: Curves.ease,
+    );
+    // scrollCtrl.jumpTo(
+    //   maxScrollExtent,
+    // );
+  }
+
+  void autoScroll() {
+    final currentScrollExtent = scrollCtrl.offset;
+    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+    final diff = max(
+      0,
+      maxScrollExtent - currentScrollExtent,
+    );
+    logger.i('diff: $diff');
+    if (diff case > 0 && < 100 when !pointerDown) {
+      scrollToBottom();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final scaffold = Scaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -62,7 +93,11 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                           )
                           when m1.length == m2.length && m1.isNotEmpty:
-                        return m1.last != m2.last;
+                        final result = m1.last != m2.last;
+                        if (result) {
+                          autoScroll();
+                        }
+                        return result;
                     }
                     return previous.messages.length != current.messages.length;
                 }
@@ -103,6 +138,7 @@ class _ChatPageState extends State<ChatPage> {
                           message: textCtrl.text,
                         ),
                       );
+                      scrollToBottom();
                       textCtrl.clear();
                     },
                     icon: Icon(
@@ -115,6 +151,15 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
+    );
+    return Listener(
+      onPointerDown: (event) {
+        pointerDown = true;
+      },
+      onPointerUp: (event) {
+        pointerDown = false;
+      },
+      child: scaffold,
     );
   }
 }
