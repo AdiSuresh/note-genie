@@ -107,7 +107,7 @@ class _ChatPageState extends State<ChatPage> {
       // Wait for next frame to check again
       await Future.delayed(
         const Duration(
-          milliseconds: 50,
+          milliseconds: 35,
         ),
       );
     }
