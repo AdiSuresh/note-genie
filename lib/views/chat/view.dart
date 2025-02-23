@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
@@ -9,6 +9,7 @@ import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/widgets/chat_bubble_wrapper.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
 import 'package:note_maker/widgets/app_bar_wrapper.dart';
+import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class ChatPage extends StatefulWidget {
@@ -25,6 +26,10 @@ class _ChatPageState extends State<ChatPage> {
     ChatPage,
   );
 
+  double get cacheExtent {
+    return MediaQuery.of(context).size.height * 1.5;
+  }
+
   final textCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
 
@@ -34,14 +39,36 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     logger.i('init state');
+    scrollCtrl.addListener(
+      updateButtonVisibility,
+    );
   }
 
   @override
   void dispose() {
+    scrollCtrl.removeListener(
+      updateButtonVisibility,
+    );
     scrollCtrl.dispose();
     super.dispose();
   }
 
+  void updateButtonVisibility() {
+    final currentScrollExtent = scrollCtrl.offset;
+    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+    final diff = max(
+      0,
+      maxScrollExtent - currentScrollExtent,
+    );
+    // logger.i('diff: $diff');
+    if (diff < 100) {
+      // buttonVisibilityCtrl.hide();
+    } else {
+      // buttonVisibilityCtrl.show();
+    }
+  }
+
+  var showButton = true;
   var pointerDown = false;
 
   void scrollToBottom() {
@@ -49,13 +76,41 @@ class _ChatPageState extends State<ChatPage> {
     scrollCtrl.animateTo(
       maxScrollExtent,
       duration: const Duration(
-        milliseconds: 50,
+        milliseconds: 250,
       ),
       curve: Curves.ease,
     );
-    // scrollCtrl.jumpTo(
-    //   maxScrollExtent,
-    // );
+  }
+
+  Future<void> scrollToBottomWithVelocity() async {
+    const velocity = 5;
+
+    while (scrollCtrl.hasClients) {
+      final double currentScrollExtent = scrollCtrl.offset;
+      final double maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+
+      if (currentScrollExtent >= maxScrollExtent) {
+        break; // Stop if already at the bottom
+      }
+
+      final double diff = max(0, maxScrollExtent - currentScrollExtent);
+      final int durationMs = (diff / velocity).toInt();
+
+      await scrollCtrl.animateTo(
+        maxScrollExtent,
+        duration: Duration(
+          milliseconds: durationMs,
+        ),
+        curve: Curves.linear,
+      );
+
+      // Wait for next frame to check again
+      await Future.delayed(
+        const Duration(
+          milliseconds: 50,
+        ),
+      );
+    }
   }
 
   void autoScroll() {
@@ -107,15 +162,44 @@ class _ChatPageState extends State<ChatPage> {
                 switch (state) {
                   case IdleState():
                     return Expanded(
-                      child: ListView(
-                        controller: scrollCtrl,
-                        children: state.messages.map(
-                          (e) {
-                            return ChatBubbleWrapper(
-                              message: e,
-                            );
-                          },
-                        ).toList(),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Scrollbar(
+                            controller: scrollCtrl,
+                            thumbVisibility: true,
+                            thickness: 15,
+                            interactive: true,
+                            radius: Radius.circular(15),
+                            child: ListView(
+                              controller: scrollCtrl,
+                              padding: EdgeInsets.only(
+                                bottom: 7.5,
+                              ),
+                              cacheExtent: cacheExtent,
+                              children: state.messages.map(
+                                (e) {
+                                  return ChatBubbleWrapper(
+                                    message: e,
+                                  );
+                                },
+                              ).toList(),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 7.5,
+                            child: CustomAnimatedSwitcher(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  scrollToBottomWithVelocity();
+                                },
+                                label: Icon(
+                                  Icons.arrow_downward,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     );
                 }
