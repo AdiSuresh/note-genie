@@ -199,6 +199,7 @@ class _ChatPageState extends State<ChatPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
+                  hintText: 'Ask anything',
                   suffixIcon: IconButton(
                     onPressed: () {
                       if (textCtrl.text case '') {
