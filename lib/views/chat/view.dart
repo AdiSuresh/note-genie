@@ -78,9 +78,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> scrollToBottomWithVelocity() async {
-    const velocity = 2.5;
+    const velocity = 5;
 
-    while (scrollCtrl.hasClients) {
+    while (scrollCtrl.hasClients && !pointerDown) {
       final diff = scrollCtrl.distanceFromBottom;
 
       if (diff == 0) {
@@ -107,7 +107,6 @@ class _ChatPageState extends State<ChatPage> {
 
   void autoScroll() {
     final diff = scrollCtrl.distanceFromBottom;
-    logger.i('diff: $diff');
     if (diff case > 0 && < 100 when !pointerDown) {
       scrollToBottom();
     }
