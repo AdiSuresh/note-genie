@@ -86,25 +86,26 @@ class _ChatPageState extends State<ChatPage> {
     const velocity = 5;
 
     while (scrollCtrl.hasClients) {
-      final double currentScrollExtent = scrollCtrl.offset;
-      final double maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+      final currentScrollExtent = scrollCtrl.offset;
+      final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
 
       if (currentScrollExtent >= maxScrollExtent) {
-        break; // Stop if already at the bottom
+        break;
       }
 
-      final double diff = max(0, maxScrollExtent - currentScrollExtent);
-      final int durationMs = (diff / velocity).toInt();
+      final diff = max(
+        0,
+        maxScrollExtent - currentScrollExtent,
+      );
 
       await scrollCtrl.animateTo(
         maxScrollExtent,
         duration: Duration(
-          milliseconds: durationMs,
+          microseconds: (diff * 1000 / velocity).toInt(),
         ),
         curve: Curves.linear,
       );
 
-      // Wait for next frame to check again
       await Future.delayed(
         const Duration(
           milliseconds: 35,
