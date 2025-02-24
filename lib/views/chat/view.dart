@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
@@ -54,12 +54,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void updateButtonVisibility() {
-    final currentScrollExtent = scrollCtrl.offset;
-    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
-    final diff = max(
-      0,
-      maxScrollExtent - currentScrollExtent,
-    );
+    final diff = scrollCtrl.distanceFromBottom;
     // logger.i('diff: $diff');
     if (diff < 100) {
       // buttonVisibilityCtrl.hide();
@@ -83,20 +78,16 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> scrollToBottomWithVelocity() async {
-    const velocity = 5;
+    const velocity = 2.5;
 
     while (scrollCtrl.hasClients) {
-      final currentScrollExtent = scrollCtrl.offset;
-      final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+      final diff = scrollCtrl.distanceFromBottom;
 
-      if (currentScrollExtent >= maxScrollExtent) {
+      if (diff == 0) {
         break;
       }
 
-      final diff = max(
-        0,
-        maxScrollExtent - currentScrollExtent,
-      );
+      final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
 
       await scrollCtrl.animateTo(
         maxScrollExtent,
@@ -115,12 +106,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void autoScroll() {
-    final currentScrollExtent = scrollCtrl.offset;
-    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
-    final diff = max(
-      0,
-      maxScrollExtent - currentScrollExtent,
-    );
+    final diff = scrollCtrl.distanceFromBottom;
     logger.i('diff: $diff');
     if (diff case > 0 && < 100 when !pointerDown) {
       scrollToBottom();
