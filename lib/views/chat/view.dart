@@ -55,12 +55,11 @@ class _ChatPageState extends State<ChatPage> {
 
   void updateButtonVisibility() {
     final diff = scrollCtrl.distanceFromBottom;
-    // logger.i('diff: $diff');
-    if (diff < 100) {
-      // buttonVisibilityCtrl.hide();
-    } else {
-      // buttonVisibilityCtrl.show();
-    }
+    bloc.add(
+      UpdateButtonVisibilityEvent(
+        value: diff >= 100,
+      ),
+    );
   }
 
   var showButton = true;
@@ -172,18 +171,30 @@ class _ChatPageState extends State<ChatPage> {
                               ).toList(),
                             ),
                           ),
-                          Positioned(
-                            bottom: 7.5,
-                            child: CustomAnimatedSwitcher(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  scrollToBottomWithVelocity();
+                          BlocBuilder<ChatBloc, ChatState>(
+                            builder: (context, state) {
+                              return Positioned(
+                                bottom: 7.5,
+                                child: switch (state) {
+                                  IdleState(
+                                    :final showButton,
+                                  ) =>
+                                    CustomAnimatedSwitcher(
+                                      child: switch (showButton) {
+                                        true => ElevatedButton.icon(
+                                            onPressed: () {
+                                              scrollToBottomWithVelocity();
+                                            },
+                                            label: Icon(
+                                              Icons.arrow_downward,
+                                            ),
+                                          ),
+                                        _ => const SizedBox(),
+                                      },
+                                    ),
                                 },
-                                label: Icon(
-                                  Icons.arrow_downward,
-                                ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ],
                       ),

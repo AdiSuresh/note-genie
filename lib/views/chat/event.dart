@@ -9,3 +9,11 @@ final class SendMessageEvent extends ChatEvent {
     required this.message,
   });
 }
+
+final class UpdateButtonVisibilityEvent extends ChatEvent {
+  final bool value;
+
+  const UpdateButtonVisibilityEvent({
+    required this.value,
+  });
+}
