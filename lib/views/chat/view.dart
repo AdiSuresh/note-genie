@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
@@ -54,18 +54,12 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void updateButtonVisibility() {
-    final currentScrollExtent = scrollCtrl.offset;
-    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
-    final diff = max(
-      0,
-      maxScrollExtent - currentScrollExtent,
+    final diff = scrollCtrl.distanceFromBottom;
+    bloc.add(
+      UpdateButtonVisibilityEvent(
+        value: diff >= 100,
+      ),
     );
-    // logger.i('diff: $diff');
-    if (diff < 100) {
-      // buttonVisibilityCtrl.hide();
-    } else {
-      // buttonVisibilityCtrl.show();
-    }
   }
 
   var showButton = true;
@@ -85,26 +79,23 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> scrollToBottomWithVelocity() async {
     const velocity = 5;
 
-    while (scrollCtrl.hasClients) {
-      final double currentScrollExtent = scrollCtrl.offset;
-      final double maxScrollExtent = scrollCtrl.position.maxScrollExtent;
+    while (scrollCtrl.hasClients && !pointerDown) {
+      final diff = scrollCtrl.distanceFromBottom;
 
-      if (currentScrollExtent >= maxScrollExtent) {
-        break; // Stop if already at the bottom
+      if (diff == 0) {
+        break;
       }
 
-      final double diff = max(0, maxScrollExtent - currentScrollExtent);
-      final int durationMs = (diff / velocity).toInt();
+      final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
 
       await scrollCtrl.animateTo(
         maxScrollExtent,
         duration: Duration(
-          milliseconds: durationMs,
+          microseconds: (diff * 1000 / velocity).toInt(),
         ),
         curve: Curves.linear,
       );
 
-      // Wait for next frame to check again
       await Future.delayed(
         const Duration(
           milliseconds: 35,
@@ -114,13 +105,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void autoScroll() {
-    final currentScrollExtent = scrollCtrl.offset;
-    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
-    final diff = max(
-      0,
-      maxScrollExtent - currentScrollExtent,
-    );
-    logger.i('diff: $diff');
+    final diff = scrollCtrl.distanceFromBottom;
     if (diff case > 0 && < 100 when !pointerDown) {
       scrollToBottom();
     }
@@ -186,18 +171,30 @@ class _ChatPageState extends State<ChatPage> {
                               ).toList(),
                             ),
                           ),
-                          Positioned(
-                            bottom: 7.5,
-                            child: CustomAnimatedSwitcher(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  scrollToBottomWithVelocity();
+                          BlocBuilder<ChatBloc, ChatState>(
+                            builder: (context, state) {
+                              return Positioned(
+                                bottom: 7.5,
+                                child: switch (state) {
+                                  IdleState(
+                                    :final showButton,
+                                  ) =>
+                                    CustomAnimatedSwitcher(
+                                      child: switch (showButton) {
+                                        true => ElevatedButton.icon(
+                                            onPressed: () {
+                                              scrollToBottomWithVelocity();
+                                            },
+                                            label: Icon(
+                                              Icons.arrow_downward,
+                                            ),
+                                          ),
+                                        _ => const SizedBox(),
+                                      },
+                                    ),
                                 },
-                                label: Icon(
-                                  Icons.arrow_downward,
-                                ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -213,6 +210,7 @@ class _ChatPageState extends State<ChatPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
+                  hintText: 'Ask anything',
                   suffixIcon: IconButton(
                     onPressed: () {
                       if (textCtrl.text case '') {

@@ -13,6 +13,7 @@ class ChatRoute extends GoRouteData {
         return ChatBloc(
           IdleState(
             messages: [],
+            showButton: false,
           ),
         );
       },

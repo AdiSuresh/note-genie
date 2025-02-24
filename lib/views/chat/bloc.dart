@@ -26,7 +26,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         switch (state) {
           case final IdleState state:
             emit(
-              IdleState(
+              state.copyWith(
                 messages: [
                   ...state.messages,
                   ChatMessage(
@@ -75,7 +75,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               data: '',
               role: MessengerType.bot,
             );
-            final updatedState = IdleState(
+            final updatedState = currentState.copyWith(
               messages: [
                 ...currentState.messages,
                 botMessage,
@@ -99,12 +99,28 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               updatedMessages[index] = updatedMessages[index].copyWith(
                 data: chunks.join(),
               );
-              emit(
-                IdleState(
-                  messages: updatedMessages,
-                ),
-              );
+              switch (state) {
+                case final IdleState state:
+                  emit(
+                    state.copyWith(
+                      messages: updatedMessages,
+                    ),
+                  );
+              }
             }
+        }
+      },
+    );
+    on<UpdateButtonVisibilityEvent>(
+      (event, emit) {
+        switch (state) {
+          case final IdleState state when event.value ^ state.showButton:
+            emit(
+              state.copyWith(
+                showButton: event.value,
+              ),
+            );
+          case _:
         }
       },
     );

@@ -335,7 +335,7 @@ class _EditNoteState extends State<EditNote> {
               fit: StackFit.expand,
               children: [
                 QuillEditor(
-                  configurations: const QuillEditorConfigurations(
+                  config: const QuillEditorConfig(
                     padding: EdgeInsets.all(15),
                     scrollPhysics: BouncingScrollPhysics(),
                   ),
