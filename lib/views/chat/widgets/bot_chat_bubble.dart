@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 
 class BotChatBubble extends StatelessWidget {
@@ -17,8 +18,11 @@ class BotChatBubble extends StatelessWidget {
       borderRadius: BorderRadius.circular(15),
       child: Padding(
         padding: EdgeInsets.all(15),
-        child: Text(
+        child: GptMarkdown(
           message.data,
+          style: TextStyle(
+            fontSize: 16,
+          ),
         ),
       ),
     );

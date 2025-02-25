@@ -19,6 +19,9 @@ class UserChatBubble extends StatelessWidget {
         padding: EdgeInsets.all(15),
         child: Text(
           message.data,
+          style: TextStyle(
+            fontSize: 16,
+          ),
         ),
       ),
     );
