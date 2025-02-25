@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
@@ -70,7 +71,7 @@ class _ChatPageState extends State<ChatPage> {
     scrollCtrl.animateTo(
       maxScrollExtent,
       duration: const Duration(
-        milliseconds: 250,
+        milliseconds: 125,
       ),
       curve: Curves.ease,
     );
@@ -144,62 +145,95 @@ class _ChatPageState extends State<ChatPage> {
                 }
               },
               builder: (context, state) {
-                switch (state) {
-                  case IdleState():
-                    return Expanded(
-                      child: Stack(
-                        alignment: Alignment.center,
+                final child = switch (state) {
+                  IdleState(
+                    messages: [],
+                  ) =>
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Scrollbar(
-                            controller: scrollCtrl,
-                            thumbVisibility: true,
-                            thickness: 15,
-                            interactive: true,
-                            radius: Radius.circular(15),
-                            child: ListView(
-                              controller: scrollCtrl,
-                              padding: EdgeInsets.only(
-                                bottom: 7.5,
-                              ),
-                              cacheExtent: cacheExtent,
-                              children: state.messages.map(
-                                (e) {
-                                  return ChatBubbleWrapper(
-                                    message: e,
-                                  );
-                                },
-                              ).toList(),
-                            ),
+                          Icon(
+                            Icons.assistant,
+                            size: 45,
+                            color: Colors.blueAccent,
                           ),
-                          BlocBuilder<ChatBloc, ChatState>(
-                            builder: (context, state) {
-                              return Positioned(
-                                bottom: 7.5,
-                                child: switch (state) {
-                                  IdleState(
-                                    :final showButton,
-                                  ) =>
-                                    CustomAnimatedSwitcher(
-                                      child: switch (showButton) {
-                                        true => ElevatedButton.icon(
-                                            onPressed: () {
-                                              scrollToBottomWithVelocity();
-                                            },
-                                            label: Icon(
-                                              Icons.arrow_downward,
-                                            ),
-                                          ),
-                                        _ => const SizedBox(),
-                                      },
-                                    ),
-                                },
-                              );
-                            },
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Text(
+                            'What can I help with?',
+                            style: context.themeData.textTheme.titleLarge
+                                ?.copyWith(
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
                         ],
                       ),
-                    );
-                }
+                    ),
+                  IdleState(
+                    messages: [
+                      ...,
+                    ]
+                  ) =>
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Scrollbar(
+                          controller: scrollCtrl,
+                          thumbVisibility: true,
+                          thickness: 15,
+                          interactive: true,
+                          radius: Radius.circular(15),
+                          child: ListView(
+                            controller: scrollCtrl,
+                            padding: EdgeInsets.only(
+                              right: 7.5,
+                              bottom: 7.5,
+                            ),
+                            cacheExtent: cacheExtent,
+                            children: state.messages.map(
+                              (e) {
+                                return ChatBubbleWrapper(
+                                  message: e,
+                                );
+                              },
+                            ).toList(),
+                          ),
+                        ),
+                        BlocBuilder<ChatBloc, ChatState>(
+                          builder: (context, state) {
+                            return Positioned(
+                              bottom: 7.5,
+                              child: switch (state) {
+                                IdleState(
+                                  :final showButton,
+                                ) =>
+                                  CustomAnimatedSwitcher(
+                                    child: switch (showButton) {
+                                      true => ElevatedButton.icon(
+                                          onPressed: () {
+                                            scrollToBottomWithVelocity();
+                                          },
+                                          label: Icon(
+                                            Icons.arrow_downward,
+                                          ),
+                                        ),
+                                      _ => const SizedBox(),
+                                    },
+                                  ),
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                };
+                return Expanded(
+                  child: CustomAnimatedSwitcher(
+                    child: child,
+                  ),
+                );
               },
             ),
             Padding(
@@ -221,7 +255,15 @@ class _ChatPageState extends State<ChatPage> {
                           message: textCtrl.text,
                         ),
                       );
-                      scrollToBottom();
+                      Future.delayed(
+                        const Duration(
+                          milliseconds: 35,
+                        ),
+                      ).then(
+                        (value) {
+                          scrollToBottomWithVelocity();
+                        },
+                      );
                       textCtrl.clear();
                     },
                     icon: Icon(
