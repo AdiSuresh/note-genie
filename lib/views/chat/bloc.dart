@@ -36,6 +36,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 ],
               ),
             );
+          case _:
+            return;
         }
         logger.i('added user message');
         final url = switch (_env.backendUrl) {
@@ -59,8 +61,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               'question': event.message,
             },
           );
+        // http.StreamedResponse();
+        final client = http.Client();
+        // emit();
         logger.i('sending user message...');
-        final response = await http.Client().send(
+        final response = await client.send(
           request,
         );
         logger.i('response ${response.statusCode}');
@@ -70,7 +75,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
         logger.i('received successful response');
         switch (state) {
-          case IdleState currentState:
+          case final IdleState currentState:
             final botMessage = ChatMessage(
               data: '',
               role: MessengerType.bot,
@@ -106,8 +111,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                       messages: updatedMessages,
                     ),
                   );
+                case _:
               }
             }
+          case _:
         }
       },
     );

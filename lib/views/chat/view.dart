@@ -2,12 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
-import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/widgets/chat_bubble_wrapper.dart';
+import 'package:note_maker/views/chat/widgets/new_chat_placeholder.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
 import 'package:note_maker/widgets/app_bar_wrapper.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
@@ -142,35 +142,25 @@ class _ChatPageState extends State<ChatPage> {
                         return result;
                     }
                     return previous.messages.length != current.messages.length;
+                  case (IdleState(), SendingMessageState()):
+                    return true;
+                  case _:
+                    return false;
                 }
               },
               builder: (context, state) {
-                final child = switch (state) {
+                final idleState = state = switch (state) {
+                  IdleState() => state,
+                  MessageProcessingState(
+                    :final prevState,
+                  ) =>
+                    prevState,
+                };
+                final child = switch (idleState) {
                   IdleState(
                     messages: [],
                   ) =>
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.assistant,
-                            size: 45,
-                            color: Colors.blueAccent,
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            'What can I help with?',
-                            style: context.themeData.textTheme.titleLarge
-                                ?.copyWith(
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    NewChatPlaceholder(),
                   IdleState(
                     messages: [
                       ...,
@@ -205,7 +195,7 @@ class _ChatPageState extends State<ChatPage> {
                           builder: (context, state) {
                             return Positioned(
                               bottom: 7.5,
-                              child: switch (state) {
+                              child: switch (idleState) {
                                 IdleState(
                                   :final showButton,
                                 ) =>
