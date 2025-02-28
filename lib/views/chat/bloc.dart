@@ -61,73 +61,124 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               'question': event.message,
             },
           );
-        // http.StreamedResponse();
         final client = http.Client();
-        // emit();
-        logger.i('sending user message...');
-        final response = await client.send(
-          request,
-        );
-        logger.i('response ${response.statusCode}');
-        if (!response.ok) {
-          logger.i('request failed: ${response.reasonPhrase}');
+        if (state case final IdleState state) {
+          emit(
+            SendingMessageState(
+              previousState: state,
+              client: client,
+            ),
+          );
+        }
+        try {
+          logger.i('sending user message...');
+          final response = await client.send(
+            request,
+          );
+          logger.i('response ${response.statusCode}');
+          if (!response.ok) {
+            throw Exception('Request failed');
+          }
+          if (state case final SendingMessageState state) {
+            emit(
+              ReceivingMessageState(
+                previousState: state.previousState,
+                client: client,
+                response: response,
+                message: ChatMessage(
+                  data: '',
+                  role: MessengerType.bot,
+                ),
+              ),
+            );
+          } else {
+            throw Exception('Invalid state');
+          }
+        } catch (e) {
+          logger.i('error: $e');
+          if (state case final MessageProcessingState state) {
+            emit(
+              state.previousState,
+            );
+          }
           return;
         }
         logger.i('received successful response');
         switch (state) {
-          case final IdleState currentState:
-            final botMessage = ChatMessage(
-              data: '',
-              role: MessengerType.bot,
-            );
-            final updatedState = currentState.copyWith(
+          case final ReceivingMessageState currentState:
+            final previousState = currentState.previousState;
+            final updatedIdleState = previousState.copyWith(
               messages: [
-                ...currentState.messages,
-                botMessage,
+                ...previousState.messages,
+                currentState.message,
               ],
             );
             emit(
-              updatedState,
+              currentState.copyWith(
+                previousState: updatedIdleState,
+              ),
             );
             final chunks = <String>[];
-            final index = updatedState.messages.length - 1;
-            final stream = response.stream.transform(
+            final index = updatedIdleState.messages.length - 1;
+            final stream = currentState.response.stream.transform(
               utf8.decoder,
             );
-            await for (final value in stream) {
-              chunks.add(
-                value,
-              );
-              final updatedMessages = List<ChatMessage>.from(
-                updatedState.messages,
-              );
-              updatedMessages[index] = updatedMessages[index].copyWith(
-                data: chunks.join(),
-              );
-              switch (state) {
-                case final IdleState state:
+            try {
+              await for (final value in stream) {
+                chunks.add(
+                  value,
+                );
+                if (state case final ReceivingMessageState state) {
+                  final message = state.message.copyWith(
+                    data: chunks.join(),
+                  );
+                  state.previousState.messages[index] = message;
                   emit(
                     state.copyWith(
-                      messages: updatedMessages,
+                      message: message,
                     ),
                   );
-                case _:
+                }
               }
+            } catch (e) {
+              // ignored
             }
+            logger.i('reset state');
+            if (state case final MessageProcessingState state) {
+              emit(
+                state.previousState,
+              );
+            }
+            logger.i(
+              'message: ${currentState.previousState.messages.last.data}',
+            );
           case _:
         }
+        client.close();
       },
     );
     on<UpdateButtonVisibilityEvent>(
       (event, emit) {
-        switch (state) {
-          case final IdleState state when event.value ^ state.showButton:
-            emit(
-              state.copyWith(
-                showButton: event.value,
+        final idleState = switch (state) {
+          final IdleState state => state,
+          final MessageProcessingState state => state.previousState,
+        };
+        if (idleState case final state when event.value ^ state.showButton) {
+          final nextIdleState = state.copyWith(
+            showButton: event.value,
+          );
+          final nextState = switch (this.state) {
+            IdleState() => nextIdleState,
+            final SendingMessageState state => state.copyWith(
+                previousState: nextIdleState,
               ),
-            );
-          case _:
+            final ReceivingMessageState state => state.copyWith(
+                previousState: nextIdleState,
+              ),
+          };
+          emit(
+            nextState,
+          );
         }
       },
     );

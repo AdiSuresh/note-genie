@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
@@ -144,6 +145,19 @@ class _ChatPageState extends State<ChatPage> {
                     return previous.messages.length != current.messages.length;
                   case (IdleState(), SendingMessageState()):
                     return true;
+                  case (SendingMessageState(), ReceivingMessageState()):
+                    return true;
+                  case (
+                      ReceivingMessageState(
+                        previousState: final s1,
+                      ),
+                      ReceivingMessageState(
+                        previousState: final s2,
+                      ),
+                    ):
+                    return s1.messages.length != s2.messages.length;
+                  case (ReceivingMessageState(), IdleState()):
+                    return true;
                   case _:
                     return false;
                 }
@@ -152,9 +166,9 @@ class _ChatPageState extends State<ChatPage> {
                 final idleState = state = switch (state) {
                   IdleState() => state,
                   MessageProcessingState(
-                    :final prevState,
+                    :final previousState,
                   ) =>
-                    prevState,
+                    previousState,
                 };
                 final child = switch (idleState) {
                   IdleState(
@@ -184,6 +198,36 @@ class _ChatPageState extends State<ChatPage> {
                             cacheExtent: cacheExtent,
                             children: state.messages.map(
                               (e) {
+                                if (e
+                                    case ChatMessage(
+                                      role: MessengerType.bot,
+                                    ) when e == idleState.messages.last) {
+                                  return BlocBuilder<ChatBloc, ChatState>(
+                                    buildWhen: (previous, current) {
+                                      switch ((previous, current)) {
+                                        case (
+                                                SendingMessageState(),
+                                                ReceivingMessageState()
+                                              ) ||
+                                              (
+                                                ReceivingMessageState(),
+                                                ReceivingMessageState(),
+                                              ):
+                                          return true;
+                                        case _:
+                                          return false;
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      if (state case ReceivingMessageState()) {
+                                        return ChatBubbleWrapper(
+                                          message: state.message,
+                                        );
+                                      }
+                                      return const SizedBox();
+                                    },
+                                  );
+                                }
                                 return ChatBubbleWrapper(
                                   message: e,
                                 );
@@ -237,6 +281,12 @@ class _ChatPageState extends State<ChatPage> {
                   hintText: 'Ask anything',
                   suffixIcon: IconButton(
                     onPressed: () {
+                      logger.i(bloc.state);
+                      switch (bloc.state) {
+                        case ReceivingMessageState state:
+                          logger.i(state.message.data);
+                        case _:
+                      }
                       if (textCtrl.text case '') {
                         return;
                       }
