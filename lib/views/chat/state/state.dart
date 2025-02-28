@@ -19,13 +19,33 @@ final class IdleState extends ChatState {
   });
 }
 
-@CopyWith()
-final class GeneratingResponseState {
-  final IdleState prevState;
-  final StreamedResponse response;
+sealed class MessageProcessingState extends ChatState {
+  final IdleState previousState;
+  final Client client;
 
-  const GeneratingResponseState({
-    required this.prevState,
+  const MessageProcessingState({
+    required this.previousState,
+    required this.client,
+  });
+}
+
+@CopyWith()
+final class SendingMessageState extends MessageProcessingState {
+  const SendingMessageState({
+    required super.previousState,
+    required super.client,
+  });
+}
+
+@CopyWith()
+final class ReceivingMessageState extends MessageProcessingState {
+  final StreamedResponse response;
+  final ChatMessage message;
+
+  const ReceivingMessageState({
+    required super.previousState,
+    required super.client,
     required this.response,
+    required this.message,
   });
 }
