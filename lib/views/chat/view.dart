@@ -10,6 +10,7 @@ import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/widgets/chat_bubble_wrapper.dart';
 import 'package:note_maker/views/chat/widgets/new_chat_placeholder.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
+import 'package:note_maker/views/chat/widgets/scroll_to_bottom_button.dart';
 import 'package:note_maker/widgets/app_bar_wrapper.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
@@ -28,14 +29,16 @@ class _ChatPageState extends State<ChatPage> {
     ChatPage,
   );
 
-  double get cacheExtent {
-    return MediaQuery.of(context).size.height * 1.5;
-  }
-
   final textCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
 
+  final chatBubbleKey = GlobalKey();
+
   ChatBloc get bloc => context.read<ChatBloc>();
+
+  double get cacheExtent {
+    return MediaQuery.of(context).size.height * 1.5;
+  }
 
   @override
   void initState() {
@@ -64,7 +67,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  var showButton = true;
   var pointerDown = false;
 
   void scrollToBottom() {
@@ -146,6 +148,7 @@ class _ChatPageState extends State<ChatPage> {
                   case (IdleState(), SendingMessageState()):
                     return true;
                   case (SendingMessageState(), ReceivingMessageState()):
+                    autoScroll();
                     return true;
                   case (
                       ReceivingMessageState(
@@ -155,6 +158,7 @@ class _ChatPageState extends State<ChatPage> {
                         previousState: final s2,
                       ),
                     ):
+                    autoScroll();
                     return s1.messages.length != s2.messages.length;
                   case (ReceivingMessageState(), IdleState()):
                     return true;
@@ -203,6 +207,7 @@ class _ChatPageState extends State<ChatPage> {
                                       role: MessengerType.bot,
                                     ) when e == idleState.messages.last) {
                                   return BlocBuilder<ChatBloc, ChatState>(
+                                    key: chatBubbleKey,
                                     buildWhen: (previous, current) {
                                       switch ((previous, current)) {
                                         case (
@@ -235,29 +240,9 @@ class _ChatPageState extends State<ChatPage> {
                             ).toList(),
                           ),
                         ),
-                        BlocBuilder<ChatBloc, ChatState>(
-                          builder: (context, state) {
-                            return Positioned(
-                              bottom: 7.5,
-                              child: switch (idleState) {
-                                IdleState(
-                                  :final showButton,
-                                ) =>
-                                  CustomAnimatedSwitcher(
-                                    child: switch (showButton) {
-                                      true => ElevatedButton.icon(
-                                          onPressed: () {
-                                            scrollToBottomWithVelocity();
-                                          },
-                                          label: Icon(
-                                            Icons.arrow_downward,
-                                          ),
-                                        ),
-                                      _ => const SizedBox(),
-                                    },
-                                  ),
-                              },
-                            );
+                        ScrollToBottomButton(
+                          onPressed: () {
+                            scrollToBottomWithVelocity();
                           },
                         ),
                       ],
@@ -281,12 +266,6 @@ class _ChatPageState extends State<ChatPage> {
                   hintText: 'Ask anything',
                   suffixIcon: IconButton(
                     onPressed: () {
-                      logger.i(bloc.state);
-                      switch (bloc.state) {
-                        case ReceivingMessageState state:
-                          logger.i(state.message.data);
-                        case _:
-                      }
                       if (textCtrl.text case '') {
                         return;
                       }
@@ -295,6 +274,7 @@ class _ChatPageState extends State<ChatPage> {
                           message: textCtrl.text,
                         ),
                       );
+                      textCtrl.clear();
                       Future.delayed(
                         const Duration(
                           milliseconds: 35,
@@ -304,7 +284,6 @@ class _ChatPageState extends State<ChatPage> {
                           scrollToBottomWithVelocity();
                         },
                       );
-                      textCtrl.clear();
                     },
                     icon: Icon(
                       Icons.send,

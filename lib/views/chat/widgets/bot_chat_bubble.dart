@@ -14,7 +14,6 @@ class BotChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       elevation: 0,
-      color: Colors.grey[200],
       borderRadius: BorderRadius.circular(15),
       child: Padding(
         padding: EdgeInsets.all(15),
