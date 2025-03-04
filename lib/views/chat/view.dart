@@ -8,7 +8,7 @@ import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
-import 'package:note_maker/views/chat/widgets/chat_bubble_wrapper.dart';
+import 'package:note_maker/views/chat/widgets/chat_bubble/wrapper.dart';
 import 'package:note_maker/widgets/pulsing_dot_indicator.dart';
 import 'package:note_maker/views/chat/widgets/new_chat_placeholder.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
