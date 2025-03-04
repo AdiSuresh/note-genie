@@ -9,6 +9,7 @@ import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/widgets/chat_bubble_wrapper.dart';
+import 'package:note_maker/widgets/pulsing_dot_indicator.dart';
 import 'package:note_maker/views/chat/widgets/new_chat_placeholder.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
 import 'package:note_maker/views/chat/widgets/scroll_to_bottom_button.dart';
@@ -25,13 +26,16 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage>
+    with SingleTickerProviderStateMixin {
   static final logger = AppLogger(
     ChatPage,
   );
 
   final textCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
+
+  late final StreamSubscription<ChatState> stateSub;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final drawerKey = GlobalKey<DrawerControllerState>();
@@ -117,8 +121,6 @@ class _ChatPageState extends State<ChatPage> {
       scrollToBottom();
     }
   }
-
-  late AnimationController drawerAnimationCtrl;
 
   @override
   Widget build(BuildContext context) {
@@ -250,7 +252,7 @@ class _ChatPageState extends State<ChatPage> {
                                     switch ((previous, current)) {
                                       case (
                                               SendingMessageState(),
-                                              ReceivingMessageState()
+                                              ReceivingMessageState(),
                                             ) ||
                                             (
                                               ReceivingMessageState(),
@@ -262,12 +264,33 @@ class _ChatPageState extends State<ChatPage> {
                                     }
                                   },
                                   builder: (context, state) {
-                                    if (state case ReceivingMessageState()) {
-                                      return ChatBubbleWrapper(
-                                        message: state.message,
-                                      );
+                                    switch (state) {
+                                      case ReceivingMessageState(
+                                          message: ChatMessage(
+                                            data: '',
+                                          ),
+                                        ):
+                                        return Padding(
+                                          padding: const EdgeInsets.all(15).add(
+                                            const EdgeInsets.symmetric(
+                                              vertical: 7.5,
+                                              horizontal: 15,
+                                            ),
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: PulsingDotIndicator(),
+                                          ),
+                                        );
+                                      case ReceivingMessageState(
+                                          :final message,
+                                        ):
+                                        return ChatBubbleWrapper(
+                                          message: message,
+                                        );
+                                      case _:
+                                        return const SizedBox();
                                     }
-                                    return const SizedBox();
                                   },
                                 );
                               }
