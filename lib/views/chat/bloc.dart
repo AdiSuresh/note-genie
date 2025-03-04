@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
@@ -25,15 +26,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
         switch (state) {
           case final IdleState state:
+            final chat = state.chat.copyWith(
+              messages: [
+                ...state.chat.messages,
+                ChatMessage(
+                  data: event.message,
+                  role: MessengerType.user,
+                ),
+              ],
+            );
             emit(
               state.copyWith(
-                messages: [
-                  ...state.chat.messages,
-                  ChatMessage(
-                    data: event.message,
-                    role: MessengerType.user,
-                  ),
-                ],
+                chat: chat,
               ),
             );
           case _:
@@ -107,11 +111,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         switch (state) {
           case final ReceivingMessageState currentState:
             final previousState = currentState.previousState;
-            final updatedIdleState = previousState.copyWith(
+            final chat = previousState.chat.copyWith(
               messages: [
                 ...previousState.chat.messages,
                 currentState.message,
               ],
+            );
+            final updatedIdleState = previousState.copyWith(
+              chat: chat,
             );
             emit(
               currentState.copyWith(
