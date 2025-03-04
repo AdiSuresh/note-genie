@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/views/chat/bloc.dart';
@@ -139,15 +140,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 ChatPageTitle(),
                 IconButton(
-                  onPressed: () {
-                    switch (bloc.state) {
-                      case IdleState state:
-                        logger.i(state.messages.last.data);
-
-                        break;
-                      default:
-                    }
-                  },
+                  onPressed: () {},
                   icon: const Icon(
                     Icons.search,
                   ),
@@ -158,24 +151,26 @@ class _ChatPageState extends State<ChatPage> {
           BlocBuilder<ChatBloc, ChatState>(
             buildWhen: (previous, current) {
               switch ((previous, current)) {
-                case (IdleState previous, IdleState current):
-                  switch ((previous, current)) {
-                    case (
-                          IdleState(
-                            messages: final m1,
-                          ),
-                          IdleState(
-                            messages: final m2,
-                          ),
-                        )
-                        when m1.length == m2.length && m1.isNotEmpty:
-                      final result = m1.last != m2.last;
-                      if (result) {
-                        autoScroll();
-                      }
-                      return result;
+                case (
+                    IdleState(
+                      chat: ChatModel(
+                        messages: final m1,
+                      ),
+                    ),
+                    IdleState(
+                      chat: ChatModel(
+                        messages: final m2,
+                      ),
+                    ),
+                  ):
+                  if (m1.length == m2.length && m1.isNotEmpty) {
+                    final result = m1.last != m2.last;
+                    if (result) {
+                      autoScroll();
+                    }
+                    return result;
                   }
-                  return previous.messages.length != current.messages.length;
+                  return m1.length != m2.length;
                 case (IdleState(), SendingMessageState()):
                   return true;
                 case (SendingMessageState(), ReceivingMessageState()):
@@ -183,14 +178,22 @@ class _ChatPageState extends State<ChatPage> {
                   return true;
                 case (
                     ReceivingMessageState(
-                      previousState: final s1,
+                      previousState: IdleState(
+                        chat: ChatModel(
+                          messages: final m1,
+                        ),
+                      ),
                     ),
                     ReceivingMessageState(
-                      previousState: final s2,
+                      previousState: IdleState(
+                        chat: ChatModel(
+                          messages: final m2,
+                        ),
+                      ),
                     ),
                   ):
                   autoScroll();
-                  return s1.messages.length != s2.messages.length;
+                  return m1.length != m2.length;
                 case (ReceivingMessageState(), IdleState()):
                   return true;
                 case _:
@@ -207,13 +210,17 @@ class _ChatPageState extends State<ChatPage> {
               };
               final child = switch (idleState) {
                 IdleState(
-                  messages: [],
+                  chat: ChatModel(
+                    messages: [],
+                  ),
                 ) =>
                   NewChatPlaceholder(),
                 IdleState(
-                  messages: [
-                    ...,
-                  ]
+                  chat: ChatModel(
+                    messages: [
+                      ...,
+                    ],
+                  ),
                 ) =>
                   Stack(
                     alignment: Alignment.center,
@@ -231,12 +238,12 @@ class _ChatPageState extends State<ChatPage> {
                             bottom: 7.5,
                           ),
                           cacheExtent: cacheExtent,
-                          children: state.messages.map(
+                          children: state.chat.messages.map(
                             (e) {
                               if (e
                                   case ChatMessage(
                                     role: MessengerType.bot,
-                                  ) when e == idleState.messages.last) {
+                                  ) when e == idleState.chat.messages.last) {
                                 return BlocBuilder<ChatBloc, ChatState>(
                                   key: chatBubbleKey,
                                   buildWhen: (previous, current) {

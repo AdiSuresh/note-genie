@@ -28,7 +28,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             emit(
               state.copyWith(
                 messages: [
-                  ...state.messages,
+                  ...state.chat.messages,
                   ChatMessage(
                     data: event.message,
                     role: MessengerType.user,
@@ -109,7 +109,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             final previousState = currentState.previousState;
             final updatedIdleState = previousState.copyWith(
               messages: [
-                ...previousState.messages,
+                ...previousState.chat.messages,
                 currentState.message,
               ],
             );
@@ -119,7 +119,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
             final chunks = <String>[];
-            final index = updatedIdleState.messages.length - 1;
+            final index = updatedIdleState.chat.messages.length - 1;
             final stream = currentState.response.stream.transform(
               utf8.decoder,
             );
@@ -132,7 +132,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                   final message = state.message.copyWith(
                     data: chunks.join(),
                   );
-                  state.previousState.messages[index] = message;
+                  state.previousState.chat.messages[index] = message;
                   emit(
                     state.copyWith(
                       message: message,
@@ -150,7 +150,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               );
             }
             logger.i(
-              'message: ${currentState.previousState.messages.last.data}',
+              'message: ${currentState.previousState.chat.messages.last.data}',
             );
           case _:
         }
