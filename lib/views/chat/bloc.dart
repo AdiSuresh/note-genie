@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
@@ -25,15 +26,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
         switch (state) {
           case final IdleState state:
+            final chat = state.chat.copyWith(
+              messages: [
+                ...state.chat.messages,
+                ChatMessage(
+                  data: event.message,
+                  role: MessengerType.user,
+                ),
+              ],
+            );
             emit(
               state.copyWith(
-                messages: [
-                  ...state.messages,
-                  ChatMessage(
-                    data: event.message,
-                    role: MessengerType.user,
-                  ),
-                ],
+                chat: chat,
               ),
             );
           case _:
@@ -107,11 +111,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         switch (state) {
           case final ReceivingMessageState currentState:
             final previousState = currentState.previousState;
-            final updatedIdleState = previousState.copyWith(
+            final chat = previousState.chat.copyWith(
               messages: [
-                ...previousState.messages,
+                ...previousState.chat.messages,
                 currentState.message,
               ],
+            );
+            final updatedIdleState = previousState.copyWith(
+              chat: chat,
             );
             emit(
               currentState.copyWith(
@@ -119,7 +126,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
             final chunks = <String>[];
-            final index = updatedIdleState.messages.length - 1;
+            final index = updatedIdleState.chat.messages.length - 1;
             final stream = currentState.response.stream.transform(
               utf8.decoder,
             );
@@ -132,7 +139,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                   final message = state.message.copyWith(
                     data: chunks.join(),
                   );
-                  state.previousState.messages[index] = message;
+                  state.previousState.chat.messages[index] = message;
                   emit(
                     state.copyWith(
                       message: message,
@@ -150,7 +157,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               );
             }
             logger.i(
-              'message: ${currentState.previousState.messages.last.data}',
+              'message: ${currentState.previousState.chat.messages.last.data}',
             );
           case _:
         }
