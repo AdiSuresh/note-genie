@@ -3,9 +3,11 @@ import 'package:note_maker/utils/extensions/tween.dart';
 
 class PulsingDotIndicator extends StatefulWidget {
   final Duration duration;
+  final double minSize;
 
   const PulsingDotIndicator({
     super.key,
+    this.minSize = 0.75,
     this.duration = const Duration(
       milliseconds: 500,
     ),
@@ -21,7 +23,7 @@ class _PulsingDotIndicatorState extends State<PulsingDotIndicator> {
   @override
   Widget build(BuildContext context) {
     final tween = Tween(
-      begin: 0.0,
+      begin: widget.minSize,
       end: 1.0,
     );
     return TweenAnimationBuilder(
@@ -30,6 +32,7 @@ class _PulsingDotIndicatorState extends State<PulsingDotIndicator> {
         _ => tween.reversed,
       },
       duration: widget.duration,
+      curve: Curves.ease,
       builder: (context, value, child) {
         return Stack(
           alignment: Alignment.center,

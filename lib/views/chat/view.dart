@@ -77,14 +77,18 @@ class _ChatPageState extends State<ChatPage>
   var pointerDown = false;
 
   void scrollToBottom() {
-    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
-    scrollCtrl.animateTo(
-      maxScrollExtent,
-      duration: const Duration(
-        milliseconds: 125,
-      ),
-      curve: Curves.ease,
-    );
+    switch (chatBubbleKey.currentContext) {
+      case final BuildContext context when context.mounted:
+        Scrollable.ensureVisible(
+          context,
+          alignment: 1.0,
+          duration: const Duration(
+            milliseconds: 125,
+          ),
+          curve: Curves.ease,
+        );
+      case _:
+    }
   }
 
   Future<void> scrollToBottomWithVelocity() async {
@@ -140,7 +144,7 @@ class _ChatPageState extends State<ChatPage>
                     Icons.menu,
                   ),
                 ),
-                ChatPageTitle(),
+                const ChatPageTitle(),
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(
@@ -197,6 +201,7 @@ class _ChatPageState extends State<ChatPage>
                   autoScroll();
                   return m1.length != m2.length;
                 case (ReceivingMessageState(), IdleState()):
+                  scrollToBottomWithVelocity();
                   return true;
                 case _:
                   return false;
@@ -265,11 +270,12 @@ class _ChatPageState extends State<ChatPage>
                                   },
                                   builder: (context, state) {
                                     switch (state) {
-                                      case ReceivingMessageState(
-                                          message: ChatMessage(
-                                            data: '',
-                                          ),
-                                        ):
+                                      case SendingMessageState() ||
+                                            ReceivingMessageState(
+                                              message: ChatMessage(
+                                                data: '',
+                                              ),
+                                            ):
                                         return Padding(
                                           padding: const EdgeInsets.all(15).add(
                                             const EdgeInsets.symmetric(
@@ -279,7 +285,7 @@ class _ChatPageState extends State<ChatPage>
                                           ),
                                           child: Align(
                                             alignment: Alignment.centerLeft,
-                                            child: PulsingDotIndicator(),
+                                            child: const PulsingDotIndicator(),
                                           ),
                                         );
                                       case ReceivingMessageState(

@@ -24,6 +24,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         if (event.message.isEmpty) {
           return;
         }
+        final url = switch (_env.backendUrl) {
+          final Uri url => url.replace(
+              path: '/query',
+            ),
+          _ => null,
+        };
+        if (url == null) {
+          return;
+        }
+        logger.i(url);
         switch (state) {
           case final IdleState state:
             final chat = state.chat.copyWith(
@@ -44,16 +54,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             return;
         }
         logger.i('added user message');
-        final url = switch (_env.backendUrl) {
-          final Uri url => url.replace(
-              path: '/query',
-            ),
-          _ => null,
-        };
-        if (url == null) {
-          return;
-        }
-        logger.i(url);
         final request = http.Request(
           'POST',
           url,
