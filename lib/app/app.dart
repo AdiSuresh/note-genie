@@ -54,14 +54,16 @@ class _NoteMakerState extends State<NoteMaker> {
           },
         ),
       ],
-      child: MaterialApp.router(
-        routerConfig: router.router,
-        title: 'Note-maker',
-        debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.light,
-        theme: Themes.lightTheme,
-        darkTheme: Themes.darkTheme,
-        scrollBehavior: CustomScrollBehavior(),
+      child: SafeArea(
+        child: MaterialApp.router(
+          routerConfig: router.router,
+          title: 'Note-maker',
+          debugShowCheckedModeBanner: false,
+          themeMode: ThemeMode.light,
+          theme: Themes.lightTheme,
+          darkTheme: Themes.darkTheme,
+          scrollBehavior: CustomScrollBehavior(),
+        ),
       ),
     );
   }

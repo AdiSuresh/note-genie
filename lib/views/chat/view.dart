@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
+import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
@@ -34,6 +35,8 @@ class _ChatPageState extends State<ChatPage>
 
   final textCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
+
+  final textFocus = FocusNode();
 
   late final StreamSubscription<ChatState> stateSub;
 
@@ -138,6 +141,7 @@ class _ChatPageState extends State<ChatPage>
               children: [
                 IconButton(
                   onPressed: () {
+                    textFocus.unfocus();
                     scaffoldKey.currentState?.openDrawer();
                   },
                   icon: Icon(
@@ -326,6 +330,7 @@ class _ChatPageState extends State<ChatPage>
             padding: const EdgeInsets.all(15),
             child: TextField(
               controller: textCtrl,
+              focusNode: textFocus,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -361,34 +366,24 @@ class _ChatPageState extends State<ChatPage>
           ),
         ],
       ),
-      drawer: LayoutBuilder(
-        builder: (context, constraints) {
-          logger.i(constraints.widthConstraints());
-          return Drawer(
-            key: drawerKey,
-            child: ListView(
-              children: List.generate(
-                3,
-                (index) {
-                  return ListTile(
-                    title: Text(
-                      'menu item ${index + 1}',
-                    ),
-                    onTap: () {
-                      switch (drawerKey.currentContext) {
-                        case BuildContext context:
-                          final parent = DrawerController.of(context);
-                          logger.i(parent);
-                        case _:
-                          logger.i(drawerKey.currentState);
-                      }
-                    },
-                  );
+      drawer: Drawer(
+        key: drawerKey,
+        child: ListView(
+          children: List.generate(
+            3,
+            (index) {
+              return ListTile(
+                title: Text(
+                  'Untitled',
+                  style: context.themeData.textTheme.titleMedium,
+                ),
+                onTap: () {
+                  scaffoldKey.currentState?.closeDrawer();
                 },
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
     return Listener(
@@ -398,10 +393,8 @@ class _ChatPageState extends State<ChatPage>
       onPointerUp: (event) {
         pointerDown = false;
       },
-      child: SafeArea(
-        child: DismissKeyboard(
-          child: scaffold,
-        ),
+      child: DismissKeyboard(
+        child: scaffold,
       ),
     );
   }
