@@ -6,6 +6,7 @@ import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
+import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
@@ -36,7 +37,9 @@ class _ChatPageState extends State<ChatPage>
   final textCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
 
-  final textFocus = FocusNode();
+  final textFocus = FocusNode(
+    canRequestFocus: false,
+  );
 
   late final StreamSubscription<ChatState> stateSub;
 
@@ -133,6 +136,11 @@ class _ChatPageState extends State<ChatPage>
   Widget build(BuildContext context) {
     final scaffold = Scaffold(
       key: scaffoldKey,
+      onDrawerChanged: (isOpened) {
+        if (isOpened) {
+          UiUtils.dismissKeyboard();
+        }
+      },
       body: Column(
         children: [
           AppBarWrapper(
@@ -141,7 +149,6 @@ class _ChatPageState extends State<ChatPage>
               children: [
                 IconButton(
                   onPressed: () {
-                    textFocus.unfocus();
                     scaffoldKey.currentState?.openDrawer();
                   },
                   icon: Icon(
