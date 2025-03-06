@@ -13,7 +13,7 @@ class UserChatBubbleTest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bubble = Material(
+    final chatBubble = Material(
       color: Colors.lightBlue[100],
       borderRadius: BorderRadius.circular(15),
       child: Padding(
@@ -52,7 +52,7 @@ class UserChatBubbleTest extends StatelessWidget {
             ),
           child: Opacity(
             opacity: 1 - value,
-            child: bubble,
+            child: chatBubble,
           ),
         );
       },
