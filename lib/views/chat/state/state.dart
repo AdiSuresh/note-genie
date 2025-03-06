@@ -22,12 +22,19 @@ final class IdleState extends ChatState {
   });
 }
 
-sealed class MessageProcessingState extends ChatState {
+sealed class NonIdleState extends ChatState {
   final IdleState previousState;
+
+  const NonIdleState({
+    required this.previousState,
+  });
+}
+
+sealed class MessageProcessingState extends NonIdleState {
   final Client client;
 
   const MessageProcessingState({
-    required this.previousState,
+    required super.previousState,
     required this.client,
   });
 }

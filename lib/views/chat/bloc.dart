@@ -168,7 +168,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (event, emit) {
         final idleState = switch (state) {
           final IdleState state => state,
-          final MessageProcessingState state => state.previousState,
+          final NonIdleState state => state.previousState,
         };
         if (idleState case final state when event.value ^ state.showButton) {
           final nextIdleState = state.copyWith(
