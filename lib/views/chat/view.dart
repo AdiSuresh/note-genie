@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
+import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
+import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
@@ -34,6 +36,10 @@ class _ChatPageState extends State<ChatPage>
 
   final textCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
+
+  final textFocus = FocusNode(
+    canRequestFocus: false,
+  );
 
   late final StreamSubscription<ChatState> stateSub;
 
@@ -77,14 +83,18 @@ class _ChatPageState extends State<ChatPage>
   var pointerDown = false;
 
   void scrollToBottom() {
-    final maxScrollExtent = scrollCtrl.position.maxScrollExtent;
-    scrollCtrl.animateTo(
-      maxScrollExtent,
-      duration: const Duration(
-        milliseconds: 125,
-      ),
-      curve: Curves.ease,
-    );
+    switch (chatBubbleKey.currentContext) {
+      case final BuildContext context when context.mounted:
+        Scrollable.ensureVisible(
+          context,
+          alignment: 1.0,
+          duration: const Duration(
+            milliseconds: 125,
+          ),
+          curve: Curves.ease,
+        );
+      case _:
+    }
   }
 
   Future<void> scrollToBottomWithVelocity() async {
@@ -126,6 +136,11 @@ class _ChatPageState extends State<ChatPage>
   Widget build(BuildContext context) {
     final scaffold = Scaffold(
       key: scaffoldKey,
+      onDrawerChanged: (isOpened) {
+        if (isOpened) {
+          UiUtils.dismissKeyboard();
+        }
+      },
       body: Column(
         children: [
           AppBarWrapper(
@@ -140,7 +155,7 @@ class _ChatPageState extends State<ChatPage>
                     Icons.menu,
                   ),
                 ),
-                ChatPageTitle(),
+                const ChatPageTitle(),
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(
@@ -197,6 +212,7 @@ class _ChatPageState extends State<ChatPage>
                   autoScroll();
                   return m1.length != m2.length;
                 case (ReceivingMessageState(), IdleState()):
+                  scrollToBottomWithVelocity();
                   return true;
                 case _:
                   return false;
@@ -265,11 +281,12 @@ class _ChatPageState extends State<ChatPage>
                                   },
                                   builder: (context, state) {
                                     switch (state) {
-                                      case ReceivingMessageState(
-                                          message: ChatMessage(
-                                            data: '',
-                                          ),
-                                        ):
+                                      case SendingMessageState() ||
+                                            ReceivingMessageState(
+                                              message: ChatMessage(
+                                                data: '',
+                                              ),
+                                            ):
                                         return Padding(
                                           padding: const EdgeInsets.all(15).add(
                                             const EdgeInsets.symmetric(
@@ -279,7 +296,7 @@ class _ChatPageState extends State<ChatPage>
                                           ),
                                           child: Align(
                                             alignment: Alignment.centerLeft,
-                                            child: PulsingDotIndicator(),
+                                            child: const PulsingDotIndicator(),
                                           ),
                                         );
                                       case ReceivingMessageState(
@@ -316,73 +333,102 @@ class _ChatPageState extends State<ChatPage>
               );
             },
           ),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: TextField(
-              controller: textCtrl,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+          Container(
+            padding: const EdgeInsets.all(15).copyWith(
+              top: 7.5,
+              bottom: 7.5,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white,
+                  blurRadius: 7.5,
+                  spreadRadius: 7.5,
                 ),
-                hintText: 'Ask anything',
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    if (textCtrl.text case '') {
-                      return;
-                    }
-                    bloc.add(
-                      SendMessageEvent(
-                        message: textCtrl.text,
-                      ),
-                    );
-                    textCtrl.clear();
-                    Future.delayed(
-                      const Duration(
-                        milliseconds: 35,
-                      ),
-                    ).then(
-                      (value) {
-                        scrollToBottomWithVelocity();
+              ],
+            ),
+            child: Column(
+              children: [
+                TextField(
+                  controller: textCtrl,
+                  focusNode: textFocus,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    hintText: 'Ask anything',
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        if (textCtrl.text case '') {
+                          return;
+                        }
+                        bloc.add(
+                          SendMessageEvent(
+                            message: textCtrl.text,
+                          ),
+                        );
+                        textCtrl.clear();
+                        Future.delayed(
+                          const Duration(
+                            milliseconds: 35,
+                          ),
+                        ).then(
+                          (value) {
+                            scrollToBottomWithVelocity();
+                          },
+                        );
                       },
-                    );
-                  },
-                  icon: Icon(
-                    Icons.send,
+                      icon: Icon(
+                        Icons.send,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(
+                  height: 7.5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton.outlined(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.notes,
+                      ),
+                    ),
+                    IconButton.outlined(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.expand,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
       ),
-      drawer: LayoutBuilder(
-        builder: (context, constraints) {
-          logger.i(constraints.widthConstraints());
-          return Drawer(
-            key: drawerKey,
-            child: ListView(
-              children: List.generate(
-                3,
-                (index) {
-                  return ListTile(
-                    title: Text(
-                      'menu item ${index + 1}',
-                    ),
-                    onTap: () {
-                      switch (drawerKey.currentContext) {
-                        case BuildContext context:
-                          final parent = DrawerController.of(context);
-                          logger.i(parent);
-                        case _:
-                          logger.i(drawerKey.currentState);
-                      }
-                    },
-                  );
+      drawer: Drawer(
+        key: drawerKey,
+        child: ListView(
+          children: List.generate(
+            3,
+            (index) {
+              return ListTile(
+                title: Text(
+                  'Untitled',
+                  style: context.themeData.textTheme.titleMedium,
+                ),
+                onTap: () {
+                  scaffoldKey.currentState?.closeDrawer();
                 },
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
     return Listener(
@@ -392,10 +438,8 @@ class _ChatPageState extends State<ChatPage>
       onPointerUp: (event) {
         pointerDown = false;
       },
-      child: SafeArea(
-        child: DismissKeyboard(
-          child: scaffold,
-        ),
+      child: DismissKeyboard(
+        child: scaffold,
       ),
     );
   }

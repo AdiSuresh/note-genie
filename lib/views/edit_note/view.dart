@@ -330,22 +330,20 @@ class _EditNoteState extends State<EditNote> {
               ),
             ],
           ),
-          body: SafeArea(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                QuillEditor(
-                  config: const QuillEditorConfig(
-                    padding: EdgeInsets.all(15),
-                    scrollPhysics: BouncingScrollPhysics(),
-                  ),
-                  focusNode: contentFocus,
-                  scrollController: contentScrollCtrl,
-                  controller: contentCtrl,
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              QuillEditor(
+                config: const QuillEditorConfig(
+                  padding: EdgeInsets.all(15),
+                  scrollPhysics: BouncingScrollPhysics(),
                 ),
-                const NoteCollectionListSheet(),
-              ],
-            ),
+                focusNode: contentFocus,
+                scrollController: contentScrollCtrl,
+                controller: contentCtrl,
+              ),
+              const NoteCollectionListSheet(),
+            ],
           ),
         ),
       ),

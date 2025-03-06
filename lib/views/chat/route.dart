@@ -15,6 +15,7 @@ class ChatRoute extends GoRouteData {
           IdleState(
             chat: ChatModel.empty(),
             showButton: false,
+            allChats: [],
           ),
         );
       },

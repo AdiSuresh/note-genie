@@ -11,10 +11,12 @@ sealed class ChatState {
 
 @CopyWith()
 final class IdleState extends ChatState {
+  final List<ChatModel> allChats;
   final ChatModel chat;
   final bool showButton;
 
   const IdleState({
+    required this.allChats,
     required this.chat,
     required this.showButton,
   });

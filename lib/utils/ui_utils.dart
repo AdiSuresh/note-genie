@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
 class UiUtils {
-  static void dismissKeyboard(
-    BuildContext context,
-  ) {
+  static void dismissKeyboard([
+    BuildContext? context,
+  ]) {
+    if (context == null) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      return;
+    }
     final currentFocus = FocusScope.of(context);
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.unfocus();
