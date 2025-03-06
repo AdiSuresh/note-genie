@@ -16,7 +16,7 @@ class BotChatBubble extends StatelessWidget {
       elevation: 0,
       borderRadius: BorderRadius.circular(15),
       child: Padding(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         child: GptMarkdown(
           message.data,
           style: TextStyle(

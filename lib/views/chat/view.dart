@@ -333,42 +333,80 @@ class _ChatPageState extends State<ChatPage>
               );
             },
           ),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: TextField(
-              controller: textCtrl,
-              focusNode: textFocus,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+          Container(
+            padding: const EdgeInsets.all(15).copyWith(
+              top: 7.5,
+              bottom: 7.5,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white,
+                  blurRadius: 7.5,
+                  spreadRadius: 7.5,
                 ),
-                hintText: 'Ask anything',
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    if (textCtrl.text case '') {
-                      return;
-                    }
-                    bloc.add(
-                      SendMessageEvent(
-                        message: textCtrl.text,
-                      ),
-                    );
-                    textCtrl.clear();
-                    Future.delayed(
-                      const Duration(
-                        milliseconds: 35,
-                      ),
-                    ).then(
-                      (value) {
-                        scrollToBottomWithVelocity();
+              ],
+            ),
+            child: Column(
+              children: [
+                TextField(
+                  controller: textCtrl,
+                  focusNode: textFocus,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    hintText: 'Ask anything',
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        if (textCtrl.text case '') {
+                          return;
+                        }
+                        bloc.add(
+                          SendMessageEvent(
+                            message: textCtrl.text,
+                          ),
+                        );
+                        textCtrl.clear();
+                        Future.delayed(
+                          const Duration(
+                            milliseconds: 35,
+                          ),
+                        ).then(
+                          (value) {
+                            scrollToBottomWithVelocity();
+                          },
+                        );
                       },
-                    );
-                  },
-                  icon: Icon(
-                    Icons.send,
+                      icon: Icon(
+                        Icons.send,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(
+                  height: 7.5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton.outlined(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.notes,
+                      ),
+                    ),
+                    IconButton.outlined(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.expand,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
