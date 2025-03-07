@@ -221,7 +221,7 @@ class _ChatPageState extends State<ChatPage>
             builder: (context, state) {
               final idleState = state = switch (state) {
                 IdleState() => state,
-                MessageProcessingState(
+                NonIdleState(
                   :final previousState,
                 ) =>
                   previousState,
