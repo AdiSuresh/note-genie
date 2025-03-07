@@ -219,13 +219,19 @@ class _ChatPageState extends State<ChatPage>
               }
             },
             builder: (context, state) {
-              final idleState = state = switch (state) {
+              final idleState = switch (state) {
                 IdleState() => state,
-                MessageProcessingState(
+                NonIdleState(
                   :final previousState,
                 ) =>
                   previousState,
+                _ => null
               };
+              if (idleState == null) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
               final child = switch (idleState) {
                 IdleState(
                   chat: ChatModel(
@@ -256,7 +262,7 @@ class _ChatPageState extends State<ChatPage>
                             bottom: 7.5,
                           ),
                           cacheExtent: cacheExtent,
-                          children: state.chat.messages.map(
+                          children: idleState.chat.messages.map(
                             (e) {
                               if (e
                                   case ChatMessage(
@@ -390,15 +396,15 @@ class _ChatPageState extends State<ChatPage>
                   height: 7.5,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    IconButton.outlined(
+                    IconButton.filled(
                       onPressed: () {},
                       icon: Icon(
                         Icons.notes,
                       ),
                     ),
-                    IconButton.outlined(
+                    IconButton.filled(
                       onPressed: () {},
                       icon: Icon(
                         Icons.expand,
