@@ -18,14 +18,14 @@ class ScrollToBottomButton extends StatelessWidget {
       buildWhen: (previous, current) {
         final s1 = switch (previous) {
           IdleState() => previous,
-          MessageProcessingState(
+          NonIdleState(
             :final previousState,
           ) =>
             previousState,
         };
         final s2 = switch (current) {
           IdleState() => current,
-          MessageProcessingState(
+          NonIdleState(
             :final previousState,
           ) =>
             previousState,

@@ -22,6 +22,10 @@ final class IdleState extends ChatState {
   });
 }
 
+sealed class LoadingState extends ChatState {
+  const LoadingState();
+}
+
 sealed class NonIdleState extends ChatState {
   final IdleState previousState;
 

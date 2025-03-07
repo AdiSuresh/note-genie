@@ -19,6 +19,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc(
     super.initialState,
   ) {
+    on<LoadDataEvent>(
+      (event, emit) {
+        // handle
+      },
+    );
     on<SendMessageEvent>(
       (event, emit) async {
         if (event.message.isEmpty) {
