@@ -22,14 +22,22 @@ class ScrollToBottomButton extends StatelessWidget {
             :final previousState,
           ) =>
             previousState,
+          _ => null,
         };
+        if (s1 == null) {
+          return true;
+        }
         final s2 = switch (current) {
           IdleState() => current,
           NonIdleState(
             :final previousState,
           ) =>
             previousState,
+          _ => null,
         };
+        if (s2 == null) {
+          return true;
+        }
         return s1.showButton ^ s2.showButton;
       },
       builder: (context, state) {
@@ -39,7 +47,11 @@ class ScrollToBottomButton extends StatelessWidget {
             :final previousState,
           ) =>
             previousState,
+          _ => null,
         };
+        if (idleState == null) {
+          return const SizedBox();
+        }
         return Positioned(
           bottom: 7.5,
           child: CustomAnimatedSwitcher(

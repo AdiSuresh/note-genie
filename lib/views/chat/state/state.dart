@@ -22,7 +22,7 @@ final class IdleState extends ChatState {
   });
 }
 
-sealed class LoadingState extends ChatState {
+final class LoadingState extends ChatState {
   const LoadingState();
 }
 

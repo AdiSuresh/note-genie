@@ -225,7 +225,13 @@ class _ChatPageState extends State<ChatPage>
                   :final previousState,
                 ) =>
                   previousState,
+                _ => null
               };
+              if (idleState == null) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
               final child = switch (idleState) {
                 IdleState(
                   chat: ChatModel(
