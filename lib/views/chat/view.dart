@@ -4,13 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
-import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/widgets/chat_bubble/wrapper.dart';
+import 'package:note_maker/views/chat/widgets/drawer.dart';
 import 'package:note_maker/widgets/pulsing_dot_indicator.dart';
 import 'package:note_maker/views/chat/widgets/new_chat_placeholder.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
@@ -44,7 +44,6 @@ class _ChatPageState extends State<ChatPage>
   late final StreamSubscription<ChatState> stateSub;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  final drawerKey = GlobalKey<DrawerControllerState>();
   final chatBubbleKey = GlobalKey();
 
   ChatBloc get bloc => context.read<ChatBloc>();
@@ -417,25 +416,7 @@ class _ChatPageState extends State<ChatPage>
           ),
         ],
       ),
-      drawer: Drawer(
-        key: drawerKey,
-        child: ListView(
-          children: List.generate(
-            3,
-            (index) {
-              return ListTile(
-                title: Text(
-                  'Untitled',
-                  style: context.themeData.textTheme.titleMedium,
-                ),
-                onTap: () {
-                  scaffoldKey.currentState?.closeDrawer();
-                },
-              );
-            },
-          ),
-        ),
-      ),
+      drawer: ChatPageDrawer(),
     );
     return Listener(
       onPointerDown: (event) {
