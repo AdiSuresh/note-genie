@@ -6,11 +6,13 @@ part 'model.g.dart';
 
 @CopyWith()
 class ChatModel extends BaseEntity {
+  final String? remoteId;
   final String title;
   final List<ChatMessage> messages;
 
   ChatModel({
     required super.id,
+    this.remoteId,
     required this.title,
     required this.messages,
   });
@@ -18,7 +20,7 @@ class ChatModel extends BaseEntity {
   factory ChatModel.empty() {
     return ChatModel(
       id: BaseEntity.idPlaceholder,
-      title: '',
+      title: 'Untitled',
       messages: [],
     );
   }

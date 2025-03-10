@@ -8,18 +8,33 @@ import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/view.dart';
 
 class ChatRoute extends GoRouteData {
+  final String? id;
+
+  ChatRoute({
+    this.id,
+  });
+
   @override
   Widget build(BuildContext context, GoRouterState state) {
+    print('path: ${state.uri.pathSegments}');
+    final chat = switch ((ChatModel.empty(), state.uri.pathSegments)) {
+      (final chat, [_, final id]) => chat.copyWith(
+          remoteId: id,
+        ),
+      (final chat, _) => chat,
+    };
     return BlocProvider(
       create: (context) {
         return ChatBloc(
           IdleState(
-            chat: ChatModel.empty(),
+            chat: chat,
             showButton: false,
             allChats: [],
           ),
         )..add(
-            const LoadDataEvent(),
+            LoadDataEvent(
+              chat: chat,
+            ),
           );
       },
       child: ChatPage(),

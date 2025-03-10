@@ -22,6 +22,9 @@ part 'route.g.dart';
     TypedGoRoute<ChatRoute>(
       path: 'chat',
     ),
+    TypedGoRoute<ChatRoute>(
+      path: 'chat/:id',
+    ),
   ],
 )
 class HomeRoute extends GoRouteData {
