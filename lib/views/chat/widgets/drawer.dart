@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/state/state.dart';
@@ -9,9 +10,25 @@ class ChatPageDrawer extends StatelessWidget {
     super.key,
   });
 
+  void _viewChat(
+    BuildContext context, {
+    String? id,
+  }) {
+    final bloc = context.read<ChatBloc>();
+    if (bloc.state case IdleState()) {
+      Scaffold.of(context).closeDrawer();
+      final path = switch (id) {
+        null => '/chat',
+        _ => '/chat/$id',
+      };
+      context.replace(
+        path,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Scaffold.of(context);
     return Drawer(
       child: Column(
         children: [
@@ -24,7 +41,7 @@ class ChatPageDrawer extends StatelessWidget {
               ),
               child: IconButton.filled(
                 onPressed: () {
-                  Scaffold.of(context).closeDrawer();
+                  _viewChat(context);
                 },
                 icon: Icon(
                   Icons.edit_square,
@@ -71,13 +88,17 @@ class ChatPageDrawer extends StatelessWidget {
                   children: List.generate(
                     idleState.allChats.length,
                     (index) {
+                      final item = idleState.allChats[index];
                       return ListTile(
                         title: Text(
-                          idleState.allChats[index].title,
+                          item.title,
                           style: context.themeData.textTheme.titleMedium,
                         ),
                         onTap: () {
-                          Scaffold.of(context).closeDrawer();
+                          _viewChat(
+                            context,
+                            id: item.remoteId,
+                          );
                         },
                       );
                     },
