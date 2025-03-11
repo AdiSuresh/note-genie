@@ -1,14 +1,16 @@
-import 'package:note_maker/models/chat/model.dart';
-
 sealed class ChatEvent {
   const ChatEvent();
 }
 
-final class LoadDataEvent extends ChatEvent {
-  final ChatModel chat;
+final class InitEvent extends ChatEvent {
+  const InitEvent();
+}
 
-  const LoadDataEvent({
-    required this.chat,
+final class LoadChatEvent extends ChatEvent {
+  final String? id;
+
+  const LoadChatEvent({
+    required this.id,
   });
 }
 

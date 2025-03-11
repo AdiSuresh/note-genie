@@ -16,12 +16,14 @@ class ChatRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    print('path: ${state.uri.pathSegments}');
-    final chat = switch ((ChatModel.empty(), state.uri.pathSegments)) {
-      (final chat, [_, final id]) => chat.copyWith(
-          remoteId: id,
+    final (chat, id) = switch ((ChatModel.empty(), state.uri.pathSegments)) {
+      (final chat, ['chat', final id]) => (
+          chat.copyWith(
+            remoteId: id,
+          ),
+          id,
         ),
-      (final chat, _) => chat,
+      (final chat, _) => (chat, null),
     };
     return BlocProvider(
       create: (context) {
@@ -32,9 +34,7 @@ class ChatRoute extends GoRouteData {
             allChats: [],
           ),
         )..add(
-            LoadDataEvent(
-              chat: chat,
-            ),
+            const InitEvent(),
           );
       },
       child: ChatPage(),

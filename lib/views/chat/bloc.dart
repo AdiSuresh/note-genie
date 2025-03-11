@@ -19,9 +19,89 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc(
     super.initialState,
   ) {
-    on<LoadDataEvent>(
+    on<InitEvent>(
+      (event, emit) async {
+        final url = switch (_env.backendUrl) {
+          final Uri url => url.replace(
+              path: '/chats',
+            ),
+          _ => null,
+        };
+        if (url == null) {
+          return;
+        }
+        switch (state) {
+          case final IdleState state:
+            const loadingState = LoadingState(
+              allChats: true,
+            );
+            emit(
+              loadingState,
+            );
+            final response = await http.get(
+              url,
+            );
+            try {
+              final decoded = json.decode(
+                response.body,
+              );
+              logger.i(
+                'decoded: $decoded',
+              );
+              final allChats = <ChatModel>[];
+              for (final Map object in decoded) {
+                logger.i(object);
+                try {
+                  final {
+                    '_id': String remoteId,
+                    'title': String title,
+                  } = object;
+                  final chatModel = ChatModel(
+                    remoteId: remoteId,
+                    title: title,
+                    messages: [],
+                  );
+                  allChats.add(
+                    chatModel,
+                  );
+                } catch (e) {
+                  logger.i(e);
+                }
+              }
+              logger.i('allChats: $allChats');
+              emit(
+                state.copyWith(
+                  allChats: allChats,
+                ),
+              );
+              return;
+            } catch (e) {
+              emit(
+                state,
+              );
+            }
+          case _:
+        }
+      },
+    );
+    on<LoadChatEvent>(
       (event, emit) {
-        // handle
+        if (event.id case null) {
+          return;
+        }
+        final url = switch (_env.backendUrl) {
+          final Uri url => url.replace(
+              path: '/chats',
+            ),
+          _ => null,
+        };
+        if (url == null) {
+          return;
+        }
+        switch (state) {
+          case final IdleState _:
+          case _:
+        }
       },
     );
     on<SendMessageEvent>(

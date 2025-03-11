@@ -41,7 +41,9 @@ class ChatPageDrawer extends StatelessWidget {
               ),
               child: IconButton.filled(
                 onPressed: () {
-                  _viewChat(context);
+                  _viewChat(
+                    context,
+                  );
                 },
                 icon: Icon(
                   Icons.edit_square,
@@ -51,6 +53,21 @@ class ChatPageDrawer extends StatelessWidget {
           ),
           Expanded(
             child: BlocBuilder<ChatBloc, ChatState>(
+              buildWhen: (previous, current) {
+                switch ((previous, current)) {
+                  case (
+                          _,
+                          LoadingState(allChats: true),
+                        ) ||
+                        (
+                          LoadingState(allChats: true),
+                          _,
+                        ):
+                    return true;
+                  case _:
+                }
+                return false;
+              },
               builder: (context, state) {
                 final idleState = switch (state) {
                   IdleState() => state,
