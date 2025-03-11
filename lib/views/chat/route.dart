@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
+import 'package:note_maker/views/chat/repository.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/view.dart';
 
@@ -29,10 +30,15 @@ class ChatRoute extends GoRouteData {
       create: (context) {
         return ChatBloc(
           IdleState(
-            chat: chat,
+            chat: Future.value(
+              chat,
+            ),
             showButton: false,
-            allChats: [],
+            allChats: Future.value(
+              [],
+            ),
           ),
+          repository: ChatPageRepository(),
         )..add(
             const InitEvent(),
           );

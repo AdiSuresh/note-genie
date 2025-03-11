@@ -11,8 +11,8 @@ sealed class ChatState {
 
 @CopyWith()
 final class IdleState extends ChatState {
-  final List<ChatModel> allChats;
-  final ChatModel chat;
+  final Future<List<ChatModel>> allChats;
+  final Future<ChatModel> chat;
   final bool showButton;
 
   const IdleState({
@@ -22,15 +22,15 @@ final class IdleState extends ChatState {
   });
 }
 
-final class LoadingState extends ChatState {
-  final bool allChats;
-  final bool messages;
+// final class LoadingState extends ChatState {
+//   final bool allChats;
+//   final bool messages;
 
-  const LoadingState({
-    this.allChats = false,
-    this.messages = false,
-  });
-}
+//   const LoadingState({
+//     this.allChats = false,
+//     this.messages = false,
+//   });
+// }
 
 sealed class NonIdleState extends ChatState {
   final IdleState previousState;

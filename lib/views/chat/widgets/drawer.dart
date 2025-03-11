@@ -30,6 +30,7 @@ class ChatPageDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: Column(
         children: [
           Align(
@@ -54,19 +55,7 @@ class ChatPageDrawer extends StatelessWidget {
           Expanded(
             child: BlocBuilder<ChatBloc, ChatState>(
               buildWhen: (previous, current) {
-                switch ((previous, current)) {
-                  case (
-                          _,
-                          LoadingState(allChats: true),
-                        ) ||
-                        (
-                          LoadingState(allChats: true),
-                          _,
-                        ):
-                    return true;
-                  case _:
-                }
-                return false;
+                return true;
               },
               builder: (context, state) {
                 final idleState = switch (state) {
@@ -75,51 +64,56 @@ class ChatPageDrawer extends StatelessWidget {
                     :final previousState,
                   ) =>
                     previousState,
-                  _ => null
                 };
-                if (idleState == null) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (idleState.allChats case []) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.chat,
-                        size: 60,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Text(
-                        'No chats yet',
-                        style: context.themeData.textTheme.bodyLarge,
-                      ),
-                    ],
-                  );
-                }
-                return ListView(
-                  children: List.generate(
-                    idleState.allChats.length,
-                    (index) {
-                      final item = idleState.allChats[index];
-                      return ListTile(
-                        title: Text(
-                          item.title,
-                          style: context.themeData.textTheme.titleMedium,
-                        ),
-                        onTap: () {
-                          _viewChat(
-                            context,
-                            id: item.remoteId,
+                return FutureBuilder(
+                  future: idleState.allChats,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    final allChats = snapshot.data ?? [];
+                    if (allChats case []) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat,
+                            size: 60,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Text(
+                            'No chats yet',
+                            style: context.themeData.textTheme.bodyLarge,
+                          ),
+                        ],
+                      );
+                    }
+                    return ListView(
+                      children: List.generate(
+                        allChats.length,
+                        (index) {
+                          final item = allChats[index];
+                          return ListTile(
+                            title: Text(
+                              item.title,
+                              style: context.themeData.textTheme.titleMedium,
+                            ),
+                            onTap: () {
+                              _viewChat(
+                                context,
+                                id: item.remoteId,
+                              );
+                            },
                           );
                         },
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 );
               },
             ),

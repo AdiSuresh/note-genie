@@ -224,28 +224,20 @@ class _ChatPageState extends State<ChatPage>
                   :final previousState,
                 ) =>
                   previousState,
-                _ => null
               };
-              if (idleState == null) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              final child = switch (idleState) {
-                IdleState(
-                  chat: ChatModel(
-                    messages: [],
-                  ),
-                ) =>
-                  NewChatPlaceholder(),
-                IdleState(
-                  chat: ChatModel(
-                    messages: [
-                      ...,
-                    ],
-                  ),
-                ) =>
-                  Stack(
+              final child = FutureBuilder(
+                future: idleState.chat,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  final messages = snapshot.data?.messages ?? [];
+                  if (messages case []) {
+                    return NewChatPlaceholder();
+                  }
+                  return Stack(
                     alignment: Alignment.center,
                     children: [
                       Scrollbar(
@@ -261,12 +253,12 @@ class _ChatPageState extends State<ChatPage>
                             bottom: 7.5,
                           ),
                           cacheExtent: cacheExtent,
-                          children: idleState.chat.messages.map(
+                          children: messages.map(
                             (e) {
                               if (e
                                   case ChatMessage(
                                     role: MessengerType.bot,
-                                  ) when e == idleState.chat.messages.last) {
+                                  ) when e == messages.last) {
                                 return BlocBuilder<ChatBloc, ChatState>(
                                   key: chatBubbleKey,
                                   buildWhen: (previous, current) {
@@ -329,8 +321,9 @@ class _ChatPageState extends State<ChatPage>
                         },
                       ),
                     ],
-                  ),
-              };
+                  );
+                },
+              );
               return Expanded(
                 child: CustomAnimatedSwitcher(
                   child: child,

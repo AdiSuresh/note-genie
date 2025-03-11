@@ -6,11 +6,15 @@ final class InitEvent extends ChatEvent {
   const InitEvent();
 }
 
+final class LoadAllChatsEvent extends ChatEvent {
+  const LoadAllChatsEvent();
+}
+
 final class LoadChatEvent extends ChatEvent {
   final String? id;
 
   const LoadChatEvent({
-    required this.id,
+    this.id,
   });
 }
 
