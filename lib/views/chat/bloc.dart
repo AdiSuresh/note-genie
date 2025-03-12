@@ -7,6 +7,7 @@ import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 import 'package:note_maker/views/chat/event.dart';
+import 'package:note_maker/views/chat/repository.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
@@ -14,14 +15,79 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatBloc,
   );
 
+  final ChatPageRepository repository;
+
   final _env = EnvVarLoader();
 
+  IdleState get idleState {
+    return switch (state) {
+      IdleState state => state,
+      NonIdleState(
+        :final previousState,
+      ) =>
+        previousState,
+    };
+  }
+
   ChatBloc(
-    super.initialState,
-  ) {
-    on<LoadDataEvent>(
+    super.initialState, {
+    required this.repository,
+  }) {
+    on<InitEvent>(
+      (event, emit) {},
+    );
+    on<LoadAllChatsEvent>(
       (event, emit) {
-        // handle
+        final url = switch (_env.backendUrl) {
+          final Uri url => url.replace(
+              path: '/chats',
+            ),
+          _ => null,
+        };
+        if (url == null) {
+          return;
+        }
+        switch (state) {
+          case final IdleState state:
+            final response = repository.fetchAllChats();
+            emit(
+              state.copyWith(
+                allChats: response,
+              ),
+            );
+          case _:
+        }
+      },
+    );
+    on<LoadChatEvent>(
+      (event, emit) async {
+        if (event.id case null) {
+          switch (state) {
+            case final IdleState state:
+              emit(
+                state.copyWith(
+                  chat: Future.value(
+                    ChatModel.empty(),
+                  ),
+                ),
+              );
+            case _:
+          }
+          return;
+        }
+        final url = switch (_env.backendUrl) {
+          final Uri url => url.replace(
+              path: '/chats',
+            ),
+          _ => null,
+        };
+        if (url == null) {
+          return;
+        }
+        switch (state) {
+          case final IdleState _:
+          case _:
+        }
       },
     );
     on<SendMessageEvent>(
@@ -41,9 +107,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         logger.i(url);
         switch (state) {
           case final IdleState state:
-            final chat = state.chat.copyWith(
+            final currentChat = await state.chat;
+            final chat = currentChat.copyWith(
               messages: [
-                ...state.chat.messages,
+                ...currentChat.messages,
                 ChatMessage(
                   data: event.message,
                   role: MessengerType.user,
@@ -52,7 +119,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             );
             emit(
               state.copyWith(
-                chat: chat,
+                chat: Future.value(
+                  chat,
+                ),
               ),
             );
           case _:
@@ -116,14 +185,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         switch (state) {
           case final ReceivingMessageState currentState:
             final previousState = currentState.previousState;
-            final chat = previousState.chat.copyWith(
+            final currentChat = (await previousState.chat);
+            final chat = currentChat.copyWith(
               messages: [
-                ...previousState.chat.messages,
+                ...currentChat.messages,
                 currentState.message,
               ],
             );
             final updatedIdleState = previousState.copyWith(
-              chat: chat,
+              chat: Future.value(
+                chat,
+              ),
             );
             emit(
               currentState.copyWith(
@@ -131,7 +203,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
             final chunks = <String>[];
-            final index = updatedIdleState.chat.messages.length - 1;
+            final index = chat.messages.length - 1;
             final stream = currentState.response.stream.transform(
               utf8.decoder,
             );
@@ -144,7 +216,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                   final message = state.message.copyWith(
                     data: chunks.join(),
                   );
-                  state.previousState.chat.messages[index] = message;
+                  chat.messages[index] = message;
                   emit(
                     state.copyWith(
                       message: message,
@@ -161,9 +233,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 state.previousState,
               );
             }
-            logger.i(
-              'message: ${currentState.previousState.chat.messages.last.data}',
-            );
           case _:
         }
         client.close();
@@ -174,11 +243,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         final idleState = switch (state) {
           final IdleState state => state,
           final NonIdleState state => state.previousState,
-          _ => null,
+          // _ => null,
         };
-        if (idleState == null) {
-          return;
-        }
+        // if (idleState == null) {
+        //   return;
+        // }
         if (idleState case final state when event.value ^ state.showButton) {
           final nextIdleState = state.copyWith(
             showButton: event.value,
@@ -191,11 +260,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             final ReceivingMessageState state => state.copyWith(
                 previousState: nextIdleState,
               ),
-            _ => null,
+            // _ => null,
           };
-          if (nextState == null) {
-            return;
-          }
+          // if (nextState == null) {
+          //   return;
+          // }
           emit(
             nextState,
           );

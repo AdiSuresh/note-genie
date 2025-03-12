@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
+import 'package:note_maker/views/chat/repository.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/view.dart';
 
@@ -16,25 +17,30 @@ class ChatRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    print('path: ${state.uri.pathSegments}');
-    final chat = switch ((ChatModel.empty(), state.uri.pathSegments)) {
-      (final chat, [_, final id]) => chat.copyWith(
-          remoteId: id,
+    final (chat, id) = switch ((ChatModel.empty(), state.uri.pathSegments)) {
+      (final chat, ['chat', final id]) => (
+          chat.copyWith(
+            remoteId: id,
+          ),
+          id,
         ),
-      (final chat, _) => chat,
+      (final chat, _) => (chat, null),
     };
     return BlocProvider(
       create: (context) {
         return ChatBloc(
           IdleState(
-            chat: chat,
-            showButton: false,
-            allChats: [],
-          ),
-        )..add(
-            LoadDataEvent(
-              chat: chat,
+            chat: Future.value(
+              chat,
             ),
+            showButton: false,
+            allChats: Future.value(
+              [],
+            ),
+          ),
+          repository: ChatPageRepository(),
+        )..add(
+            const InitEvent(),
           );
       },
       child: ChatPage(),
