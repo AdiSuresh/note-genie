@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/views/chat/bloc.dart';
+import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 
@@ -25,6 +26,11 @@ class ChatPageDrawer extends StatelessWidget {
       };
       context.replace(
         path,
+      );
+      bloc.add(
+        LoadChatEvent(
+          id: id,
+        ),
       );
     }
   }

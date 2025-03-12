@@ -171,27 +171,33 @@ class _ChatPageState extends State<ChatPage>
                 case (
                     IdleState(
                       chat: AsyncData(
-                        data: ChatModel(
-                          messages: final m1,
-                        ),
+                        // data: ChatModel(
+                        //   messages: final m1,
+                        // ),
+                        state: final s1,
                       ),
                     ),
                     IdleState(
                       chat: AsyncData(
-                        data: ChatModel(
-                          messages: final m2,
-                        ),
+                        // data: ChatModel(
+                        //   messages: final m2,
+                        // ),
+                        state: final s2,
                       ),
                     ),
                   ):
-                  if (m1.length == m2.length && m1.isNotEmpty) {
-                    final result = m1.last != m2.last;
-                    if (result) {
-                      autoScroll();
-                    }
-                    return result;
-                  }
-                  return m1.length != m2.length;
+                  // if (s1 != s2) {
+                  //   return true;
+                  // }
+                  // if (m1.length == m2.length && m1.isNotEmpty) {
+                  //   final result = m1.last != m2.last;
+                  //   if (result) {
+                  //     autoScroll();
+                  //   }
+                  //   return result;
+                  // }
+                  // return m1.length != m2.length;
+                  return s1 != s2;
                 case (IdleState(), SendingMessageState()):
                   return true;
                 case (SendingMessageState(), ReceivingMessageState()):

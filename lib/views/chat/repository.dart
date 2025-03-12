@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
+import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:http/http.dart' as http;
 
@@ -61,5 +62,70 @@ class ChatPageRepository {
       logger.i(e);
     }
     return [];
+  }
+
+  Future<ChatModel?> fetchChat(
+    String id,
+  ) async {
+    final url = _chatsUrl;
+    if (url == null) {
+      return null;
+    }
+    final response = await http.get(
+      url.replace(
+        path: '${url.path}/$id',
+      ),
+    );
+    try {
+      final decoded = json.decode(
+        response.body,
+      );
+      logger.i(
+        'decoded: $decoded',
+      );
+      if (decoded
+          case {
+            '_id': String id,
+            'title': String title,
+            'messages': List messageObjects,
+          }) {
+        final messages = <ChatMessage>[];
+        for (final object in messageObjects) {
+          if (object
+              case {
+                'data': String data,
+                'role': String role,
+                'timestamp': String timestamp,
+              }) {
+            final type = switch (role) {
+              'user' => MessengerType.user,
+              'bot' => MessengerType.bot,
+              _ => null,
+            };
+            if (type == null) {
+              continue;
+            }
+            messages.add(
+              ChatMessage(
+                data: data,
+                role: type,
+                timestamp: DateTime.tryParse(
+                  timestamp,
+                ),
+              ),
+            );
+          }
+        }
+        return ChatModel(
+          remoteId: id,
+          title: title,
+          messages: messages,
+        );
+      }
+      return null;
+    } catch (e) {
+      logger.i(e);
+    }
+    return null;
   }
 }

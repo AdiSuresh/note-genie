@@ -79,31 +79,48 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
     on<LoadChatEvent>(
       (event, emit) async {
-        if (event.id case null) {
+        final id = event.id;
+        if (id case null) {
           switch (state) {
-            case final IdleState _:
-            // emit(
-            //   state.copyWith(
-            //     chat: Future.value(
-            //       ChatModel.empty(),
-            //     ),
-            //   ),
-            // );
+            case final IdleState state:
+              emit(
+                state.copyWith(
+                  chat: AsyncData.initial(
+                    ChatModel.empty(),
+                  ),
+                ),
+              );
             case _:
           }
           return;
         }
-        final url = switch (_env.backendUrl) {
-          final Uri url => url.replace(
-              path: '/chats',
-            ),
-          _ => null,
-        };
-        if (url == null) {
-          return;
-        }
         switch (state) {
-          case final IdleState _:
+          case final IdleState state:
+            final nextState = state.copyWith(
+              chat: state.chat.copyWith(
+                state: AsyncDataState.loading,
+              ),
+            );
+            emit(
+              nextState,
+            );
+            try {
+              final data = await repository.fetchChat(
+                id,
+              );
+              emit(
+                nextState.copyWith(
+                  chat: AsyncData.initial(
+                    data!,
+                  ),
+                ),
+              );
+            } catch (e) {
+              logger.i('resetting: $e');
+              emit(
+                state.copyWith(),
+              );
+            }
           case _:
         }
       },
