@@ -2,6 +2,7 @@ import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:http/http.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
+import 'package:note_maker/models/future_data/model.dart';
 
 part 'state.g.dart';
 
@@ -11,8 +12,8 @@ sealed class ChatState {
 
 @CopyWith()
 final class IdleState extends ChatState {
-  final Future<List<ChatModel>> allChats;
-  final Future<ChatModel> chat;
+  final AsyncData<List<ChatModel>> allChats;
+  final AsyncData<ChatModel> chat;
   final bool showButton;
 
   const IdleState({

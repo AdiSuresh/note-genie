@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
+import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 import 'package:note_maker/views/chat/event.dart';
@@ -37,7 +38,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (event, emit) {},
     );
     on<LoadAllChatsEvent>(
-      (event, emit) {
+      (event, emit) async {
         final url = switch (_env.backendUrl) {
           final Uri url => url.replace(
               path: '/chats',
@@ -49,12 +50,29 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
         switch (state) {
           case final IdleState state:
-            final response = repository.fetchAllChats();
-            emit(
-              state.copyWith(
-                allChats: response,
-              ),
+            final allChats = state.allChats.copyWith(
+              state: AsyncDataState.loading,
             );
+            final nextState = state.copyWith(
+              allChats: allChats,
+            );
+            emit(
+              nextState,
+            );
+            try {
+              final data = await repository.fetchAllChats();
+              emit(
+                nextState.copyWith(
+                  allChats: AsyncData.initial(
+                    data,
+                  ),
+                ),
+              );
+            } catch (e) {
+              emit(
+                state.copyWith(),
+              );
+            }
           case _:
         }
       },
@@ -63,14 +81,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (event, emit) async {
         if (event.id case null) {
           switch (state) {
-            case final IdleState state:
-              emit(
-                state.copyWith(
-                  chat: Future.value(
-                    ChatModel.empty(),
-                  ),
-                ),
-              );
+            case final IdleState _:
+            // emit(
+            //   state.copyWith(
+            //     chat: Future.value(
+            //       ChatModel.empty(),
+            //     ),
+            //   ),
+            // );
             case _:
           }
           return;
@@ -107,7 +125,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         logger.i(url);
         switch (state) {
           case final IdleState state:
-            final currentChat = await state.chat;
+            final currentChat = state.chat.data;
             final chat = currentChat.copyWith(
               messages: [
                 ...currentChat.messages,
@@ -119,7 +137,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             );
             emit(
               state.copyWith(
-                chat: Future.value(
+                chat: AsyncData.initial(
                   chat,
                 ),
               ),
@@ -185,7 +203,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         switch (state) {
           case final ReceivingMessageState currentState:
             final previousState = currentState.previousState;
-            final currentChat = (await previousState.chat);
+            final currentChat = previousState.chat.data;
             final chat = currentChat.copyWith(
               messages: [
                 ...currentChat.messages,
@@ -193,7 +211,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ],
             );
             final updatedIdleState = previousState.copyWith(
-              chat: Future.value(
+              chat: AsyncData.initial(
                 chat,
               ),
             );

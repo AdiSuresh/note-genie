@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/state/state.dart';
+import 'package:note_maker/widgets/custom_animated_switcher.dart';
 
 class ChatPageDrawer extends StatelessWidget {
   const ChatPageDrawer({
@@ -65,35 +67,37 @@ class ChatPageDrawer extends StatelessWidget {
                   ) =>
                     previousState,
                 };
-                return FutureBuilder(
-                  future: idleState.allChats,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    final allChats = snapshot.data ?? [];
-                    if (allChats case []) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.chat,
-                            size: 60,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            'No chats yet',
-                            style: context.themeData.textTheme.bodyLarge,
-                          ),
-                        ],
-                      );
-                    }
-                    return ListView(
+                final child = switch (idleState.allChats) {
+                  AsyncData(
+                    state: AsyncDataState.loading,
+                  ) =>
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  AsyncData(
+                    data: [],
+                  ) =>
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.chat,
+                          size: 60,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Text(
+                          'No chats yet',
+                          style: context.themeData.textTheme.bodyLarge,
+                        ),
+                      ],
+                    ),
+                  AsyncData(
+                    data: final allChats,
+                  ) =>
+                    ListView(
                       children: List.generate(
                         allChats.length,
                         (index) {
@@ -112,8 +116,10 @@ class ChatPageDrawer extends StatelessWidget {
                           );
                         },
                       ),
-                    );
-                  },
+                    ),
+                };
+                return CustomAnimatedSwitcher(
+                  child: child,
                 );
               },
             ),

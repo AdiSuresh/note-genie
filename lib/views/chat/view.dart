@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
+import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/chat/bloc.dart';
@@ -169,13 +170,17 @@ class _ChatPageState extends State<ChatPage>
               switch ((previous, current)) {
                 case (
                     IdleState(
-                      chat: ChatModel(
-                        messages: final m1,
+                      chat: AsyncData(
+                        data: ChatModel(
+                          messages: final m1,
+                        ),
                       ),
                     ),
                     IdleState(
-                      chat: ChatModel(
-                        messages: final m2,
+                      chat: AsyncData(
+                        data: ChatModel(
+                          messages: final m2,
+                        ),
                       ),
                     ),
                   ):
@@ -195,15 +200,19 @@ class _ChatPageState extends State<ChatPage>
                 case (
                     ReceivingMessageState(
                       previousState: IdleState(
-                        chat: ChatModel(
-                          messages: final m1,
+                        chat: AsyncData(
+                          data: ChatModel(
+                            messages: final m1,
+                          ),
                         ),
                       ),
                     ),
                     ReceivingMessageState(
                       previousState: IdleState(
-                        chat: ChatModel(
-                          messages: final m2,
+                        chat: AsyncData(
+                          data: ChatModel(
+                            messages: final m2,
+                          ),
                         ),
                       ),
                     ),
@@ -225,19 +234,25 @@ class _ChatPageState extends State<ChatPage>
                 ) =>
                   previousState,
               };
-              final child = FutureBuilder(
-                future: idleState.chat,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  final messages = snapshot.data?.messages ?? [];
-                  if (messages case []) {
-                    return NewChatPlaceholder();
-                  }
-                  return Stack(
+              final child = switch (idleState.chat) {
+                AsyncData(
+                  state: AsyncDataState.loading,
+                ) =>
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                AsyncData(
+                  data: ChatModel(
+                    messages: [],
+                  )
+                ) =>
+                  const NewChatPlaceholder(),
+                AsyncData(
+                  data: ChatModel(
+                    :final messages,
+                  )
+                ) =>
+                  Stack(
                     alignment: Alignment.center,
                     children: [
                       Scrollbar(
@@ -321,9 +336,8 @@ class _ChatPageState extends State<ChatPage>
                         },
                       ),
                     ],
-                  );
-                },
-              );
+                  ),
+              };
               return Expanded(
                 child: CustomAnimatedSwitcher(
                   child: child,
