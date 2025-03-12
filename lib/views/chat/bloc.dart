@@ -127,6 +127,38 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         if (event.message.isEmpty) {
           return;
         }
+        if (state case NonIdleState()) {
+          return;
+        }
+        switch (state) {
+          case IdleState(
+              chat: AsyncData(
+                data: ChatModel(
+                  remoteId: null,
+                ),
+              ),
+            ):
+            try {
+              final id = await repository.createChat();
+              if (state case final IdleState state when id != null) {
+                emit(
+                  state.copyWith(
+                    chat: AsyncData.initial(
+                      state.chat.data.copyWith(
+                        remoteId: id,
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                throw Exception('Invalid state');
+              }
+            } catch (e) {
+              return;
+            }
+          case _:
+        }
+
         final url = switch (_env.backendUrl) {
           final Uri url => url.replace(
               path: '/query',

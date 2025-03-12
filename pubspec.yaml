@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # extras
-  flutter_bloc: ^9.0.0
+  flutter_bloc: ^9.1.0
   json_annotation: ^4.9.0
   copy_with_extension: ^6.0.0
   go_router: ^14.8.1
