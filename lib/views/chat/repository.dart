@@ -63,16 +63,3 @@ class ChatPageRepository {
     return [];
   }
 }
-
-// class ChatPageRepository {
-//   Future<List<ChatModel>> _allChats = Future.value(
-//     [],
-//   );
-
-//   Future<ChatModel> _chat = Future.value(
-//     ChatModel.empty(),
-//   );
-
-//   Future<List<ChatModel>> get allChats => _allChats;
-//   Future<ChatModel> get chat => _chat;
-// }
