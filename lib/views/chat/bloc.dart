@@ -261,11 +261,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         final idleState = switch (state) {
           final IdleState state => state,
           final NonIdleState state => state.previousState,
-          // _ => null,
         };
-        // if (idleState == null) {
-        //   return;
-        // }
         if (idleState case final state when event.value ^ state.showButton) {
           final nextIdleState = state.copyWith(
             showButton: event.value,
@@ -278,11 +274,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             final ReceivingMessageState state => state.copyWith(
                 previousState: nextIdleState,
               ),
-            // _ => null,
           };
-          // if (nextState == null) {
-          //   return;
-          // }
           emit(
             nextState,
           );

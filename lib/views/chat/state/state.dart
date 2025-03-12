@@ -23,16 +23,6 @@ final class IdleState extends ChatState {
   });
 }
 
-// final class LoadingState extends ChatState {
-//   final bool allChats;
-//   final bool messages;
-
-//   const LoadingState({
-//     this.allChats = false,
-//     this.messages = false,
-//   });
-// }
-
 sealed class NonIdleState extends ChatState {
   final IdleState previousState;
 
