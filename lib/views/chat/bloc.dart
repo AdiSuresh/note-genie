@@ -140,7 +140,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             ):
             try {
               final id = await repository.createChat();
-              if (state case final IdleState state when id != null) {
+              if (id == null) {
+                throw Exception('Request failed');
+              }
+              if (state case final IdleState state) {
                 emit(
                   state.copyWith(
                     chat: AsyncData.initial(
@@ -158,20 +161,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             }
           case _:
         }
-
-        final url = switch (_env.backendUrl) {
+        var url = switch (_env.backendUrl) {
           final Uri url => url.replace(
-              path: '/query',
+              path: '/chats',
             ),
           _ => null,
         };
         if (url == null) {
           return;
         }
-        logger.i(url);
         switch (state) {
           case final IdleState state:
             final currentChat = state.chat.data;
+            url = url.replace(
+              path: '${url.path}/${currentChat.remoteId}/respond',
+            );
+            logger.i('url: ${url.path}');
             final chat = currentChat.copyWith(
               messages: [
                 ...currentChat.messages,
@@ -217,7 +222,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           final response = await client.send(
             request,
           );
-          logger.i('response ${response.statusCode}');
+          logger.i('reasonPhrase: ${response.reasonPhrase}');
+          logger.i('statusCode: ${response.statusCode}');
           if (!response.ok) {
             throw Exception('Request failed');
           }
