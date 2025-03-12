@@ -12,16 +12,12 @@ class BotChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 0,
-      borderRadius: BorderRadius.circular(15),
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: GptMarkdown(
-          message.data,
-          style: TextStyle(
-            fontSize: 16,
-          ),
+    return Padding(
+      padding: const EdgeInsets.all(15),
+      child: GptMarkdown(
+        message.data,
+        style: TextStyle(
+          fontSize: 16,
         ),
       ),
     );
