@@ -34,9 +34,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     super.initialState, {
     required this.repository,
   }) {
-    on<InitEvent>(
-      (event, emit) {},
-    );
     on<LoadAllChatsEvent>(
       (event, emit) async {
         final url = switch (_env.backendUrl) {
