@@ -80,6 +80,24 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  void preventOverscroll() {
+    if (scrollCtrl.position.outOfRange) {
+      final ScrollPosition(
+        :maxScrollExtent,
+        :minScrollExtent,
+      ) = scrollCtrl.position;
+      if (scrollCtrl.offset > maxScrollExtent) {
+        scrollCtrl.jumpTo(
+          maxScrollExtent,
+        );
+      } else if (scrollCtrl.offset < minScrollExtent) {
+        scrollCtrl.jumpTo(
+          minScrollExtent,
+        );
+      }
+    }
+  }
+
   var pointerDown = false;
 
   void scrollToBottom() {
@@ -100,6 +118,9 @@ class _ChatPageState extends State<ChatPage>
   Future<void> scrollToBottomWithVelocity() async {
     const velocity = 5;
 
+    scrollCtrl.addListener(
+      preventOverscroll,
+    );
     while (scrollCtrl.hasClients && !pointerDown) {
       final diff = scrollCtrl.distanceFromBottom;
 
@@ -119,10 +140,14 @@ class _ChatPageState extends State<ChatPage>
 
       await Future.delayed(
         const Duration(
-          milliseconds: 35,
+          milliseconds: 30,
         ),
       );
     }
+    logger.i('completed scrolling');
+    scrollCtrl.removeListener(
+      preventOverscroll,
+    );
   }
 
   void autoScroll() {
@@ -249,23 +274,24 @@ class _ChatPageState extends State<ChatPage>
                         thickness: 15,
                         interactive: true,
                         radius: Radius.circular(15),
-                        child: SingleChildScrollView(
+                        child: ListView(
                           controller: scrollCtrl,
                           padding: EdgeInsets.only(
                             right: 7.5,
                             bottom: 7.5,
                           ),
-                          child: Column(
-                            children: messages.map(
-                              (e) {
-                                if ((state, e)
-                                    case (
-                                      MessageProcessingState(),
-                                      ChatMessage(
-                                        role: MessengerType.bot,
-                                      ),
-                                    ) when e == messages.last) {
-                                  return BlocBuilder<ChatBloc, ChatState>(
+                          children: messages.indexed.map(
+                            (element) {
+                              final (i, e) = element;
+                              final child = switch ((state, e)) {
+                                (
+                                  MessageProcessingState(),
+                                  ChatMessage(
+                                    role: MessengerType.bot,
+                                  ),
+                                )
+                                    when e == messages.last =>
+                                  BlocBuilder<ChatBloc, ChatState>(
                                     key: chatBubbleKey,
                                     buildWhen: (previous, current) {
                                       switch ((previous, current)) {
@@ -314,14 +340,19 @@ class _ChatPageState extends State<ChatPage>
                                           return const SizedBox();
                                       }
                                     },
-                                  );
-                                }
-                                return ChatBubbleWrapper(
-                                  message: e,
-                                );
-                              },
-                            ).toList(),
-                          ),
+                                  ),
+                                _ => ChatBubbleWrapper(
+                                    message: e,
+                                  ),
+                              };
+                              return Builder(
+                                key: ValueKey(e),
+                                builder: (context) {
+                                  return child;
+                                },
+                              );
+                            },
+                          ).toList(),
                         ),
                       ),
                       const Positioned(
