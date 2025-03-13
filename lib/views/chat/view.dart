@@ -144,7 +144,6 @@ class _ChatPageState extends State<ChatPage>
         ),
       );
     }
-    logger.i('completed scrolling');
     scrollCtrl.removeListener(
       preventOverscroll,
     );
