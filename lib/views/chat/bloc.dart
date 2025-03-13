@@ -34,9 +34,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     super.initialState, {
     required this.repository,
   }) {
-    on<InitEvent>(
-      (event, emit) {},
-    );
     on<LoadAllChatsEvent>(
       (event, emit) async {
         final url = switch (_env.backendUrl) {
@@ -130,19 +127,56 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         if (event.message.isEmpty) {
           return;
         }
-        final url = switch (_env.backendUrl) {
+        if (state case NonIdleState()) {
+          return;
+        }
+        switch (state) {
+          case IdleState(
+              chat: AsyncData(
+                data: ChatModel(
+                  remoteId: null,
+                ),
+              ),
+            ):
+            try {
+              final id = await repository.createChat();
+              if (id == null) {
+                throw Exception('Request failed');
+              }
+              if (state case final IdleState state) {
+                emit(
+                  state.copyWith(
+                    chat: AsyncData.initial(
+                      state.chat.data.copyWith(
+                        remoteId: id,
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                throw Exception('Invalid state');
+              }
+            } catch (e) {
+              return;
+            }
+          case _:
+        }
+        var url = switch (_env.backendUrl) {
           final Uri url => url.replace(
-              path: '/query',
+              path: '/chats',
             ),
           _ => null,
         };
         if (url == null) {
           return;
         }
-        logger.i(url);
         switch (state) {
           case final IdleState state:
             final currentChat = state.chat.data;
+            url = url.replace(
+              path: '${url.path}/${currentChat.remoteId}/respond',
+            );
+            logger.i('url: ${url.path}');
             final chat = currentChat.copyWith(
               messages: [
                 ...currentChat.messages,
@@ -188,7 +222,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           final response = await client.send(
             request,
           );
-          logger.i('response ${response.statusCode}');
+          logger.i('reasonPhrase: ${response.reasonPhrase}');
+          logger.i('statusCode: ${response.statusCode}');
           if (!response.ok) {
             throw Exception('Request failed');
           }

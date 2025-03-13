@@ -64,6 +64,40 @@ class ChatPageRepository {
     return [];
   }
 
+  Future<String?> createChat() async {
+    logger.i('creating chat...');
+    final url = _chatsUrl;
+    if (url == null) {
+      return null;
+    }
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(
+        const {},
+      ),
+    );
+    try {
+      final decoded = json.decode(
+        response.body,
+      );
+      logger.i(
+        'decoded: $decoded',
+      );
+      if (decoded
+          case {
+            'id': String id,
+          }) {
+        return id;
+      }
+    } catch (e) {
+      logger.i(e);
+    }
+    return null;
+  }
+
   Future<ChatModel?> fetchChat(
     String id,
   ) async {

@@ -80,6 +80,24 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  void preventOverscroll() {
+    if (scrollCtrl.position.outOfRange) {
+      final ScrollPosition(
+        :maxScrollExtent,
+        :minScrollExtent,
+      ) = scrollCtrl.position;
+      if (scrollCtrl.offset > maxScrollExtent) {
+        scrollCtrl.jumpTo(
+          maxScrollExtent,
+        );
+      } else if (scrollCtrl.offset < minScrollExtent) {
+        scrollCtrl.jumpTo(
+          minScrollExtent,
+        );
+      }
+    }
+  }
+
   var pointerDown = false;
 
   void scrollToBottom() {
@@ -100,6 +118,9 @@ class _ChatPageState extends State<ChatPage>
   Future<void> scrollToBottomWithVelocity() async {
     const velocity = 5;
 
+    scrollCtrl.addListener(
+      preventOverscroll,
+    );
     while (scrollCtrl.hasClients && !pointerDown) {
       final diff = scrollCtrl.distanceFromBottom;
 
@@ -119,10 +140,13 @@ class _ChatPageState extends State<ChatPage>
 
       await Future.delayed(
         const Duration(
-          milliseconds: 35,
+          milliseconds: 30,
         ),
       );
     }
+    scrollCtrl.removeListener(
+      preventOverscroll,
+    );
   }
 
   void autoScroll() {
@@ -171,32 +195,15 @@ class _ChatPageState extends State<ChatPage>
                 case (
                     IdleState(
                       chat: AsyncData(
-                        // data: ChatModel(
-                        //   messages: final m1,
-                        // ),
                         state: final s1,
                       ),
                     ),
                     IdleState(
                       chat: AsyncData(
-                        // data: ChatModel(
-                        //   messages: final m2,
-                        // ),
                         state: final s2,
                       ),
                     ),
                   ):
-                  // if (s1 != s2) {
-                  //   return true;
-                  // }
-                  // if (m1.length == m2.length && m1.isNotEmpty) {
-                  //   final result = m1.last != m2.last;
-                  //   if (result) {
-                  //     autoScroll();
-                  //   }
-                  //   return result;
-                  // }
-                  // return m1.length != m2.length;
                   return s1 != s2;
                 case (IdleState(), SendingMessageState()):
                   return true;
@@ -259,11 +266,10 @@ class _ChatPageState extends State<ChatPage>
                   )
                 ) =>
                   Stack(
-                    alignment: Alignment.center,
+                    alignment: Alignment.topCenter,
                     children: [
                       Scrollbar(
                         controller: scrollCtrl,
-                        thumbVisibility: true,
                         thickness: 15,
                         interactive: true,
                         radius: Radius.circular(15),
@@ -273,67 +279,95 @@ class _ChatPageState extends State<ChatPage>
                             right: 7.5,
                             bottom: 7.5,
                           ),
-                          cacheExtent: cacheExtent,
-                          children: messages.map(
-                            (e) {
-                              if (e
-                                  case ChatMessage(
+                          children: messages.indexed.map(
+                            (element) {
+                              final (i, e) = element;
+                              final child = switch ((state, e)) {
+                                (
+                                  MessageProcessingState(),
+                                  ChatMessage(
                                     role: MessengerType.bot,
-                                  ) when e == messages.last) {
-                                return BlocBuilder<ChatBloc, ChatState>(
-                                  key: chatBubbleKey,
-                                  buildWhen: (previous, current) {
-                                    switch ((previous, current)) {
-                                      case (
-                                              SendingMessageState(),
-                                              ReceivingMessageState(),
-                                            ) ||
-                                            (
-                                              ReceivingMessageState(),
-                                              ReceivingMessageState(),
-                                            ):
-                                        return true;
-                                      case _:
-                                        return false;
-                                    }
-                                  },
-                                  builder: (context, state) {
-                                    switch (state) {
-                                      case SendingMessageState() ||
-                                            ReceivingMessageState(
-                                              message: ChatMessage(
-                                                data: '',
+                                  ),
+                                )
+                                    when e == messages.last =>
+                                  BlocBuilder<ChatBloc, ChatState>(
+                                    key: chatBubbleKey,
+                                    buildWhen: (previous, current) {
+                                      switch ((previous, current)) {
+                                        case (
+                                                SendingMessageState(),
+                                                ReceivingMessageState(),
+                                              ) ||
+                                              (
+                                                ReceivingMessageState(),
+                                                ReceivingMessageState(),
+                                              ):
+                                          return true;
+                                        case _:
+                                          return false;
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      switch (state) {
+                                        case SendingMessageState() ||
+                                              ReceivingMessageState(
+                                                message: ChatMessage(
+                                                  data: '',
+                                                ),
+                                              ):
+                                          return Padding(
+                                            padding:
+                                                const EdgeInsets.all(15).add(
+                                              const EdgeInsets.symmetric(
+                                                vertical: 7.5,
+                                                horizontal: 15,
                                               ),
-                                            ):
-                                        return Padding(
-                                          padding: const EdgeInsets.all(15).add(
-                                            const EdgeInsets.symmetric(
-                                              vertical: 7.5,
-                                              horizontal: 15,
                                             ),
-                                          ),
-                                          child: Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: const PulsingDotIndicator(),
-                                          ),
-                                        );
-                                      case ReceivingMessageState(
-                                          :final message,
-                                        ):
-                                        return ChatBubbleWrapper(
-                                          message: message,
-                                        );
-                                      case _:
-                                        return const SizedBox();
-                                    }
-                                  },
-                                );
-                              }
-                              return ChatBubbleWrapper(
-                                message: e,
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child:
+                                                  const PulsingDotIndicator(),
+                                            ),
+                                          );
+                                        case ReceivingMessageState(
+                                            :final message,
+                                          ):
+                                          return ChatBubbleWrapper(
+                                            message: message,
+                                          );
+                                        case _:
+                                          return const SizedBox();
+                                      }
+                                    },
+                                  ),
+                                _ => ChatBubbleWrapper(
+                                    message: e,
+                                  ),
+                              };
+                              return Builder(
+                                key: ValueKey(e),
+                                builder: (context) {
+                                  return child;
+                                },
                               );
                             },
                           ).toList(),
+                        ),
+                      ),
+                      const Positioned(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white,
+                                blurRadius: 7.5,
+                                spreadRadius: 7.5,
+                              ),
+                            ],
+                          ),
+                          child: SizedBox(
+                            width: double.infinity,
+                          ),
                         ),
                       ),
                       ScrollToBottomButton(
