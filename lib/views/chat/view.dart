@@ -246,7 +246,6 @@ class _ChatPageState extends State<ChatPage>
                     children: [
                       Scrollbar(
                         controller: scrollCtrl,
-                        thumbVisibility: true,
                         thickness: 15,
                         interactive: true,
                         radius: Radius.circular(15),
