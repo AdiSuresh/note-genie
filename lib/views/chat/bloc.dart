@@ -76,23 +76,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
     on<LoadChatEvent>(
       (event, emit) async {
-        final id = event.id;
-        if (id case null) {
-          switch (state) {
-            case final IdleState state:
-              emit(
-                state.copyWith(
-                  chat: AsyncData.initial(
-                    ChatModel.empty(),
-                  ),
+        switch ((state, event.id)) {
+          case (final IdleState state, null):
+            emit(
+              state.copyWith(
+                chat: AsyncData.initial(
+                  ChatModel.empty(),
                 ),
-              );
-            case _:
-          }
-          return;
-        }
-        switch (state) {
-          case final IdleState state:
+              ),
+            );
+          case (final IdleState state, final String id):
             final nextState = state.copyWith(
               chat: state.chat.copyWith(
                 state: AsyncDataState.loading,
@@ -196,6 +189,25 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           case _:
             return;
         }
+        var context = '';
+        if (state case final IdleState state) {
+          final messages = state.chat.data.messages;
+          if (messages case [...]) {
+            context = messages
+                .getRange(
+                  0,
+                  messages.length - 1,
+                )
+                .map(
+                  (e) => '${e.role.name}: ${e.data}',
+                )
+                .join(
+                  '\n',
+                );
+          }
+        } else {
+          return;
+        }
         logger.i('added user message');
         final request = http.Request(
           'POST',
@@ -204,7 +216,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ..headers['Content-Type'] = 'application/json'
           ..body = json.encode(
             {
-              'context': '',
+              'context': context,
               'question': event.message,
             },
           );
@@ -216,6 +228,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               client: client,
             ),
           );
+        } else {
+          return;
         }
         try {
           logger.i('sending user message...');

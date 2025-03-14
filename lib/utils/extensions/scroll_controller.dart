@@ -3,12 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 extension ScrollControllerExtension on ScrollController {
-  double get distanceFromBottom {
-    final currentScrollExtent = offset;
+  double findDistanceFromBottom([
+    bool reverse = false,
+  ]) {
+    if (reverse) {
+      return max(
+        0,
+        offset,
+      );
+    }
     final maxScrollExtent = position.maxScrollExtent;
     final double result = max(
       0,
-      maxScrollExtent - currentScrollExtent,
+      maxScrollExtent - offset,
     );
     return result;
   }
