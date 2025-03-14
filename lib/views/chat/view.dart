@@ -5,6 +5,7 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/models/future_data/model.dart';
+import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/chat/bloc.dart';
@@ -193,12 +194,14 @@ class _ChatPageState extends State<ChatPage>
                 const ChatPageTitle(),
                 IconButton(
                   onPressed: () {
-                    logger.i(
-                      'minScrollExtent: ${scrollCtrl.position.minScrollExtent}',
-                    );
-                    logger.i(
-                      'maxScrollExtent: ${scrollCtrl.position.maxScrollExtent}',
-                    );
+                    switch (bloc.state) {
+                      case final IdleState state:
+                        logger.i(
+                          'messages: ${state.chat.data.messages}',
+                        );
+                        break;
+                      default:
+                    }
                   },
                   icon: const Icon(
                     Icons.search,
@@ -212,17 +215,16 @@ class _ChatPageState extends State<ChatPage>
               switch ((previous, current)) {
                 case (
                     IdleState(
-                      chat: AsyncData(
-                        state: final s1,
-                      ),
+                      chat: final c1,
                     ),
                     IdleState(
-                      chat: AsyncData(
-                        state: final s2,
-                      ),
+                      chat: final c2,
                     ),
                   ):
-                  return s1 != s2;
+                  return [
+                    c1.data.remoteId != c2.data.remoteId,
+                    c1.state != c2.state,
+                  ].or();
                 case (IdleState(), SendingMessageState()):
                   return true;
                 case (SendingMessageState(), ReceivingMessageState()):

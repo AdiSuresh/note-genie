@@ -76,23 +76,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
     on<LoadChatEvent>(
       (event, emit) async {
-        final id = event.id;
-        if (id case null) {
-          switch (state) {
-            case final IdleState state:
-              emit(
-                state.copyWith(
-                  chat: AsyncData.initial(
-                    ChatModel.empty(),
-                  ),
+        switch ((state, event.id)) {
+          case (final IdleState state, null):
+            emit(
+              state.copyWith(
+                chat: AsyncData.initial(
+                  ChatModel.empty(),
                 ),
-              );
-            case _:
-          }
-          return;
-        }
-        switch (state) {
-          case final IdleState state:
+              ),
+            );
+          case (final IdleState state, final String id):
             final nextState = state.copyWith(
               chat: state.chat.copyWith(
                 state: AsyncDataState.loading,
