@@ -270,89 +270,83 @@ class _ChatPageState extends State<ChatPage>
                   Stack(
                     alignment: Alignment.topCenter,
                     children: [
-                      Scrollbar(
+                      ListView.builder(
                         controller: scrollCtrl,
-                        thickness: 15,
-                        interactive: true,
-                        radius: Radius.circular(15),
-                        child: ListView.builder(
-                          controller: scrollCtrl,
-                          padding: EdgeInsets.only(
-                            right: 7.5,
-                            bottom: 7.5,
-                          ),
-                          reverse: true,
-                          itemCount: messages.length,
-                          itemBuilder: (context, index) {
-                            final e = messages[messages.length - 1 - index];
-                            final child = switch ((state, e)) {
-                              (
-                                MessageProcessingState(),
-                                ChatMessage(
-                                  role: MessengerType.bot,
-                                ),
-                              )
-                                  when e == messages.last =>
-                                BlocBuilder<ChatBloc, ChatState>(
-                                  key: chatBubbleKey,
-                                  buildWhen: (previous, current) {
-                                    switch ((previous, current)) {
-                                      case (
-                                              SendingMessageState(),
-                                              ReceivingMessageState(),
-                                            ) ||
-                                            (
-                                              ReceivingMessageState(),
-                                              ReceivingMessageState(),
-                                            ):
-                                        return true;
-                                      case _:
-                                        return false;
-                                    }
-                                  },
-                                  builder: (context, state) {
-                                    switch (state) {
-                                      case SendingMessageState() ||
-                                            ReceivingMessageState(
-                                              message: ChatMessage(
-                                                data: '',
-                                              ),
-                                            ):
-                                        return Padding(
-                                          padding: const EdgeInsets.all(15).add(
-                                            const EdgeInsets.symmetric(
-                                              vertical: 7.5,
-                                              horizontal: 15,
-                                            ),
-                                          ),
-                                          child: Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: const PulsingDotIndicator(),
-                                          ),
-                                        );
-                                      case ReceivingMessageState(
-                                          :final message,
-                                        ):
-                                        return ChatBubbleWrapper(
-                                          message: message,
-                                        );
-                                      case _:
-                                        return const SizedBox();
-                                    }
-                                  },
-                                ),
-                              _ => ChatBubbleWrapper(
-                                  message: e,
-                                ),
-                            };
-                            return Builder(
-                              key: ValueKey(e),
-                              builder: (context) {
-                                return child;
-                              },
-                            );
-                          },
+                        padding: EdgeInsets.only(
+                          right: 7.5,
+                          bottom: 7.5,
                         ),
+                        reverse: true,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final e = messages[messages.length - 1 - index];
+                          final child = switch ((state, e)) {
+                            (
+                              MessageProcessingState(),
+                              ChatMessage(
+                                role: MessengerType.bot,
+                              ),
+                            )
+                                when e == messages.last =>
+                              BlocBuilder<ChatBloc, ChatState>(
+                                key: chatBubbleKey,
+                                buildWhen: (previous, current) {
+                                  switch ((previous, current)) {
+                                    case (
+                                            SendingMessageState(),
+                                            ReceivingMessageState(),
+                                          ) ||
+                                          (
+                                            ReceivingMessageState(),
+                                            ReceivingMessageState(),
+                                          ):
+                                      return true;
+                                    case _:
+                                      return false;
+                                  }
+                                },
+                                builder: (context, state) {
+                                  switch (state) {
+                                    case SendingMessageState() ||
+                                          ReceivingMessageState(
+                                            message: ChatMessage(
+                                              data: '',
+                                            ),
+                                          ):
+                                      return Padding(
+                                        padding: const EdgeInsets.all(15).add(
+                                          const EdgeInsets.symmetric(
+                                            vertical: 7.5,
+                                            horizontal: 15,
+                                          ),
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: const PulsingDotIndicator(),
+                                        ),
+                                      );
+                                    case ReceivingMessageState(
+                                        :final message,
+                                      ):
+                                      return ChatBubbleWrapper(
+                                        message: message,
+                                      );
+                                    case _:
+                                      return const SizedBox();
+                                  }
+                                },
+                              ),
+                            _ => ChatBubbleWrapper(
+                                message: e,
+                              ),
+                          };
+                          return Builder(
+                            key: ValueKey(e),
+                            builder: (context) {
+                              return child;
+                            },
+                          );
+                        },
                       ),
                       const Positioned(
                         child: DecoratedBox(
