@@ -60,12 +60,12 @@ class ChatPageTitle extends StatelessWidget {
               remoteId: null,
             ) =>
               child,
-            _ => TextButton.icon(
+            _ => TextButton(
                 onPressed: () {},
-                label: Row(
+                child: Row(
                   children: [
                     child,
-                    Icon(
+                    const Icon(
                       Icons.arrow_drop_down_rounded,
                       size: 30,
                     ),
