@@ -272,10 +272,6 @@ class _ChatPageState extends State<ChatPage>
                     children: [
                       ListView.builder(
                         controller: scrollCtrl,
-                        padding: EdgeInsets.only(
-                          right: 7.5,
-                          bottom: 7.5,
-                        ),
                         reverse: true,
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
