@@ -72,7 +72,9 @@ class _ChatPageState extends State<ChatPage>
   }
 
   void updateButtonVisibility() {
-    final diff = scrollCtrl.distanceFromBottom;
+    final diff = scrollCtrl.findDistanceFromBottom(
+      true,
+    );
     bloc.add(
       UpdateButtonVisibilityEvent(
         value: diff >= 100,
@@ -148,7 +150,9 @@ class _ChatPageState extends State<ChatPage>
   }
 
   void autoScroll() {
-    final diff = scrollCtrl.distanceFromBottom;
+    final diff = scrollCtrl.findDistanceFromBottom(
+      true,
+    );
     if (diff case > 0 && < 100 when !pointerDown) {
       scrollToBottom();
     }
