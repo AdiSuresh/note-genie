@@ -6,9 +6,8 @@ extension BooleanIterableExtension on Iterable<bool> {
   }
 
   bool and() {
-    return fold(
-      true,
-      (previousValue, element) => previousValue && element,
+    return every(
+      (e) => e,
     );
   }
 

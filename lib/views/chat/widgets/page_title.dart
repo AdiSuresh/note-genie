@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
+import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
@@ -30,7 +31,10 @@ class ChatPageTitle extends StatelessWidget {
                 ),
               ),
             ):
-            return c1.remoteId != c2.remoteId || c1.title != c2.title;
+            return [
+              c1.remoteId != c2.remoteId,
+              c1.title != c2.title,
+            ].or();
           case _:
         }
         return false;
