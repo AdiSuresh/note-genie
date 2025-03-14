@@ -72,6 +72,15 @@ class _ChatPageState extends State<ChatPage>
   }
 
   void updateButtonVisibility() {
+    switch (scrollCtrl.position) {
+      case ScrollPosition(
+            :final minScrollExtent,
+            :final maxScrollExtent,
+          )
+          when minScrollExtent == maxScrollExtent:
+        return;
+      case _:
+    }
     final diff = scrollCtrl.findDistanceFromBottom(
       true,
     );
@@ -183,7 +192,14 @@ class _ChatPageState extends State<ChatPage>
                 ),
                 const ChatPageTitle(),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    logger.i(
+                      'minScrollExtent: ${scrollCtrl.position.minScrollExtent}',
+                    );
+                    logger.i(
+                      'maxScrollExtent: ${scrollCtrl.position.maxScrollExtent}',
+                    );
+                  },
                   icon: const Icon(
                     Icons.search,
                   ),
