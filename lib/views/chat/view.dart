@@ -5,7 +5,6 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/models/future_data/model.dart';
-import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/utils/extensions/scroll_controller.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/chat/bloc.dart';
@@ -214,17 +213,25 @@ class _ChatPageState extends State<ChatPage>
             buildWhen: (previous, current) {
               switch ((previous, current)) {
                 case (
-                    IdleState(
-                      chat: final c1,
-                    ),
-                    IdleState(
-                      chat: final c2,
-                    ),
-                  ):
-                  return [
-                    c1.data.remoteId != c2.data.remoteId,
-                    c1.state != c2.state,
-                  ].or();
+                      IdleState(
+                        chat: AsyncData(
+                          data: ChatModel(
+                            remoteId: final id1,
+                          ),
+                          state: final s1,
+                        ),
+                      ),
+                      IdleState(
+                        chat: AsyncData(
+                          data: ChatModel(
+                            remoteId: final id2,
+                          ),
+                          state: final s2,
+                        ),
+                      ),
+                    )
+                    when id1 != id2 || s1 != s2:
+                  return true;
                 case (IdleState(), SendingMessageState()):
                   return true;
                 case (SendingMessageState(), ReceivingMessageState()):
