@@ -7,13 +7,15 @@ extension ScrollControllerExtension on ScrollController {
     bool reverse = false,
   ]) {
     if (reverse) {
-      return offset.abs();
+      return max(
+        0,
+        offset,
+      );
     }
-    final currentScrollExtent = offset;
     final maxScrollExtent = position.maxScrollExtent;
     final double result = max(
       0,
-      maxScrollExtent - currentScrollExtent,
+      maxScrollExtent - offset,
     );
     return result;
   }
