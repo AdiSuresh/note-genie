@@ -190,7 +190,7 @@ class _ChatPageState extends State<ChatPage>
                     Icons.menu,
                   ),
                 ),
-                const ChatPageTitle(),
+                ChatPageTitle(),
                 IconButton(
                   onPressed: () {
                     switch (bloc.state) {
