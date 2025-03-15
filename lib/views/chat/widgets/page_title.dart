@@ -85,12 +85,13 @@ class ChatPageTitle extends StatelessWidget {
                     return Stack(
                       alignment: Alignment.center,
                       children: [
-                        ModalBarrier(
-                          color: Colors.transparent,
-                          dismissible: true,
-                          onDismiss: () {
+                        Listener(
+                          onPointerDown: (event) {
                             _menuController.toggle();
                           },
+                          child: ModalBarrier(
+                            dismissible: true,
+                          ),
                         ),
                         Positioned(
                           top: rect?.top,
