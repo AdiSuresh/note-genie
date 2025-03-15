@@ -99,7 +99,7 @@ class ChatPageTitle extends StatelessWidget {
                               begin: 0.95,
                               end: 1.0,
                             ),
-                            duration: Duration(
+                            duration: const Duration(
                               milliseconds: 125,
                             ),
                             builder: (context, value, child) {
