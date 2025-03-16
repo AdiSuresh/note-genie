@@ -443,7 +443,7 @@ class _ChatPageState extends State<ChatPage>
                           ),
                         ).then(
                           (value) {
-                            // scrollToBottomWithVelocity();
+                            scrollToBottomWithVelocity();
                           },
                         );
                       },
