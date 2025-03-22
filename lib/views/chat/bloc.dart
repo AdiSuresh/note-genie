@@ -83,6 +83,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 chat: AsyncData.initial(
                   ChatModel.empty(),
                 ),
+                showButton: false,
               ),
             );
           case (final IdleState state, final String id):
@@ -103,6 +104,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                   chat: AsyncData.initial(
                     data!,
                   ),
+                  showButton: false,
                 ),
               );
             } catch (e) {

@@ -190,7 +190,7 @@ class _ChatPageState extends State<ChatPage>
                     Icons.menu,
                   ),
                 ),
-                const ChatPageTitle(),
+                ChatPageTitle(),
                 IconButton(
                   onPressed: () {
                     switch (bloc.state) {
@@ -421,6 +421,8 @@ class _ChatPageState extends State<ChatPage>
                   controller: textCtrl,
                   focusNode: textFocus,
                   textCapitalization: TextCapitalization.sentences,
+                  minLines: 1,
+                  maxLines: 4,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -443,7 +445,7 @@ class _ChatPageState extends State<ChatPage>
                           ),
                         ).then(
                           (value) {
-                            // scrollToBottomWithVelocity();
+                            scrollToBottomWithVelocity();
                           },
                         );
                       },
