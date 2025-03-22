@@ -421,6 +421,8 @@ class _ChatPageState extends State<ChatPage>
                   controller: textCtrl,
                   focusNode: textFocus,
                   textCapitalization: TextCapitalization.sentences,
+                  minLines: 1,
+                  maxLines: 4,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
