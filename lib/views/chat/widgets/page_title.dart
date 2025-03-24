@@ -132,7 +132,9 @@ class ChatPageTitle extends StatelessWidget {
                                             _ => null,
                                           };
                                           return InkWell(
-                                            onTap: () {},
+                                            onTap: () {
+                                              _menuController.hide();
+                                            },
                                             borderRadius: borderRadius,
                                             child: Container(
                                               alignment: Alignment.center,
