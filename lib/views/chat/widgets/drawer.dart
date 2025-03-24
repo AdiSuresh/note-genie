@@ -63,7 +63,23 @@ class ChatPageDrawer extends StatelessWidget {
           Expanded(
             child: BlocBuilder<ChatBloc, ChatState>(
               buildWhen: (previous, current) {
-                return true;
+                switch ((previous, current)) {
+                  case (
+                      IdleState(
+                        allChats: AsyncData(
+                          state: final s1,
+                        ),
+                      ),
+                      IdleState(
+                        allChats: AsyncData(
+                          state: final s2,
+                        ),
+                      ),
+                    ):
+                    return s1 != s2;
+                  case _:
+                }
+                return false;
               },
               builder: (context, state) {
                 final idleState = switch (state) {

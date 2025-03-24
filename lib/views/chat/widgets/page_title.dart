@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
@@ -73,95 +74,112 @@ class ChatPageTitle extends StatelessWidget {
               remoteId: null,
             ) =>
               child,
-            _ => TextButton(
-                key: _buttonKey,
-                onPressed: () {
-                  _menuController.toggle();
+            _ => PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) {
+                    return;
+                  }
+                  if (_menuController.isShowing) {
+                    _menuController.hide();
+                    return;
+                  }
+                  context.pop();
                 },
-                child: OverlayPortal(
-                  controller: _menuController,
-                  overlayChildBuilder: (context) {
-                    final rect = _buttonKey.findRect();
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Listener(
-                          onPointerDown: (event) {
-                            _menuController.toggle();
-                          },
-                          child: ModalBarrier(
-                            dismissible: true,
+                child: TextButton(
+                  key: _buttonKey,
+                  onPressed: () {
+                    _menuController.show();
+                  },
+                  child: OverlayPortal(
+                    controller: _menuController,
+                    overlayChildBuilder: (context) {
+                      final rect = _buttonKey.findRect();
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Listener(
+                            onPointerDown: (event) {
+                              _menuController.toggle();
+                            },
+                            child: ModalBarrier(
+                              dismissible: true,
+                            ),
                           ),
-                        ),
-                        Positioned(
-                          top: rect?.top,
-                          child: TweenAnimationBuilder(
-                            tween: Tween(
-                              begin: 0.95,
-                              end: 1.0,
-                            ),
-                            duration: const Duration(
-                              milliseconds: 125,
-                            ),
-                            builder: (context, value, child) {
-                              return Transform(
-                                alignment: Alignment.center,
-                                transform: Matrix4.identity()
-                                  ..scale(
-                                    value,
-                                  ),
-                                child: Material(
-                                  elevation: 2.5,
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: IntrinsicWidth(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: menuItems.indexed.map(
-                                        (element) {
-                                          final (i, e) = element;
-                                          final borderRadius = switch (i) {
-                                            0 => BorderRadius.vertical(
-                                                top: Radius.circular(15),
+                          Positioned(
+                            top: rect?.top,
+                            child: TweenAnimationBuilder(
+                              tween: Tween(
+                                begin: 0.95,
+                                end: 1.0,
+                              ),
+                              duration: const Duration(
+                                milliseconds: 125,
+                              ),
+                              builder: (context, value, child) {
+                                return Transform(
+                                  alignment: Alignment.center,
+                                  transform: Matrix4.identity()
+                                    ..scale(
+                                      value,
+                                    ),
+                                  child: Material(
+                                    elevation: 2.5,
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: IntrinsicWidth(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: menuItems.indexed.map(
+                                          (element) {
+                                            final (i, e) = element;
+                                            final borderRadius = switch (i) {
+                                              0 => BorderRadius.vertical(
+                                                  top: Radius.circular(15),
+                                                ),
+                                              _
+                                                  when i ==
+                                                      menuItems.length - 1 =>
+                                                BorderRadius.vertical(
+                                                  bottom: Radius.circular(15),
+                                                ),
+                                              _ => null,
+                                            };
+                                            return InkWell(
+                                              onTap: () {
+                                                _menuController.hide();
+                                              },
+                                              borderRadius: borderRadius,
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: EdgeInsets.all(15),
+                                                child: Text(
+                                                  e,
+                                                ),
                                               ),
-                                            _ when i == menuItems.length - 1 =>
-                                              BorderRadius.vertical(
-                                                bottom: Radius.circular(15),
-                                              ),
-                                            _ => null,
-                                          };
-                                          return InkWell(
-                                            onTap: () {},
-                                            borderRadius: borderRadius,
-                                            child: Container(
-                                              alignment: Alignment.center,
-                                              padding: EdgeInsets.all(15),
-                                              child: Text(
-                                                e,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ).toList(),
+                                            );
+                                          },
+                                        ).toList(),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
+                        ],
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        child,
+                        const Icon(
+                          Icons.arrow_drop_down_rounded,
+                          size: 30,
                         ),
                       ],
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      child,
-                      const Icon(
-                        Icons.arrow_drop_down_rounded,
-                        size: 30,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
