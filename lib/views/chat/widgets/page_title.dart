@@ -102,9 +102,7 @@ class ChatPageTitle extends StatelessWidget {
                             onPointerDown: (event) {
                               _menuController.toggle();
                             },
-                            child: ModalBarrier(
-                              dismissible: true,
-                            ),
+                            child: const ModalBarrier(),
                           ),
                           Positioned(
                             top: rect?.top,
