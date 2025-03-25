@@ -5,6 +5,7 @@ import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:http/http.dart' as http;
+import 'package:note_maker/utils/extensions/base_response.dart';
 
 class ChatPageRepository {
   static final logger = AppLogger(
@@ -161,5 +162,20 @@ class ChatPageRepository {
       logger.i(e);
     }
     return null;
+  }
+
+  Future<bool?> renameChat(
+    String id,
+  ) async {
+    final url = _chatsUrl;
+    if (url == null) {
+      return null;
+    }
+    final response = await http.put(
+      url.replace(
+        path: '${url.path}/$id',
+      ),
+    );
+    return response.ok;
   }
 }

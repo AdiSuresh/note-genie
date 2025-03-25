@@ -350,7 +350,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
     );
     on<RenameCurrentChatEvent>(
-      (event, emit) {
+      (event, emit) async {
         final idleState = switch (state) {
           final IdleState state => state,
           _ => null,
@@ -385,6 +385,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             ),
           ),
         );
+        switch (chat.remoteId) {
+          case final String id:
+            try {
+              await repository.renameChat(
+                id,
+              );
+            } catch (e) {
+              logger.i(
+                'could not update title',
+              );
+            }
+          case _:
+        }
       },
     );
   }
