@@ -43,7 +43,6 @@ class _PopupMenuState extends State<PopupMenu> {
               controller.hide();
               return;
             }
-            Navigator.of(context).pop();
           },
           child: Stack(
             alignment: Alignment.center,
