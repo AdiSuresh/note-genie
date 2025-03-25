@@ -26,13 +26,7 @@ class _PopupMenuState extends State<PopupMenu> {
     return OverlayPortal(
       controller: controller,
       overlayChildBuilder: (context) {
-        final rect = switch (this.context.findRenderObject() as RenderBox?) {
-          final RenderBox box => box.localToGlobal(
-                Offset.zero,
-              ) &
-              box.size,
-          _ => null,
-        };
+        final rect = this.context.rect;
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, result) {
@@ -121,5 +115,17 @@ class _PopupMenuState extends State<PopupMenu> {
       },
       child: widget.anchor,
     );
+  }
+}
+
+extension on BuildContext {
+  Rect? get rect {
+    return switch (findRenderObject() as RenderBox?) {
+      final RenderBox box => box.localToGlobal(
+            Offset.zero,
+          ) &
+          box.size,
+      _ => null,
+    };
   }
 }
