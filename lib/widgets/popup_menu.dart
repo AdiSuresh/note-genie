@@ -17,40 +17,40 @@ class PopupMenu extends StatefulWidget {
 }
 
 class _PopupMenuState extends State<PopupMenu> {
-  OverlayPortalController get _menuController {
+  OverlayPortalController get controller {
     return widget.controller;
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          return;
-        }
-        if (_menuController.isShowing) {
-          _menuController.hide();
-          return;
-        }
-        Navigator.of(context).pop();
-      },
-      child: OverlayPortal(
-        controller: _menuController,
-        overlayChildBuilder: (context) {
-          final rect = switch (this.context.findRenderObject() as RenderBox?) {
-            final RenderBox box => box.localToGlobal(
-                  Offset.zero,
-                ) &
-                box.size,
-            _ => null,
-          };
-          return Stack(
+    return OverlayPortal(
+      controller: controller,
+      overlayChildBuilder: (context) {
+        final rect = switch (this.context.findRenderObject() as RenderBox?) {
+          final RenderBox box => box.localToGlobal(
+                Offset.zero,
+              ) &
+              box.size,
+          _ => null,
+        };
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) {
+              return;
+            }
+            if (controller.isShowing) {
+              controller.hide();
+              return;
+            }
+            Navigator.of(context).pop();
+          },
+          child: Stack(
             alignment: Alignment.center,
             children: [
               Listener(
                 onPointerDown: (event) {
-                  _menuController.toggle();
+                  controller.toggle();
                 },
                 child: const ModalBarrier(),
               ),
@@ -95,7 +95,7 @@ class _PopupMenuState extends State<PopupMenu> {
                                 };
                                 return InkWell(
                                   onTap: () {
-                                    _menuController.hide();
+                                    controller.hide();
                                     callback();
                                   },
                                   borderRadius: borderRadius,
@@ -117,12 +117,10 @@ class _PopupMenuState extends State<PopupMenu> {
                 ),
               ),
             ],
-          );
-        },
-        child: widget.anchor,
-      ),
+          ),
+        );
+      },
+      child: widget.anchor,
     );
   }
 }
-
-class PopupMenuController extends OverlayPortalController {}
