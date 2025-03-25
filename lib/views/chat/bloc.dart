@@ -349,5 +349,43 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
       },
     );
+    on<RenameCurrentChatEvent>(
+      (event, emit) {
+        final idleState = switch (state) {
+          final IdleState state => state,
+          _ => null,
+        };
+        if (idleState == null) {
+          return;
+        }
+        final previousTitle = idleState.chat.data.title;
+        if (event.title == previousTitle) {
+          return;
+        }
+        final chat = idleState.chat.data.copyWith(
+          title: event.title,
+        );
+        final index = idleState.allChats.data.indexWhere(
+          (element) {
+            return element.remoteId == chat.remoteId;
+          },
+        );
+        try {
+          idleState.allChats.data[index] = chat;
+        } catch (e) {
+          // ignored
+        }
+        emit(
+          idleState.copyWith(
+            chat: AsyncData.initial(
+              chat,
+            ),
+            allChats: AsyncData.initial(
+              idleState.allChats.data,
+            ),
+          ),
+        );
+      },
+    );
   }
 }

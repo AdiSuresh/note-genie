@@ -211,7 +211,14 @@ class _ChatPageState extends State<ChatPage>
                               title: 'Edit title',
                               context: context,
                               titleCtrl: titleCtrl,
-                              onOk: () {},
+                              onOk: () {
+                                context.pop();
+                                bloc.add(
+                                  RenameCurrentChatEvent(
+                                    title: titleCtrl.text,
+                                  ),
+                                );
+                              },
                               onCancel: () {
                                 context.pop();
                               },
