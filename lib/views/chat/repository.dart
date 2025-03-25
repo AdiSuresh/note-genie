@@ -166,6 +166,7 @@ class ChatPageRepository {
 
   Future<bool?> renameChat(
     String id,
+    String title,
   ) async {
     final url = _chatsUrl;
     if (url == null) {
@@ -174,6 +175,14 @@ class ChatPageRepository {
     final response = await http.put(
       url.replace(
         path: '${url.path}/$id',
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(
+        {
+          'title': title,
+        },
       ),
     );
     return response.ok;

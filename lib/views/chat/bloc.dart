@@ -390,6 +390,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             try {
               await repository.renameChat(
                 id,
+                event.title,
               );
             } catch (e) {
               logger.i(
