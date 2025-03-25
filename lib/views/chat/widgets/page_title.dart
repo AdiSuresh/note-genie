@@ -10,10 +10,12 @@ import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/popup_menu.dart';
 
 class ChatPageTitle extends StatelessWidget {
+  final List<(String, VoidCallback)> items;
   final _menuController = OverlayPortalController();
 
   ChatPageTitle({
     super.key,
+    required this.items,
   });
 
   GlobalObjectKey get _buttonKey {
@@ -86,10 +88,7 @@ class ChatPageTitle extends StatelessWidget {
                     ],
                   ),
                 ),
-                items: [
-                  ('Rename', () {}),
-                  ('Delete', () {}),
-                ],
+                items: items,
               ),
           },
         );
