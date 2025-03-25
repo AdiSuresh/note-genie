@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class PopupMenu extends StatefulWidget {
-  final Widget anchor;
-  final List<(String, VoidCallback)> items;
   final OverlayPortalController controller;
+  final List<(String, VoidCallback)> items;
+  final Widget anchor;
 
   const PopupMenu({
     super.key,
-    required this.anchor,
-    required this.items,
     required this.controller,
+    required this.items,
+    required this.anchor,
   });
 
   @override
