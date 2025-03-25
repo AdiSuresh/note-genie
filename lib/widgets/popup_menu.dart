@@ -49,7 +49,7 @@ class _PopupMenuState extends State<PopupMenu> {
             children: [
               Listener(
                 onPointerDown: (event) {
-                  controller.toggle();
+                  controller.hide();
                 },
                 child: const ModalBarrier(),
               ),
