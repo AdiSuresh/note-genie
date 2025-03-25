@@ -358,12 +358,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         if (idleState == null) {
           return;
         }
-        final previousTitle = idleState.chat.data.title;
-        if (event.title == previousTitle) {
+        final newTitle = event.title.trim();
+        final oldTitle = idleState.chat.data.title;
+        if (newTitle == oldTitle) {
           return;
         }
         final chat = idleState.chat.data.copyWith(
-          title: event.title,
+          title: newTitle,
         );
         final index = idleState.allChats.data.indexWhere(
           (element) {
@@ -390,7 +391,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             try {
               await repository.renameChat(
                 id,
-                event.title,
+                newTitle,
               );
             } catch (e) {
               logger.i(
