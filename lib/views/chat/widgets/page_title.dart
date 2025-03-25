@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
-import 'package:note_maker/utils/extensions/global_key.dart';
 import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/state/state.dart';
