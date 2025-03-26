@@ -402,5 +402,45 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
       },
     );
+    on<DeleteCurrentChatEvent>(
+      (event, emit) async {
+        final idleState = switch (state) {
+          final IdleState state => state,
+          _ => null,
+        };
+        if (idleState == null) {
+          return;
+        }
+        final chat = idleState.chat.data;
+        idleState.allChats.data.removeWhere(
+          (element) {
+            return element.remoteId == chat.remoteId;
+          },
+        );
+        emit(
+          idleState.copyWith(
+            chat: AsyncData.initial(
+              ChatModel.empty(),
+            ),
+            allChats: AsyncData.initial(
+              idleState.allChats.data,
+            ),
+          ),
+        );
+        switch (chat.remoteId) {
+          case final String id:
+            try {
+              await repository.deleteChat(
+                id,
+              );
+            } catch (e) {
+              logger.i(
+                'could not delete chat',
+              );
+            }
+          case _:
+        }
+      },
+    );
   }
 }

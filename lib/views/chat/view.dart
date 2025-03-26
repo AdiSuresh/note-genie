@@ -230,15 +230,29 @@ class _ChatPageState extends State<ChatPage>
                     (
                       'Delete',
                       () {
-                        UiUtils.showProceedDialog(
-                          title: 'Delete chat?',
-                          message: 'You are about to delete this chat.'
-                              ' Once deleted its gone forever.'
-                              '\n\nAre you sure you want to proceed?',
-                          context: context,
-                          onYes: () {},
-                          onNo: () {},
-                        );
+                        switch (bloc.state) {
+                          case IdleState():
+                            UiUtils.showProceedDialog(
+                              title: 'Delete chat?',
+                              message: 'You are about to delete this chat.'
+                                  ' Once deleted its gone forever.'
+                                  '\n\nAre you sure you want to proceed?',
+                              context: context,
+                              onYes: () {
+                                bloc.add(
+                                  const DeleteCurrentChatEvent(),
+                                );
+                                context.pop();
+                                context.go(
+                                  '/chat',
+                                );
+                              },
+                              onNo: () {
+                                context.pop();
+                              },
+                            );
+                          case _:
+                        }
                       },
                     ),
                   ],

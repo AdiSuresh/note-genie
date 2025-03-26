@@ -187,4 +187,22 @@ class ChatPageRepository {
     );
     return response.ok;
   }
+
+  Future<bool?> deleteChat(
+    String id,
+  ) async {
+    final url = _chatsUrl;
+    if (url == null) {
+      return null;
+    }
+    final response = await http.delete(
+      url.replace(
+        path: '${url.path}/$id',
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+    return response.ok;
+  }
 }

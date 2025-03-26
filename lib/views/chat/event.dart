@@ -52,3 +52,19 @@ final class RenameChatFromListEvent extends RenameChatEvent {
     required this.index,
   });
 }
+
+sealed class DeleteChatEvent extends ChatEvent {
+  const DeleteChatEvent();
+}
+
+final class DeleteCurrentChatEvent extends DeleteChatEvent {
+  const DeleteCurrentChatEvent();
+}
+
+final class DeleteChatFromListEvent extends DeleteCurrentChatEvent {
+  final int index;
+
+  const DeleteChatFromListEvent({
+    required this.index,
+  });
+}
