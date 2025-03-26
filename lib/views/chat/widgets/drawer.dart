@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
+import 'package:note_maker/utils/extensions/iterable.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
@@ -66,17 +67,16 @@ class ChatPageDrawer extends StatelessWidget {
                 switch ((previous, current)) {
                   case (
                       IdleState(
-                        allChats: AsyncData(
-                          state: final s1,
-                        ),
+                        allChats: final d1,
                       ),
                       IdleState(
-                        allChats: AsyncData(
-                          state: final s2,
-                        ),
+                        allChats: final d2,
                       ),
                     ):
-                    return s1 != s2;
+                    return [
+                      d1 != d2,
+                      d1.state != d2.state,
+                    ].or();
                   case _:
                 }
                 return false;

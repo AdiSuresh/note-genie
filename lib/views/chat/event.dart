@@ -29,3 +29,42 @@ final class UpdateButtonVisibilityEvent extends ChatEvent {
     required this.value,
   });
 }
+
+sealed class RenameChatEvent extends ChatEvent {
+  final String title;
+
+  const RenameChatEvent({
+    required this.title,
+  });
+}
+
+final class RenameCurrentChatEvent extends RenameChatEvent {
+  const RenameCurrentChatEvent({
+    required super.title,
+  });
+}
+
+final class RenameChatFromListEvent extends RenameChatEvent {
+  final int index;
+
+  const RenameChatFromListEvent({
+    required super.title,
+    required this.index,
+  });
+}
+
+sealed class DeleteChatEvent extends ChatEvent {
+  const DeleteChatEvent();
+}
+
+final class DeleteCurrentChatEvent extends DeleteChatEvent {
+  const DeleteCurrentChatEvent();
+}
+
+final class DeleteChatFromListEvent extends DeleteCurrentChatEvent {
+  final int index;
+
+  const DeleteChatFromListEvent({
+    required this.index,
+  });
+}

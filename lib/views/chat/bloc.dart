@@ -349,5 +349,98 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
       },
     );
+    on<RenameCurrentChatEvent>(
+      (event, emit) async {
+        final idleState = switch (state) {
+          final IdleState state => state,
+          _ => null,
+        };
+        if (idleState == null) {
+          return;
+        }
+        final newTitle = event.title.trim();
+        final oldTitle = idleState.chat.data.title;
+        if (newTitle == oldTitle) {
+          return;
+        }
+        final chat = idleState.chat.data.copyWith(
+          title: newTitle,
+        );
+        final index = idleState.allChats.data.indexWhere(
+          (element) {
+            return element.remoteId == chat.remoteId;
+          },
+        );
+        try {
+          idleState.allChats.data[index] = chat;
+        } catch (e) {
+          // ignored
+        }
+        emit(
+          idleState.copyWith(
+            chat: AsyncData.initial(
+              chat,
+            ),
+            allChats: AsyncData.initial(
+              idleState.allChats.data,
+            ),
+          ),
+        );
+        switch (chat.remoteId) {
+          case final String id:
+            try {
+              await repository.renameChat(
+                id,
+                newTitle,
+              );
+            } catch (e) {
+              logger.i(
+                'could not update title',
+              );
+            }
+          case _:
+        }
+      },
+    );
+    on<DeleteCurrentChatEvent>(
+      (event, emit) async {
+        final idleState = switch (state) {
+          final IdleState state => state,
+          _ => null,
+        };
+        if (idleState == null) {
+          return;
+        }
+        final chat = idleState.chat.data;
+        idleState.allChats.data.removeWhere(
+          (element) {
+            return element.remoteId == chat.remoteId;
+          },
+        );
+        emit(
+          idleState.copyWith(
+            chat: AsyncData.initial(
+              ChatModel.empty(),
+            ),
+            allChats: AsyncData.initial(
+              idleState.allChats.data,
+            ),
+          ),
+        );
+        switch (chat.remoteId) {
+          case final String id:
+            try {
+              await repository.deleteChat(
+                id,
+              );
+            } catch (e) {
+              logger.i(
+                'could not delete chat',
+              );
+            }
+          case _:
+        }
+      },
+    );
   }
 }

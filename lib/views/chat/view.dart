@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
@@ -111,6 +112,8 @@ class _ChatPageState extends State<ChatPage>
 
   var pointerDown = false;
 
+  final titleCtrl = TextEditingController();
+
   void scrollToBottom() {
     switch (chatBubbleKey.currentContext) {
       case final BuildContext context when context.mounted:
@@ -190,7 +193,70 @@ class _ChatPageState extends State<ChatPage>
                     Icons.menu,
                   ),
                 ),
-                ChatPageTitle(),
+                ChatPageTitle(
+                  items: [
+                    (
+                      'Rename',
+                      () {
+                        switch (bloc.state) {
+                          case IdleState(
+                              :final chat,
+                            ):
+                            titleCtrl.text = chat.data.title;
+                            titleCtrl.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset: titleCtrl.text.length,
+                            );
+                            UiUtils.showEditTitleDialog(
+                              title: 'Edit title',
+                              context: context,
+                              titleCtrl: titleCtrl,
+                              onOk: () {
+                                context.pop();
+                                bloc.add(
+                                  RenameCurrentChatEvent(
+                                    title: titleCtrl.text,
+                                  ),
+                                );
+                              },
+                              onCancel: () {
+                                context.pop();
+                              },
+                            );
+                          case _:
+                        }
+                      },
+                    ),
+                    (
+                      'Delete',
+                      () {
+                        switch (bloc.state) {
+                          case IdleState():
+                            UiUtils.showProceedDialog(
+                              title: 'Delete chat?',
+                              message: 'You are about to delete this chat.'
+                                  ' Once deleted its gone forever.'
+                                  '\n\nAre you sure you want to proceed?',
+                              context: context,
+                              onYes: () {
+                                bloc.add(
+                                  const DeleteCurrentChatEvent(),
+                                );
+                                context.pop();
+                                context.go(
+                                  '/chat',
+                                );
+                              },
+                              onNo: () {
+                                context.pop();
+                              },
+                            );
+                          case _:
+                        }
+                      },
+                    ),
+                  ],
+                ),
                 IconButton(
                   onPressed: () {
                     switch (bloc.state) {
