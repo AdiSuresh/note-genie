@@ -124,17 +124,71 @@ class ChatPageDrawer extends StatelessWidget {
                         allChats.length,
                         (index) {
                           final item = allChats[index];
-                          return ListTile(
-                            title: Text(
-                              item.title,
-                              style: context.themeData.textTheme.titleMedium,
-                            ),
-                            onTap: () {
-                              _viewChat(
-                                context,
-                                id: item.remoteId,
+                          final textTheme = Theme.of(context).textTheme;
+                          final controller = MenuController();
+                          final tile = Builder(
+                            builder: (context) {
+                              Offset? menuOffset;
+                              return InkWell(
+                                onTap: () {
+                                  _viewChat(
+                                    context,
+                                    id: item.remoteId,
+                                  );
+                                },
+                                onLongPress: () {
+                                  controller.open(
+                                    position: menuOffset,
+                                  );
+                                },
+                                onTapDown: (details) {
+                                  menuOffset = details.localPosition;
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        item.title,
+                                        style: textTheme.titleMedium,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               );
                             },
+                          );
+                          return MenuAnchor(
+                            controller: controller,
+                            consumeOutsideTap: true,
+                            style: MenuStyle(
+                              backgroundColor: WidgetStateProperty.all(
+                                Colors.white,
+                              ),
+                            ),
+                            menuChildren: [
+                              (
+                                'Rename',
+                                () {},
+                              ),
+                              (
+                                'Delete',
+                                () {},
+                              ),
+                            ].map(
+                              (e) {
+                                final (label, callback) = e;
+                                return MenuItemButton(
+                                  onPressed: callback,
+                                  child: Text(
+                                    label,
+                                  ),
+                                );
+                              },
+                            ).toList(),
+                            child: tile,
                           );
                         },
                       ),
