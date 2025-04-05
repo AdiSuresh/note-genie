@@ -219,7 +219,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ..body = json.encode(
             {
               'context': context,
-              'question': event.message,
+              'message': event.message,
             },
           );
         final client = http.Client();

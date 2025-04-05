@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:note_maker/utils/extensions/global_key.dart';
+import 'package:note_maker/widgets/menu_items.dart';
 
 class PopupMenu extends StatefulWidget {
   final OverlayPortalController controller;
@@ -21,12 +23,32 @@ class _PopupMenuState extends State<PopupMenu> {
     return widget.controller;
   }
 
+  final menuItemsKey = GlobalKey();
+  double menuItemsWidth = 0.0;
+
+  void setMenuItemsWidth() {
+    if (menuItemsWidth > 0.0) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        switch (menuItemsKey.findRect()?.width) {
+          case final double width:
+            setState(() {
+              menuItemsWidth = width;
+            });
+          case _:
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return OverlayPortal(
       controller: controller,
       overlayChildBuilder: (context) {
-        final rect = this.context.rect;
+        final rect = this.context.rect!;
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, result) {
@@ -39,7 +61,6 @@ class _PopupMenuState extends State<PopupMenu> {
             }
           },
           child: Stack(
-            alignment: Alignment.center,
             children: [
               Listener(
                 onPointerDown: (event) {
@@ -48,7 +69,8 @@ class _PopupMenuState extends State<PopupMenu> {
                 child: const ModalBarrier(),
               ),
               Positioned(
-                top: rect?.top,
+                left: rect.bottomCenter.dx,
+                top: rect.bottomCenter.dy - rect.height,
                 child: TweenAnimationBuilder(
                   tween: Tween(
                     begin: 0.95,
@@ -58,51 +80,31 @@ class _PopupMenuState extends State<PopupMenu> {
                     milliseconds: 125,
                   ),
                   builder: (context, value, child) {
-                    final items = widget.items;
+                    setMenuItemsWidth();
                     return Transform(
-                      alignment: Alignment.center,
                       transform: Matrix4.identity()
+                        ..translate(
+                          -menuItemsWidth / 2,
+                        )
                         ..scale(
                           value,
                         ),
-                      child: Material(
-                        elevation: 2.5,
-                        borderRadius: BorderRadius.circular(15),
-                        child: IntrinsicWidth(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: items.indexed.map(
-                              (element) {
-                                final (i, e) = element;
-                                final (title, callback) = e;
-                                final borderRadius = switch (i) {
-                                  0 => BorderRadius.vertical(
-                                      top: Radius.circular(15),
-                                    ),
-                                  _ when i == items.length - 1 =>
-                                    BorderRadius.vertical(
-                                      bottom: Radius.circular(15),
-                                    ),
-                                  _ => null,
-                                };
-                                return InkWell(
-                                  onTap: () {
-                                    controller.hide();
-                                    callback();
-                                  },
-                                  borderRadius: borderRadius,
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    padding: EdgeInsets.all(15),
-                                    child: Text(
-                                      title,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ).toList(),
-                          ),
+                      child: Opacity(
+                        opacity: menuItemsWidth > 0.0 ? 1 : 0,
+                        child: MenuItems(
+                          key: menuItemsKey,
+                          items: widget.items.map(
+                            (e) {
+                              final (title, onTap) = e;
+                              return (
+                                title,
+                                () {
+                                  controller.hide();
+                                  onTap();
+                                }
+                              );
+                            },
+                          ).toList(),
                         ),
                       ),
                     );
