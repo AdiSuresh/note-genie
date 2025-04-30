@@ -55,7 +55,7 @@ class NoteList extends StatelessWidget {
               DeleteNotesState(),
               IdleState(),
             ):
-            return false;
+            return true;
           case _:
         }
         return previous.runtimeType != current.runtimeType;
