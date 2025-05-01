@@ -6,7 +6,7 @@ sealed class EditNoteEvent {
   const EditNoteEvent();
 }
 
-class SaveNoteEvent extends EditNoteEvent {
+final class SaveNoteEvent extends EditNoteEvent {
   final NoteEntity note;
 
   SaveNoteEvent({
@@ -14,7 +14,7 @@ class SaveNoteEvent extends EditNoteEvent {
   });
 }
 
-class UpdateTitleEvent extends EditNoteEvent {
+final class UpdateTitleEvent extends EditNoteEvent {
   final String title;
 
   UpdateTitleEvent({
@@ -22,7 +22,7 @@ class UpdateTitleEvent extends EditNoteEvent {
   });
 }
 
-class UpdateContentEvent extends EditNoteEvent {
+final class UpdateContentEvent extends EditNoteEvent {
   final Document document;
 
   UpdateContentEvent({
@@ -30,7 +30,7 @@ class UpdateContentEvent extends EditNoteEvent {
   });
 }
 
-class RemoveFromCollectionEvent extends EditNoteEvent {
+final class RemoveFromCollectionEvent extends EditNoteEvent {
   final int collectionId;
 
   RemoveFromCollectionEvent({
@@ -38,7 +38,7 @@ class RemoveFromCollectionEvent extends EditNoteEvent {
   });
 }
 
-class AddToCollectionEvent extends EditNoteEvent {
+final class AddToCollectionEvent extends EditNoteEvent {
   final NoteCollectionEntity collection;
 
   AddToCollectionEvent({
@@ -46,10 +46,10 @@ class AddToCollectionEvent extends EditNoteEvent {
   });
 }
 
-class ViewCollectionsEvent extends EditNoteEvent {
+final class ViewCollectionsEvent extends EditNoteEvent {
   const ViewCollectionsEvent();
 }
 
-class ViewUnlinkedCollectionsEvent extends EditNoteEvent {
+final class ViewUnlinkedCollectionsEvent extends EditNoteEvent {
   const ViewUnlinkedCollectionsEvent();
 }
