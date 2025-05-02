@@ -6,11 +6,26 @@ sealed class EditNoteEvent {
   const EditNoteEvent();
 }
 
-final class SaveNoteEvent extends EditNoteEvent {
+sealed class SaveNoteEvent extends EditNoteEvent {
   final NoteEntity note;
 
   SaveNoteEvent({
     required this.note,
+  });
+}
+
+final class SaveNoteLocallyEvent extends SaveNoteEvent {
+  final bool saveRemotely;
+
+  SaveNoteLocallyEvent({
+    required super.note,
+    this.saveRemotely = true,
+  });
+}
+
+final class SaveNoteRemotelyEvent extends SaveNoteEvent {
+  SaveNoteRemotelyEvent({
+    required super.note,
   });
 }
 

@@ -14,6 +14,8 @@ class NoteEntity implements BaseEntity {
   @override
   int id = BaseEntity.idPlaceholder;
 
+  final String? remoteId;
+
   final String title;
 
   final String content;
@@ -37,6 +39,7 @@ class NoteEntity implements BaseEntity {
 
   NoteEntity({
     this.id = BaseEntity.idPlaceholder,
+    this.remoteId,
     required this.title,
     required this.content,
     required this.collections,

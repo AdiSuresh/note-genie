@@ -1,4 +1,5 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 
@@ -19,6 +20,7 @@ enum EditNoteStatus {
 @CopyWith()
 class EditNoteState {
   final NoteEntity note;
+  final AsyncData<String?> remoteId;
   final EditNoteStatus noteStatus;
   final bool viewCollections;
   final bool isSheetOpen;
@@ -26,6 +28,7 @@ class EditNoteState {
 
   const EditNoteState({
     required this.note,
+    required this.remoteId,
     this.noteStatus = EditNoteStatus.initial,
     this.viewCollections = true,
     this.isSheetOpen = false,
