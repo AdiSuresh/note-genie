@@ -36,15 +36,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }) {
     on<LoadAllChatsEvent>(
       (event, emit) async {
-        final url = switch (_env.backendUrl) {
-          final Uri url => url.replace(
-              path: '/chats',
-            ),
-          _ => null,
-        };
-        if (url == null) {
-          return;
-        }
         switch (state) {
           case final IdleState state:
             final allChats = state.allChats.copyWith(

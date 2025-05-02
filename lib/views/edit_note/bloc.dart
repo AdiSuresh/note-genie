@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/models/future_data/model.dart';
 import 'package:note_maker/models/note/extensions.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/edit_note/event.dart';
@@ -36,7 +37,7 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
           title: title,
         );
         add(
-          SaveNoteEvent(
+          SaveNoteLocallyEvent(
             note: note,
           ),
         );
@@ -51,13 +52,13 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
           content: content,
         );
         add(
-          SaveNoteEvent(
+          SaveNoteLocallyEvent(
             note: note,
           ),
         );
       },
     );
-    on<SaveNoteEvent>(
+    on<SaveNoteLocallyEvent>(
       (event, emit) async {
         final note = await repository.putNote(
           event.note,
@@ -68,6 +69,91 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
             note: note,
           ),
         );
+        if (event.saveRemotely) {
+          add(
+            SaveNoteRemotelyEvent(
+              note: note,
+            ),
+          );
+        }
+      },
+    );
+    on<SaveNoteRemotelyEvent>(
+      (event, emit) async {
+        switch (state.remoteId) {
+          case AsyncData(
+              data: String(),
+            ):
+            logger.i('/notes PUT method');
+            try {
+              await state.remoteId.future;
+            } catch (e) {
+              // ignored
+            }
+            final response = await repository.saveNoteRemote(
+              event.note,
+            );
+            logger.i(response);
+          case AsyncData(
+              data: null,
+              state: AsyncDataState.loaded,
+            ):
+            logger.i('/notes POST method');
+            emit(
+              state.copyWith(
+                remoteId: state.remoteId.copyWith(
+                  state: AsyncDataState.loading,
+                ),
+              ),
+            );
+            try {
+              final future = repository.createNoteRemote(
+                state.note,
+              );
+              emit(
+                state.copyWith(
+                  remoteId: state.remoteId.copyWith(
+                    future: future,
+                  ),
+                ),
+              );
+              final id = await future;
+              if (id case String()) {
+                final note = state.note.copyWith(
+                  remoteId: id,
+                );
+                emit(
+                  state.copyWith(
+                    note: note,
+                    remoteId: AsyncData.initial(
+                      id,
+                    ),
+                  ),
+                );
+                add(
+                  SaveNoteLocallyEvent(
+                    note: note,
+                    saveRemotely: false,
+                  ),
+                );
+              } else {
+                throw Exception('Request failed');
+              }
+            } catch (e) {
+              logger.i('error while creating note: $e');
+              emit(
+                state.copyWith(
+                  remoteId: AsyncData.initial(
+                    null,
+                  ),
+                ),
+              );
+            }
+          case _:
+            logger.i('other condition');
+            logger.i(state.remoteId.data);
+            logger.i(state.remoteId.state);
+        }
       },
     );
     on<AddToCollectionEvent>(
@@ -114,6 +200,13 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
             viewCollections: false,
             unlinkedCollections: unlinkedCollections,
           ),
+        );
+      },
+    );
+    on<LeavePageEvent>(
+      (event, emit) async {
+        await repository.updateNoteEmbeddings(
+          state.note,
         );
       },
     );
