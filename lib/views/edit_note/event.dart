@@ -68,3 +68,7 @@ final class ViewCollectionsEvent extends EditNoteEvent {
 final class ViewUnlinkedCollectionsEvent extends EditNoteEvent {
   const ViewUnlinkedCollectionsEvent();
 }
+
+final class LeavePageEvent extends EditNoteEvent {
+  const LeavePageEvent();
+}

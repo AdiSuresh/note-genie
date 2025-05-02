@@ -203,5 +203,12 @@ class EditNoteBloc extends Bloc<EditNoteEvent, EditNoteState> {
         );
       },
     );
+    on<LeavePageEvent>(
+      (event, emit) async {
+        await repository.updateNoteEmbeddings(
+          state.note,
+        );
+      },
+    );
   }
 }

@@ -53,9 +53,7 @@ class EditNoteRepository with LocalDBServiceMixin {
   Future<String?> createNoteRemote(
     NoteEntity note,
   ) async {
-    final url = _env.backendUrl?.replace(
-      path: '/notes',
-    );
+    final url = _notesUrl;
     if (url == null) {
       return null;
     }
@@ -100,7 +98,9 @@ class EditNoteRepository with LocalDBServiceMixin {
       return null;
     }
     final response = await http.put(
-      url,
+      url.replace(
+        path: '${url.path}/$id',
+      ),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -120,6 +120,48 @@ class EditNoteRepository with LocalDBServiceMixin {
             'message': final String message,
           }:
           return message;
+        case _:
+      }
+    } catch (e) {
+      // ignored
+    }
+    return null;
+  }
+
+  Future<String?> updateNoteEmbeddings(
+    NoteEntity note,
+  ) async {
+    final id = note.remoteId;
+    if (id == null) {
+      return null;
+    }
+    final url = _notesUrl;
+    if (url == null) {
+      return null;
+    }
+    final response = await http.post(
+      url.replace(
+        path: '${url.path}/$id/embed',
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(
+        {
+          'title': note.title,
+          'content': note.contentAsText,
+        },
+      ),
+    );
+    try {
+      final decoded = json.decode(
+        response.body,
+      );
+      switch (decoded) {
+        case {
+            'json': final String json,
+          }:
+          return json;
         case _:
       }
     } catch (e) {

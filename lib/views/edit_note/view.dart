@@ -209,6 +209,9 @@ class _EditNoteState extends State<EditNote> {
           return;
         }
         if (context.mounted) {
+          bloc.add(
+            const LeavePageEvent(),
+          );
           context.pop(
             result,
           );
