@@ -6,6 +6,7 @@ import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
 import 'package:note_maker/services/env_var_loader.dart';
+import 'package:note_maker/utils/extensions/base_response.dart';
 
 class EditNoteRepository with LocalDBServiceMixin {
   final _env = EnvVarLoader();
@@ -75,8 +76,9 @@ class EditNoteRepository with LocalDBServiceMixin {
       );
       switch (decoded) {
         case {
-            'id': final String id,
-          }:
+              'id': final String id,
+            }
+            when response.ok:
           return id;
         case _:
       }
@@ -117,8 +119,9 @@ class EditNoteRepository with LocalDBServiceMixin {
       );
       switch (decoded) {
         case {
-            'message': final String message,
-          }:
+              'message': final String message,
+            }
+            when response.ok:
           return message;
         case _:
       }
@@ -159,8 +162,9 @@ class EditNoteRepository with LocalDBServiceMixin {
       );
       switch (decoded) {
         case {
-            'json': final String json,
-          }:
+              'json': final String json,
+            }
+            when response.ok:
           return json;
         case _:
       }

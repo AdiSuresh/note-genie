@@ -10,6 +10,7 @@ import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/type.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
+import 'package:note_maker/views/auth/repository.dart';
 import 'package:note_maker/views/edit_note/view.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/home/bloc.dart';
@@ -228,7 +229,9 @@ class _HomePageState extends State<HomePage>
                         ),
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              AuthPageRepository().logout();
+                            },
                             icon: Icon(
                               Icons.menu,
                             ),
