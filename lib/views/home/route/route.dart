@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
+import 'package:note_maker/views/auth/route.dart';
 import 'package:note_maker/views/chat/route.dart';
 import 'package:note_maker/views/edit_note/route.dart';
 import 'package:note_maker/views/home/bloc.dart';
@@ -16,14 +17,19 @@ part 'route.g.dart';
 @TypedGoRoute<HomeRoute>(
   path: HomePage.path,
   routes: <TypedGoRoute<GoRouteData>>[
+    TypedGoRoute<AuthPageRoute>(
+      path: 'auth',
+    ),
     TypedGoRoute<EditNoteRoute>(
       path: 'edit-note',
     ),
     TypedGoRoute<ChatRoute>(
       path: 'chat',
-    ),
-    TypedGoRoute<ChatRoute>(
-      path: 'chat/:id',
+      routes: [
+        TypedGoRoute<ChatRoute>(
+          path: ':id',
+        ),
+      ],
     ),
   ],
 )

@@ -1,19 +1,47 @@
 sealed class AuthPageState {
-  final String? redirectTo;
+  const AuthPageState();
+}
 
-  const AuthPageState({
-    this.redirectTo,
+sealed class AuthFormState extends AuthPageState {
+  const AuthFormState();
+}
+
+final class LoginFormState extends AuthFormState {
+  const LoginFormState();
+}
+
+final class RegisterFormState extends AuthFormState {
+  const RegisterFormState();
+}
+
+sealed class NonIdleState extends AuthPageState {
+  final AuthFormState previousState;
+
+  const NonIdleState({
+    required this.previousState,
   });
 }
 
-final class LoginState extends AuthPageState {
-  const LoginState({
-    super.redirectTo,
+final class AuthenticatingState extends NonIdleState {
+  const AuthenticatingState({
+    required super.previousState,
   });
 }
 
-final class RegisterState extends AuthPageState {
-  const RegisterState({
-    super.redirectTo,
+sealed class AuthAttemptedState extends NonIdleState {
+  const AuthAttemptedState({
+    required super.previousState,
+  });
+}
+
+final class AuthSuccessState extends AuthAttemptedState {
+  const AuthSuccessState({
+    required super.previousState,
+  });
+}
+
+final class AuthFailureState extends AuthAttemptedState {
+  const AuthFailureState({
+    required super.previousState,
   });
 }
