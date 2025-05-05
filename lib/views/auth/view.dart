@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/views/auth/bloc.dart';
 import 'package:note_maker/views/auth/event.dart';
 import 'package:note_maker/views/auth/state.dart';
@@ -49,7 +51,32 @@ class _AuthPageState extends State<AuthPage> {
 
   void onStateChange(
     AuthPageState state,
-  ) {}
+  ) {
+    if (!context.mounted) {
+      return;
+    }
+    switch (state) {
+      case AuthSuccessState(
+          previousState: LoginFormState(),
+        ):
+        UiUtils.showSnackBar(
+          context,
+          content: 'Logged in successfully',
+          onClose: () {
+            context.go(
+              bloc.redirectTo,
+            );
+          },
+        );
+      case AuthSuccessState(
+          previousState: RegisterFormState(),
+        ):
+        bloc.add(
+          const SwitchAuthEvent(),
+        );
+      case _:
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

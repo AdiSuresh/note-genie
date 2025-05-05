@@ -64,7 +64,7 @@ class AuthFormHeader extends StatelessWidget {
           },
           child: Text(
             key: ValueKey(
-              'auth-form-header ($text)',
+              'auth-form-header-text: ($text)',
             ),
             text,
             style: context.themeData.textTheme.titleLarge,

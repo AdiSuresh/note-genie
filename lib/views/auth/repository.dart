@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 import 'package:note_maker/utils/extensions/jwt.dart';
+import 'package:note_maker/views/auth/auth_response.dart';
 
 class AuthPageRepository {
   static const resultOnError = (
@@ -28,13 +30,14 @@ class AuthPageRepository {
     );
   }
 
-  Future<(bool, String)> login({
+  Future<LoginResponse> login({
     required String email,
     required String password,
   }) async {
     final url = _loginUrl;
+    const unknownError = LoginFailure();
     if (url == null) {
-      return resultOnError;
+      return unknownError;
     }
     http.Response? response;
     try {
@@ -50,9 +53,12 @@ class AuthPageRepository {
           },
         ),
       );
-      print('response: ${response.reasonPhrase}');
+    } on SocketException {
+      return LoginFailure(
+        LoginFailureType.noInternet,
+      );
     } catch (e) {
-      return resultOnError;
+      return unknownError;
     }
     if (response.ok) {
       try {
@@ -68,10 +74,7 @@ class AuthPageRepository {
               key: 'access_token',
               value: token,
             );
-            return (
-              true,
-              'Logged in successfully',
-            );
+            return LoginSuccess();
           case _:
         }
       } catch (e) {
@@ -84,11 +87,11 @@ class AuthPageRepository {
         );
         switch (decoded) {
           case {
-              'detail': final String detail,
-            }:
-            return (
-              false,
-              detail,
+                'detail': String(),
+              }
+              when response.statusCode ~/ 100 == 4:
+            return LoginFailure(
+              LoginFailureType.unknownAccount,
             );
           case _:
         }
@@ -96,7 +99,7 @@ class AuthPageRepository {
         // ignored
       }
     }
-    return resultOnError;
+    return unknownError;
   }
 
   Future<(bool, String)> register({

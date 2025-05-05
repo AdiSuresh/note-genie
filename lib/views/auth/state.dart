@@ -1,3 +1,5 @@
+import 'package:note_maker/views/auth/auth_response.dart';
+
 sealed class AuthPageState {
   const AuthPageState();
 }
@@ -29,19 +31,24 @@ final class AuthenticatingState extends NonIdleState {
 }
 
 sealed class AuthAttemptedState extends NonIdleState {
+  final AuthResponse response;
+
   const AuthAttemptedState({
     required super.previousState,
+    required this.response,
   });
 }
 
 final class AuthSuccessState extends AuthAttemptedState {
   const AuthSuccessState({
     required super.previousState,
+    required super.response,
   });
 }
 
 final class AuthFailureState extends AuthAttemptedState {
   const AuthFailureState({
     required super.previousState,
+    required super.response,
   });
 }

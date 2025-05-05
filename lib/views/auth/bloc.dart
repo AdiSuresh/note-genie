@@ -54,11 +54,11 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
             milliseconds: 500,
           ),
         );
-        final (status, message) = await authRepo.login(
+        final response = await authRepo.login(
           email: event.email,
           password: event.password,
         );
-        if (status) {
+        if (response.successful) {
           emit(
             AuthSuccessState(
               previousState: state,
