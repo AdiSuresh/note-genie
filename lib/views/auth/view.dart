@@ -10,6 +10,7 @@ import 'package:note_maker/views/auth/bloc.dart';
 import 'package:note_maker/views/auth/event.dart';
 import 'package:note_maker/views/auth/state/state.dart';
 import 'package:note_maker/views/auth/widgets/form_header.dart';
+import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
 class AuthPage extends StatefulWidget {
@@ -173,7 +174,7 @@ class _AuthPageState extends State<AuthPage> {
                     return null;
                   },
                   decoration: InputDecoration(
-                    hintText: 'Email',
+                    labelText: 'Email',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -197,7 +198,7 @@ class _AuthPageState extends State<AuthPage> {
                     return null;
                   },
                   decoration: InputDecoration(
-                    hintText: 'Password',
+                    labelText: 'Password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -239,8 +240,18 @@ class _AuthPageState extends State<AuthPage> {
                           child: TextFormField(
                             controller: reEnterPasswordCtrl,
                             keyboardType: TextInputType.visiblePassword,
+                            validator: (value) {
+                              switch (value) {
+                                case '':
+                                  return 'This field is required';
+                                case String() when value != passwordCtrl.text:
+                                  return 'Passwords do not match';
+                                case _:
+                              }
+                              return null;
+                            },
                             decoration: InputDecoration(
-                              hintText: 'Re-enter password',
+                              labelText: 'Re-enter password',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
@@ -256,10 +267,11 @@ class _AuthPageState extends State<AuthPage> {
               ),
               BlocBuilder<AuthPageBloc, AuthPageState>(
                 buildWhen: (previous, current) {
-                  // if (current case AuthFormState()) {
-                  //   return true;
-                  // }
-                  // return false;
+                  switch ((previous, current)) {
+                    case (AuthFormState(), AuthFormState()):
+                      return false;
+                    default:
+                  }
                   return true;
                 },
                 builder: (context, state) {
@@ -293,8 +305,13 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                       ),
                       // const PulsingDotIndicator(),
-                      if (state case AuthenticatingState())
-                        const CircularProgressIndicator(),
+                      CustomAnimatedSwitcher(
+                        child: switch (state) {
+                          AuthenticatingState() =>
+                            const CircularProgressIndicator(),
+                          _ => const SizedBox(),
+                        },
+                      ),
                     ],
                   );
                 },
@@ -304,11 +321,8 @@ class _AuthPageState extends State<AuthPage> {
               ),
               BlocBuilder<AuthPageBloc, AuthPageState>(
                 buildWhen: (previous, current) {
-                  if (current case AuthFormState()) {
-                    return true;
-                  }
                   switch ((previous, current)) {
-                    case (AuthFormState(), _):
+                    case (AuthFormState(), _) || (_, AuthFormState()):
                       return true;
                     case _:
                   }
