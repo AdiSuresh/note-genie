@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/utils/ui_utils.dart';
+import 'package:note_maker/models/auth/auth_response.dart';
 import 'package:note_maker/views/auth/bloc.dart';
 import 'package:note_maker/views/auth/event.dart';
-import 'package:note_maker/views/auth/state.dart';
+import 'package:note_maker/views/auth/state/state.dart';
 import 'package:note_maker/views/auth/widgets/form_header.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
@@ -56,8 +57,8 @@ class _AuthPageState extends State<AuthPage> {
       return;
     }
     switch (state) {
-      case AuthSuccessState(
-          previousState: LoginFormState(),
+      case LoginAttemptedState(
+          response: LoginSuccess(),
         ):
         UiUtils.showSnackBar(
           context,
@@ -68,11 +69,66 @@ class _AuthPageState extends State<AuthPage> {
             );
           },
         );
-      case AuthSuccessState(
-          previousState: RegisterFormState(),
+      case LoginAttemptedState(
+          response: LoginFailure(
+            :final reason,
+          ),
         ):
-        bloc.add(
-          const SwitchAuthEvent(),
+        UiUtils.showSnackBar(
+          context,
+          content: reason.message,
+          onClose: () {
+            bloc.add(
+              const ResetStateEvent(),
+            );
+          },
+        );
+      case RegistrationAttemptedState(
+          response: RegistrationSuccess(),
+        ):
+        UiUtils.showSnackBar(
+          context,
+          content: 'Registered successfully',
+          onClose: () {
+            bloc.add(
+              const ResetStateEvent(),
+            );
+            bloc.add(
+              const ToggleFormEvent(),
+            );
+          },
+        );
+      case RegistrationAttemptedState(
+            response: RegistrationFailure(
+              :final reason,
+            ),
+          )
+          when reason == RegistrationFailureReason.alreadyExists:
+        UiUtils.showSnackBar(
+          context,
+          content: reason.message,
+          onClose: () {
+            bloc.add(
+              ResetStateEvent(),
+            );
+            bloc.add(
+              const ToggleFormEvent(),
+            );
+          },
+        );
+      case RegistrationAttemptedState(
+          response: RegistrationFailure(
+            :final reason,
+          ),
+        ):
+        UiUtils.showSnackBar(
+          context,
+          content: reason.message,
+          onClose: () {
+            bloc.add(
+              const ResetStateEvent(),
+            );
+          },
         );
       case _:
     }
@@ -150,12 +206,10 @@ class _AuthPageState extends State<AuthPage> {
               ),
               BlocBuilder<AuthPageBloc, AuthPageState>(
                 buildWhen: (previous, current) {
-                  switch ((previous, current)) {
-                    case (RegisterFormState(), _) || (_, RegisterFormState()):
-                      return true;
-                    case _:
+                  switch ((previous.formState, current.formState)) {
+                    case (final a, final b):
+                      return a.runtimeType != b.runtimeType;
                   }
-                  return false;
                 },
                 builder: (context, state) {
                   final registerFormState = switch (state) {
@@ -272,7 +326,7 @@ class _AuthPageState extends State<AuthPage> {
                     child: TextButton(
                       onPressed: () {
                         bloc.add(
-                          const SwitchAuthEvent(),
+                          const ToggleFormEvent(),
                         );
                       },
                       child: Text(

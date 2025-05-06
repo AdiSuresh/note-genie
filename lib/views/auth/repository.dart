@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 import 'package:note_maker/utils/extensions/jwt.dart';
-import 'package:note_maker/views/auth/auth_response.dart';
+import 'package:note_maker/models/auth/auth_response.dart';
 
 class AuthPageRepository {
   static const resultOnError = (
@@ -55,7 +55,7 @@ class AuthPageRepository {
       );
     } on SocketException {
       return LoginFailure(
-        LoginFailureType.noInternet,
+        LoginFailureReason.noInternet,
       );
     } catch (e) {
       return unknownError;
@@ -87,11 +87,11 @@ class AuthPageRepository {
         );
         switch (decoded) {
           case {
-                'detail': String(),
+                'detail': 'invalid_credentials',
               }
               when response.statusCode ~/ 100 == 4:
             return LoginFailure(
-              LoginFailureType.unknownAccount,
+              LoginFailureReason.unknownAccount,
             );
           case _:
         }
@@ -102,13 +102,14 @@ class AuthPageRepository {
     return unknownError;
   }
 
-  Future<(bool, String)> register({
+  Future<RegistrationResponse> register({
     required String email,
     required String password,
   }) async {
     final url = _registrationUrl;
+    const unknownError = RegistrationFailure();
     if (url == null) {
-      return resultOnError;
+      return unknownError;
     }
     http.Response? response;
     try {
@@ -124,8 +125,12 @@ class AuthPageRepository {
           },
         ),
       );
+    } on SocketException {
+      return RegistrationFailure(
+        RegistrationFailureReason.noInternet,
+      );
     } catch (e) {
-      return resultOnError;
+      return unknownError;
     }
     if (response.ok) {
       try {
@@ -134,12 +139,9 @@ class AuthPageRepository {
         );
         switch (decoded) {
           case {
-              'message': final String message,
+              'message': String(),
             }:
-            return (
-              true,
-              message,
-            );
+            return RegistrationSuccess();
           case _:
         }
       } catch (e) {
@@ -152,11 +154,11 @@ class AuthPageRepository {
         );
         switch (decoded) {
           case {
-              'detail': final String detail,
-            }:
-            return (
-              false,
-              detail,
+                'detail': 'already_exists',
+              }
+              when response.statusCode ~/ 100 == 4:
+            return RegistrationFailure(
+              RegistrationFailureReason.alreadyExists,
             );
           case _:
         }
@@ -164,7 +166,7 @@ class AuthPageRepository {
         // ignored
       }
     }
-    return resultOnError;
+    return unknownError;
   }
 
   Future<bool> get isLoggedIn async {

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/views/auth/event.dart';
 import 'package:note_maker/views/auth/repository.dart';
-import 'package:note_maker/views/auth/state.dart';
+import 'package:note_maker/views/auth/state/state.dart';
 
 class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
   final String redirectTo;
@@ -58,25 +58,12 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
           email: event.email,
           password: event.password,
         );
-        if (response.successful) {
-          emit(
-            AuthSuccessState(
-              previousState: state,
-            ),
-          );
-          emit(
-            state,
-          );
-        } else {
-          emit(
-            AuthFailureState(
-              previousState: state,
-            ),
-          );
-          emit(
-            state,
-          );
-        }
+        emit(
+          LoginAttemptedState(
+            previousState: state,
+            response: response,
+          ),
+        );
       },
     );
     on<AttemptRegistrationEvent>(
@@ -98,43 +85,33 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
             milliseconds: 500,
           ),
         );
-        final (status, message) = await authRepo.register(
+        final response = await authRepo.register(
           email: event.email,
           password: event.password,
         );
-        if (status) {
-          emit(
-            AuthSuccessState(
-              previousState: state,
-            ),
-          );
-          emit(
-            LoginFormState(),
-          );
-        } else {
-          emit(
-            AuthFailureState(
-              previousState: state,
-            ),
-          );
-          emit(
-            state,
-          );
-        }
+        emit(
+          RegistrationAttemptedState(
+            previousState: state,
+            response: response,
+          ),
+        );
       },
     );
-    on<SwitchAuthEvent>(
+    on<ToggleFormEvent>(
       (event, emit) {
-        final nextState = switch (state) {
+        final nextState = switch (state.formState) {
           LoginFormState() => RegisterFormState(),
           RegisterFormState() => LoginFormState(),
-          _ => null,
         };
-        if (nextState == null) {
-          return;
-        }
         emit(
           nextState,
+        );
+      },
+    );
+    on<ResetStateEvent>(
+      (event, emit) {
+        emit(
+          state.formState,
         );
       },
     );

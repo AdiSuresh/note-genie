@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
+import 'package:note_maker/models/auth/auth_response.dart';
 import 'package:note_maker/views/auth/bloc.dart';
-import 'package:note_maker/views/auth/state.dart';
+import 'package:note_maker/views/auth/state/state.dart';
 
 class AuthFormHeader extends StatelessWidget {
   const AuthFormHeader({
@@ -12,14 +13,6 @@ class AuthFormHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthPageBloc, AuthPageState>(
-      buildWhen: (previous, current) {
-        switch (current) {
-          case AuthFormState() || AuthenticatingState():
-            return true;
-          case _:
-        }
-        return false;
-      },
       builder: (context, state) {
         final text = switch (state) {
           LoginFormState() => 'Login',
@@ -32,11 +25,15 @@ class AuthFormHeader extends StatelessWidget {
             previousState: RegisterFormState(),
           ) =>
             'Registering...',
-          _ => null,
+          AuthAttemptedState(
+            response: AuthFailure(),
+          ) =>
+            'Oops!',
+          AuthAttemptedState(
+            response: LoginSuccess() || RegistrationSuccess(),
+          ) =>
+            'Success!',
         };
-        if (text case null) {
-          return const SizedBox();
-        }
         return AnimatedSwitcher(
           duration: const Duration(
             milliseconds: 150,
