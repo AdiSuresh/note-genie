@@ -110,7 +110,7 @@ class _AuthPageState extends State<AuthPage> {
           content: reason.message,
           onClose: () {
             bloc.add(
-              ResetStateEvent(),
+              const ResetStateEvent(),
             );
             bloc.add(
               const ToggleFormEvent(),

@@ -99,6 +99,9 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
     );
     on<ToggleFormEvent>(
       (event, emit) {
+        if (state case NonIdleState()) {
+          return;
+        }
         final nextState = switch (state.formState) {
           LoginFormState() => RegisterFormState(),
           RegisterFormState() => LoginFormState(),
