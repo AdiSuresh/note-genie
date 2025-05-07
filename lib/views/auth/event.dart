@@ -33,6 +33,10 @@ final class SubmitFormEvent extends AuthenticateEvent {
   });
 }
 
-final class SwitchAuthEvent extends AuthPageEvent {
-  const SwitchAuthEvent();
+final class ToggleFormEvent extends AuthPageEvent {
+  const ToggleFormEvent();
+}
+
+final class ResetStateEvent extends AuthPageEvent {
+  const ResetStateEvent();
 }

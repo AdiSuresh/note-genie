@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:note_maker/views/auth/bloc.dart';
 import 'package:note_maker/views/auth/repository.dart';
-import 'package:note_maker/views/auth/state.dart';
 import 'package:note_maker/views/auth/view.dart';
 
 class AuthPageRoute extends GoRouteData {
@@ -27,7 +26,6 @@ class AuthPageRoute extends GoRouteData {
           final authRepo = context.read<AuthPageRepository>();
           return AuthPageBloc(
             redirectTo: redirectTo,
-            initialState: LoginFormState(),
             authRepo: authRepo,
           );
         },
