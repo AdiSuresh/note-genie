@@ -13,6 +13,7 @@ import 'package:note_maker/views/auth/widgets/form_header.dart';
 import 'package:note_maker/views/auth/widgets/password_field.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
+import 'package:note_maker/widgets/three_dot_indicator.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({
@@ -309,8 +310,7 @@ class _AuthPageState extends State<AuthPage> {
                       // const PulsingDotIndicator(),
                       CustomAnimatedSwitcher(
                         child: switch (state) {
-                          AuthenticatingState() =>
-                            const CircularProgressIndicator(),
+                          AuthenticatingState() => const ThreeDotIndicator(),
                           _ => const SizedBox(),
                         },
                       ),
@@ -356,11 +356,6 @@ class _AuthPageState extends State<AuthPage> {
           ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     print('bloc.state: ${bloc.state}');
-      //   },
-      // ),
     );
     return DismissKeyboard(
       child: scaffold,

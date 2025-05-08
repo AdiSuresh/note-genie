@@ -101,7 +101,6 @@ class _ThreeDotIndicatorState extends State<ThreeDotIndicator> {
         }
         setState(() {
           mutate();
-          print('state: $state');
         });
       },
     );
