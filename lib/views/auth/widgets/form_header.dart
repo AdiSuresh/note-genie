@@ -43,17 +43,17 @@ class AuthFormHeader extends StatelessWidget {
             milliseconds: 150,
           ),
           transitionBuilder: (child, animation) {
-            final t1 = ScaleTransition(
+            final t1 = FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+            final t2 = ScaleTransition(
               scale: Tween(
                 begin: 0.975,
                 end: 1.0,
               ).animate(
                 animation,
               ),
-              child: child,
-            );
-            final t2 = FadeTransition(
-              opacity: animation,
               child: t1,
             );
             final t3 = SizeTransition(
