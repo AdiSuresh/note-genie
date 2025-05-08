@@ -25,24 +25,21 @@ class _ThreeDotIndicatorState extends State<ThreeDotIndicator> {
   bool forward = true;
 
   void mutate() {
+    forward = !forward;
     switch (state) {
       case s0:
-        forward = !forward;
         if (forward) {
           state = s1;
         }
       case s1:
-        forward = !forward;
         if (forward) {
           state = s2;
         }
       case s2:
-        forward = !forward;
         if (forward) {
           state = s3;
         }
       case _:
-        forward = !forward;
         if (forward) {
           state = s0;
         }
