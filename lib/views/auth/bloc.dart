@@ -12,7 +12,7 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
     this.redirectTo = '/',
     required this.authRepo,
   }) : super(
-          initialState ?? LoginFormState(),
+          initialState ?? const LoginFormState(),
         ) {
     on<SubmitFormEvent>(
       (event, emit) {
@@ -103,8 +103,8 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
           return;
         }
         final nextState = switch (state.formState) {
-          LoginFormState() => RegisterFormState(),
-          RegisterFormState() => LoginFormState(),
+          LoginFormState() => const RegisterFormState(),
+          RegisterFormState() => const LoginFormState(),
         };
         emit(
           nextState,
