@@ -10,6 +10,7 @@ import 'package:note_maker/views/auth/bloc.dart';
 import 'package:note_maker/views/auth/event.dart';
 import 'package:note_maker/views/auth/state/state.dart';
 import 'package:note_maker/views/auth/widgets/form_header.dart';
+import 'package:note_maker/views/auth/widgets/password_field.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 
@@ -33,6 +34,13 @@ class _AuthPageState extends State<AuthPage> {
   final passwordCtrl = TextEditingController();
   final reEnterPasswordCtrl = TextEditingController();
 
+  final passwordVisible = ValueNotifier(
+    false,
+  );
+  final reEnteredPasswordVisible = ValueNotifier(
+    false,
+  );
+
   StreamSubscription<AuthPageState>? stateSub;
 
   AuthPageBloc get bloc => context.read<AuthPageBloc>();
@@ -48,6 +56,8 @@ class _AuthPageState extends State<AuthPage> {
   @override
   void dispose() {
     stateSub?.cancel();
+    passwordVisible.dispose();
+    reEnteredPasswordVisible.dispose();
     super.dispose();
   }
 
@@ -185,9 +195,10 @@ class _AuthPageState extends State<AuthPage> {
                 padding: const EdgeInsets.symmetric(
                   vertical: 7.5,
                 ),
-                child: TextFormField(
+                child: PasswordField(
+                  labelText: 'Password',
                   controller: passwordCtrl,
-                  keyboardType: TextInputType.visiblePassword,
+                  passwordVisible: passwordVisible,
                   validator: (value) {
                     switch (value) {
                       case '':
@@ -197,19 +208,13 @@ class _AuthPageState extends State<AuthPage> {
                     }
                     return null;
                   },
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
                 ),
               ),
               BlocBuilder<AuthPageBloc, AuthPageState>(
                 buildWhen: (previous, current) {
                   switch ((previous.formState, current.formState)) {
                     case (final a, final b):
-                      return a.runtimeType != b.runtimeType;
+                      return a != b;
                   }
                 },
                 builder: (context, state) {
@@ -237,9 +242,10 @@ class _AuthPageState extends State<AuthPage> {
                           padding: const EdgeInsets.symmetric(
                             vertical: 7.5,
                           ),
-                          child: TextFormField(
+                          child: PasswordField(
+                            labelText: 'Re-enter password',
                             controller: reEnterPasswordCtrl,
-                            keyboardType: TextInputType.visiblePassword,
+                            passwordVisible: reEnteredPasswordVisible,
                             validator: (value) {
                               switch (value) {
                                 case '':
@@ -250,12 +256,6 @@ class _AuthPageState extends State<AuthPage> {
                               }
                               return null;
                             },
-                            decoration: InputDecoration(
-                              labelText: 'Re-enter password',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                            ),
                           ),
                         ),
                     },
@@ -269,9 +269,11 @@ class _AuthPageState extends State<AuthPage> {
                 buildWhen: (previous, current) {
                   switch ((previous, current)) {
                     case (AuthFormState(), AuthFormState()):
+                      print('no rebuild');
                       return false;
                     default:
                   }
+                  print('rebuild');
                   return true;
                 },
                 builder: (context, state) {
