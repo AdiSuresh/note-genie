@@ -30,9 +30,13 @@ class AuthFormHeader extends StatelessWidget {
           ) =>
             'Oops!',
           AuthAttemptedState(
-            response: SignInSuccess() || SignUpSuccess(),
+            response: SignInSuccess(),
           ) =>
-            'Success!',
+            'You\'re in!',
+          AuthAttemptedState(
+            response: SignUpSuccess(),
+          ) =>
+            'Account created!',
         };
         return AnimatedSwitcher(
           duration: const Duration(

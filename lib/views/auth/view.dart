@@ -74,7 +74,7 @@ class _AuthPageState extends State<AuthPage> {
         ):
         UiUtils.showSnackBar(
           context,
-          content: 'Logged in successfully',
+          content: 'Signed in successfully',
           onClose: () {
             context.go(
               bloc.redirectTo,
