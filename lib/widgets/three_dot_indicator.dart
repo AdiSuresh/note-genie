@@ -21,7 +21,8 @@ class _ThreeDotIndicatorState extends State<ThreeDotIndicator> {
   static const s2 = (false, true, false);
   static const s3 = (false, false, true);
 
-  var state = s1;
+  var state = s0;
+  bool forward = true;
 
   void mutate() {
     switch (state) {
@@ -47,8 +48,6 @@ class _ThreeDotIndicatorState extends State<ThreeDotIndicator> {
         }
     }
   }
-
-  bool forward = true;
 
   @override
   Widget build(BuildContext context) {
