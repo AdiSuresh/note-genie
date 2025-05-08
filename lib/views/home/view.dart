@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage>
   final searchCtrl = TextEditingController();
 
   late final TabController tabCtrl;
-  late final StreamSubscription<HomeState> stateSub;
+  StreamSubscription<HomeState>? stateSub;
 
   HomeBloc get bloc => context.read<HomeBloc>();
   HomeRepository get repo => context.read<HomeRepository>();
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage>
       'disposing home',
     );
     collectionNameCtrl.dispose();
-    stateSub.cancel();
+    stateSub?.cancel();
     super.dispose();
   }
 

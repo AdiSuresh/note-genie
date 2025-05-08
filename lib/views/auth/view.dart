@@ -11,6 +11,7 @@ import 'package:note_maker/views/auth/event.dart';
 import 'package:note_maker/views/auth/state/state.dart';
 import 'package:note_maker/views/auth/widgets/form_header.dart';
 import 'package:note_maker/views/auth/widgets/password_field.dart';
+import 'package:note_maker/views/auth/widgets/pop_scope.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 import 'package:note_maker/widgets/three_dot_indicator.dart';
@@ -357,8 +358,10 @@ class _AuthPageState extends State<AuthPage> {
         ),
       ),
     );
-    return DismissKeyboard(
-      child: scaffold,
+    return AuthPagePopScope(
+      child: DismissKeyboard(
+        child: scaffold,
+      ),
     );
   }
 }

@@ -43,8 +43,6 @@ class _ChatPageState extends State<ChatPage>
     canRequestFocus: false,
   );
 
-  late final StreamSubscription<ChatState> stateSub;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final chatBubbleKey = GlobalKey();
 
