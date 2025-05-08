@@ -15,22 +15,22 @@ class AuthFormHeader extends StatelessWidget {
     return BlocBuilder<AuthPageBloc, AuthPageState>(
       builder: (context, state) {
         final text = switch (state) {
-          LoginFormState() => 'Login',
-          RegisterFormState() => 'Register',
+          SignInFormState() => 'Sign in',
+          SignUpFormState() => 'Sign up',
           AuthenticatingState(
-            previousState: LoginFormState(),
+            previousState: SignInFormState(),
           ) =>
-            'Logging in...',
+            'Signing in...',
           AuthenticatingState(
-            previousState: RegisterFormState(),
+            previousState: SignUpFormState(),
           ) =>
-            'Registering...',
+            'Signing up...',
           AuthAttemptedState(
             response: AuthFailure(),
           ) =>
             'Oops!',
           AuthAttemptedState(
-            response: LoginSuccess() || RegistrationSuccess(),
+            response: SignInSuccess() || SignUpSuccess(),
           ) =>
             'Success!',
         };

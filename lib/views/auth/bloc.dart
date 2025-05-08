@@ -12,7 +12,7 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
     this.redirectTo = '/',
     required this.authRepo,
   }) : super(
-          initialState ?? const LoginFormState(),
+          initialState ?? const SignInFormState(),
         ) {
     on<SubmitFormEvent>(
       (event, emit) {
@@ -24,8 +24,8 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
           return;
         }
         final nextEvent = switch (state) {
-          LoginFormState() => AttemptLoginEvent.new,
-          RegisterFormState() => AttemptRegistrationEvent.new,
+          SignInFormState() => AttemptSignInEvent.new,
+          SignUpFormState() => AttemptSignUpEvent.new,
         }(
           email: event.email,
           password: event.password,
@@ -35,10 +35,10 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
         );
       },
     );
-    on<AttemptLoginEvent>(
+    on<AttemptSignInEvent>(
       (event, emit) async {
         final state = switch (this.state) {
-          final LoginFormState state => state,
+          final SignInFormState state => state,
           _ => null,
         };
         if (state case null) {
@@ -54,22 +54,22 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
             milliseconds: 500,
           ),
         );
-        final response = await authRepo.login(
+        final response = await authRepo.signIn(
           email: event.email,
           password: event.password,
         );
         emit(
-          LoginAttemptedState(
+          SignInAttemptedState(
             previousState: state,
             response: response,
           ),
         );
       },
     );
-    on<AttemptRegistrationEvent>(
+    on<AttemptSignUpEvent>(
       (event, emit) async {
         final state = switch (this.state) {
-          final RegisterFormState state => state,
+          final SignUpFormState state => state,
           _ => null,
         };
         if (state case null) {
@@ -85,12 +85,12 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
             milliseconds: 500,
           ),
         );
-        final response = await authRepo.register(
+        final response = await authRepo.signUp(
           email: event.email,
           password: event.password,
         );
         emit(
-          RegistrationAttemptedState(
+          SignUpAttemptedState(
             previousState: state,
             response: response,
           ),
@@ -103,8 +103,8 @@ class AuthPageBloc extends Bloc<AuthPageEvent, AuthPageState> {
           return;
         }
         final nextState = switch (state.formState) {
-          LoginFormState() => const RegisterFormState(),
-          RegisterFormState() => const LoginFormState(),
+          SignInFormState() => const SignUpFormState(),
+          SignUpFormState() => const SignInFormState(),
         };
         emit(
           nextState,
