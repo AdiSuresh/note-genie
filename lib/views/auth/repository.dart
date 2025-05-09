@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:note_maker/services/env_var_loader.dart';
+import 'package:note_maker/services/token_manager.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 import 'package:note_maker/utils/extensions/jwt.dart';
 import 'package:note_maker/models/auth/auth_response.dart';
@@ -15,8 +15,8 @@ class AuthPageRepository {
     'Something went wrong',
   );
 
-  final _storage = FlutterSecureStorage();
   final _env = EnvVarLoader();
+  final _tokenManager = TokenManager();
 
   Uri? get _signInUrl {
     return _env.backendUrl?.replace(
@@ -70,9 +70,8 @@ class AuthPageRepository {
               'access_token': final String token,
               'token_type': String(),
             }:
-            await _storage.write(
-              key: 'access_token',
-              value: token,
+            await _tokenManager.saveAccessToken(
+              token,
             );
             return SignInSuccess();
           case _:
@@ -170,9 +169,7 @@ class AuthPageRepository {
   }
 
   Future<bool> get isLoggedIn async {
-    final token = await _storage.read(
-      key: 'access_token',
-    );
+    final token = await _tokenManager.getAccessToken();
     switch (token) {
       case String():
         try {
@@ -192,8 +189,6 @@ class AuthPageRepository {
   }
 
   Future<void> logout() async {
-    await _storage.delete(
-      key: 'access_token',
-    );
+    await _tokenManager.deleteAccessToken();
   }
 }
