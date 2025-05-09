@@ -13,13 +13,13 @@ import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/widgets/chat_bubble/wrapper.dart';
 import 'package:note_maker/views/chat/widgets/drawer.dart';
-import 'package:note_maker/widgets/pulsing_dot_indicator.dart';
 import 'package:note_maker/views/chat/widgets/new_chat_placeholder.dart';
 import 'package:note_maker/views/chat/widgets/page_title.dart';
 import 'package:note_maker/views/chat/widgets/scroll_to_bottom_button.dart';
 import 'package:note_maker/widgets/app_bar_wrapper.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
+import 'package:note_maker/widgets/three_dot_indicator.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({
@@ -42,8 +42,6 @@ class _ChatPageState extends State<ChatPage>
   final textFocus = FocusNode(
     canRequestFocus: false,
   );
-
-  late final StreamSubscription<ChatState> stateSub;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final chatBubbleKey = GlobalKey();
@@ -409,7 +407,7 @@ class _ChatPageState extends State<ChatPage>
                                         ),
                                         child: Align(
                                           alignment: Alignment.centerLeft,
-                                          child: const PulsingDotIndicator(),
+                                          child: const ThreeDotIndicator(),
                                         ),
                                       );
                                     case ReceivingMessageState(

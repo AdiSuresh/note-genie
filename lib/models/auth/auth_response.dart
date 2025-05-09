@@ -14,11 +14,11 @@ sealed class AuthFailure<R extends Enum> implements AuthResponse {
   );
 }
 
-sealed class LoginResponse extends AuthResponse {}
+sealed class SignInResponse extends AuthResponse {}
 
-final class LoginSuccess extends LoginResponse {}
+final class SignInSuccess extends SignInResponse {}
 
-enum LoginFailureReason {
+enum SignInFailureReason {
   unknownAccount(
     'Invalid credentials',
   ),
@@ -31,27 +31,27 @@ enum LoginFailureReason {
 
   final String message;
 
-  const LoginFailureReason(
+  const SignInFailureReason(
     this.message,
   );
 }
 
-final class LoginFailure extends AuthFailure<LoginFailureReason>
-    implements LoginResponse {
-  const LoginFailure([
-    super.reason = LoginFailureReason.other,
+final class SignInFailure extends AuthFailure<SignInFailureReason>
+    implements SignInResponse {
+  const SignInFailure([
+    super.reason = SignInFailureReason.other,
   ]);
 }
 
-sealed class RegistrationResponse extends AuthResponse {
-  const RegistrationResponse();
+sealed class SignUpResponse extends AuthResponse {
+  const SignUpResponse();
 }
 
-final class RegistrationSuccess extends RegistrationResponse {
-  const RegistrationSuccess();
+final class SignUpSuccess extends SignUpResponse {
+  const SignUpSuccess();
 }
 
-enum RegistrationFailureReason {
+enum SignUpFailureReason {
   alreadyExists(
     'This email is already in use',
   ),
@@ -64,14 +64,14 @@ enum RegistrationFailureReason {
 
   final String message;
 
-  const RegistrationFailureReason(
+  const SignUpFailureReason(
     this.message,
   );
 }
 
-final class RegistrationFailure extends AuthFailure<RegistrationFailureReason>
-    implements RegistrationResponse {
-  const RegistrationFailure([
-    super.reason = RegistrationFailureReason.other,
+final class SignUpFailure extends AuthFailure<SignUpFailureReason>
+    implements SignUpResponse {
+  const SignUpFailure([
+    super.reason = SignUpFailureReason.other,
   ]);
 }

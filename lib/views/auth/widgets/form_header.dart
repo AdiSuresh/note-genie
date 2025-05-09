@@ -15,41 +15,45 @@ class AuthFormHeader extends StatelessWidget {
     return BlocBuilder<AuthPageBloc, AuthPageState>(
       builder: (context, state) {
         final text = switch (state) {
-          LoginFormState() => 'Login',
-          RegisterFormState() => 'Register',
+          SignInFormState() => 'Sign in',
+          SignUpFormState() => 'Sign up',
           AuthenticatingState(
-            previousState: LoginFormState(),
+            previousState: SignInFormState(),
           ) =>
-            'Logging in...',
+            'Signing in...',
           AuthenticatingState(
-            previousState: RegisterFormState(),
+            previousState: SignUpFormState(),
           ) =>
-            'Registering...',
+            'Signing up...',
           AuthAttemptedState(
             response: AuthFailure(),
           ) =>
             'Oops!',
           AuthAttemptedState(
-            response: LoginSuccess() || RegistrationSuccess(),
+            response: SignInSuccess(),
           ) =>
-            'Success!',
+            'You\'re in!',
+          AuthAttemptedState(
+            response: SignUpSuccess(),
+          ) =>
+            'Account created!',
         };
         return AnimatedSwitcher(
           duration: const Duration(
             milliseconds: 150,
           ),
           transitionBuilder: (child, animation) {
-            final t1 = ScaleTransition(
+            final t1 = FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+            final t2 = ScaleTransition(
               scale: Tween(
                 begin: 0.975,
                 end: 1.0,
               ).animate(
                 animation,
               ),
-              child: child,
-            );
-            final t2 = FadeTransition(
-              opacity: animation,
               child: t1,
             );
             final t3 = SizeTransition(

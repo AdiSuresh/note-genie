@@ -18,24 +18,24 @@ class AuthPageRepository {
   final _storage = FlutterSecureStorage();
   final _env = EnvVarLoader();
 
-  Uri? get _loginUrl {
+  Uri? get _signInUrl {
     return _env.backendUrl?.replace(
-      path: '/login',
+      path: '/sign-in',
     );
   }
 
   Uri? get _registrationUrl {
     return _env.backendUrl?.replace(
-      path: '/register',
+      path: '/sign-up',
     );
   }
 
-  Future<LoginResponse> login({
+  Future<SignInResponse> signIn({
     required String email,
     required String password,
   }) async {
-    final url = _loginUrl;
-    const unknownError = LoginFailure();
+    final url = _signInUrl;
+    const unknownError = SignInFailure();
     if (url == null) {
       return unknownError;
     }
@@ -54,8 +54,8 @@ class AuthPageRepository {
         ),
       );
     } on SocketException {
-      return LoginFailure(
-        LoginFailureReason.noInternet,
+      return SignInFailure(
+        SignInFailureReason.noInternet,
       );
     } catch (e) {
       return unknownError;
@@ -74,7 +74,7 @@ class AuthPageRepository {
               key: 'access_token',
               value: token,
             );
-            return LoginSuccess();
+            return SignInSuccess();
           case _:
         }
       } catch (e) {
@@ -90,8 +90,8 @@ class AuthPageRepository {
                 'detail': 'invalid_credentials',
               }
               when response.statusCode ~/ 100 == 4:
-            return LoginFailure(
-              LoginFailureReason.unknownAccount,
+            return SignInFailure(
+              SignInFailureReason.unknownAccount,
             );
           case _:
         }
@@ -102,12 +102,12 @@ class AuthPageRepository {
     return unknownError;
   }
 
-  Future<RegistrationResponse> register({
+  Future<SignUpResponse> signUp({
     required String email,
     required String password,
   }) async {
     final url = _registrationUrl;
-    const unknownError = RegistrationFailure();
+    const unknownError = SignUpFailure();
     if (url == null) {
       return unknownError;
     }
@@ -126,8 +126,8 @@ class AuthPageRepository {
         ),
       );
     } on SocketException {
-      return RegistrationFailure(
-        RegistrationFailureReason.noInternet,
+      return SignUpFailure(
+        SignUpFailureReason.noInternet,
       );
     } catch (e) {
       return unknownError;
@@ -141,7 +141,7 @@ class AuthPageRepository {
           case {
               'message': String(),
             }:
-            return RegistrationSuccess();
+            return SignUpSuccess();
           case _:
         }
       } catch (e) {
@@ -157,8 +157,8 @@ class AuthPageRepository {
                 'detail': 'already_exists',
               }
               when response.statusCode ~/ 100 == 4:
-            return RegistrationFailure(
-              RegistrationFailureReason.alreadyExists,
+            return SignUpFailure(
+              SignUpFailureReason.alreadyExists,
             );
           case _:
         }

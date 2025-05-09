@@ -12,15 +12,15 @@ sealed class AuthenticateEvent extends AuthPageEvent {
   });
 }
 
-final class AttemptLoginEvent extends AuthenticateEvent {
-  const AttemptLoginEvent({
+final class AttemptSignInEvent extends AuthenticateEvent {
+  const AttemptSignInEvent({
     required super.email,
     required super.password,
   });
 }
 
-final class AttemptRegistrationEvent extends AuthenticateEvent {
-  const AttemptRegistrationEvent({
+final class AttemptSignUpEvent extends AuthenticateEvent {
+  const AttemptSignUpEvent({
     required super.email,
     required super.password,
   });

@@ -8,12 +8,12 @@ sealed class AuthFormState extends AuthPageState {
   const AuthFormState();
 }
 
-final class LoginFormState extends AuthFormState {
-  const LoginFormState();
+final class SignInFormState extends AuthFormState {
+  const SignInFormState();
 }
 
-final class RegisterFormState extends AuthFormState {
-  const RegisterFormState();
+final class SignUpFormState extends AuthFormState {
+  const SignUpFormState();
 }
 
 sealed class NonIdleState<S extends AuthFormState> extends AuthPageState {
@@ -40,17 +40,17 @@ sealed class AuthAttemptedState<R extends AuthResponse, S extends AuthFormState>
   });
 }
 
-final class LoginAttemptedState
-    extends AuthAttemptedState<LoginResponse, LoginFormState> {
-  const LoginAttemptedState({
+final class SignInAttemptedState
+    extends AuthAttemptedState<SignInResponse, SignInFormState> {
+  const SignInAttemptedState({
     required super.previousState,
     required super.response,
   });
 }
 
-final class RegistrationAttemptedState
-    extends AuthAttemptedState<RegistrationResponse, RegisterFormState> {
-  const RegistrationAttemptedState({
+final class SignUpAttemptedState
+    extends AuthAttemptedState<SignUpResponse, SignUpFormState> {
+  const SignUpAttemptedState({
     required super.previousState,
     required super.response,
   });

@@ -11,8 +11,10 @@ import 'package:note_maker/views/auth/event.dart';
 import 'package:note_maker/views/auth/state/state.dart';
 import 'package:note_maker/views/auth/widgets/form_header.dart';
 import 'package:note_maker/views/auth/widgets/password_field.dart';
+import 'package:note_maker/views/auth/widgets/pop_scope.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
+import 'package:note_maker/widgets/three_dot_indicator.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({
@@ -68,20 +70,20 @@ class _AuthPageState extends State<AuthPage> {
       return;
     }
     switch (state) {
-      case LoginAttemptedState(
-          response: LoginSuccess(),
+      case SignInAttemptedState(
+          response: SignInSuccess(),
         ):
         UiUtils.showSnackBar(
           context,
-          content: 'Logged in successfully',
+          content: 'Signed in successfully',
           onClose: () {
             context.go(
               bloc.redirectTo,
             );
           },
         );
-      case LoginAttemptedState(
-          response: LoginFailure(
+      case SignInAttemptedState(
+          response: SignInFailure(
             :final reason,
           ),
         ):
@@ -94,12 +96,12 @@ class _AuthPageState extends State<AuthPage> {
             );
           },
         );
-      case RegistrationAttemptedState(
-          response: RegistrationSuccess(),
+      case SignUpAttemptedState(
+          response: SignUpSuccess(),
         ):
         UiUtils.showSnackBar(
           context,
-          content: 'Registered successfully',
+          content: 'Signed up successfully',
           onClose: () {
             bloc.add(
               const ResetStateEvent(),
@@ -109,12 +111,12 @@ class _AuthPageState extends State<AuthPage> {
             );
           },
         );
-      case RegistrationAttemptedState(
-            response: RegistrationFailure(
+      case SignUpAttemptedState(
+            response: SignUpFailure(
               :final reason,
             ),
           )
-          when reason == RegistrationFailureReason.alreadyExists:
+          when reason == SignUpFailureReason.alreadyExists:
         UiUtils.showSnackBar(
           context,
           content: reason.message,
@@ -127,8 +129,8 @@ class _AuthPageState extends State<AuthPage> {
             );
           },
         );
-      case RegistrationAttemptedState(
-          response: RegistrationFailure(
+      case SignUpAttemptedState(
+          response: SignUpFailure(
             :final reason,
           ),
         ):
@@ -218,8 +220,8 @@ class _AuthPageState extends State<AuthPage> {
                   }
                 },
                 builder: (context, state) {
-                  final registerFormState = switch (state) {
-                    final RegisterFormState state => state,
+                  final signUpFormState = switch (state) {
+                    final SignUpFormState state => state,
                     final NonIdleState state => state,
                     _ => null,
                   };
@@ -236,7 +238,7 @@ class _AuthPageState extends State<AuthPage> {
                       );
                       return t2;
                     },
-                    child: switch (registerFormState) {
+                    child: switch (signUpFormState) {
                       null => const SizedBox(),
                       _ => Padding(
                           padding: const EdgeInsets.symmetric(
@@ -309,8 +311,7 @@ class _AuthPageState extends State<AuthPage> {
                       // const PulsingDotIndicator(),
                       CustomAnimatedSwitcher(
                         child: switch (state) {
-                          AuthenticatingState() =>
-                            const CircularProgressIndicator(),
+                          AuthenticatingState() => const ThreeDotIndicator(),
                           _ => const SizedBox(),
                         },
                       ),
@@ -332,8 +333,8 @@ class _AuthPageState extends State<AuthPage> {
                 },
                 builder: (context, state) {
                   final text = switch (state) {
-                    LoginFormState() => 'Register',
-                    RegisterFormState() => 'Login',
+                    SignInFormState() => 'Sign up',
+                    SignUpFormState() => 'Sign in',
                     _ => '',
                   };
                   return AnimatedOpacity(
@@ -356,14 +357,11 @@ class _AuthPageState extends State<AuthPage> {
           ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     print('bloc.state: ${bloc.state}');
-      //   },
-      // ),
     );
-    return DismissKeyboard(
-      child: scaffold,
+    return AuthPagePopScope(
+      child: DismissKeyboard(
+        child: scaffold,
+      ),
     );
   }
 }
