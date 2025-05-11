@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:note_maker/core/constants/http.dart';
 import 'package:note_maker/data/services/mixins/local_db.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
@@ -60,9 +61,7 @@ class EditNoteRepository with LocalDBServiceMixin {
     }
     final response = await http.post(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: HttpConstants.baseHeaders,
       body: json.encode(
         {
           'title': note.title,
@@ -103,9 +102,7 @@ class EditNoteRepository with LocalDBServiceMixin {
       url.replace(
         path: '${url.path}/$id',
       ),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: HttpConstants.baseHeaders,
       body: json.encode(
         {
           'title': note.title,
@@ -146,9 +143,7 @@ class EditNoteRepository with LocalDBServiceMixin {
       url.replace(
         path: '${url.path}/$id/embed',
       ),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: HttpConstants.baseHeaders,
       body: json.encode(
         {
           'title': note.title,

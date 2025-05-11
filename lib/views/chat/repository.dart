@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:note_maker/app/logger.dart';
+import 'package:note_maker/core/constants/http.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:http/http.dart' as http;
+import 'package:note_maker/services/token_manager.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 
 class ChatPageRepository {
@@ -13,6 +15,7 @@ class ChatPageRepository {
   );
 
   final _env = EnvVarLoader();
+  final _tokenManager = TokenManager();
 
   ChatPageRepository();
 
@@ -27,13 +30,20 @@ class ChatPageRepository {
     if (url == null) {
       return [];
     }
+    final token = await _tokenManager.getAccessToken();
+    if (token case null) {
+      return [];
+    }
     final response = await http.get(
       url,
+      headers: HttpConstants.authHeaders(
+        token,
+      ),
     );
     try {
       final decoded = json.decode(
         response.body,
-      );
+      ) as List;
       logger.i(
         'decoded: $decoded',
       );
@@ -71,11 +81,15 @@ class ChatPageRepository {
     if (url == null) {
       return null;
     }
+    final token = await _tokenManager.getAccessToken();
+    if (token case null) {
+      return null;
+    }
     final response = await http.post(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: HttpConstants.authHeaders(
+        token,
+      ),
       body: json.encode(
         const {},
       ),
@@ -106,9 +120,16 @@ class ChatPageRepository {
     if (url == null) {
       return null;
     }
+    final token = await _tokenManager.getAccessToken();
+    if (token case null) {
+      return null;
+    }
     final response = await http.get(
       url.replace(
         path: '${url.path}/$id',
+      ),
+      headers: HttpConstants.authHeaders(
+        token,
       ),
     );
     try {
@@ -172,13 +193,17 @@ class ChatPageRepository {
     if (url == null) {
       return null;
     }
+    final token = await _tokenManager.getAccessToken();
+    if (token case null) {
+      return null;
+    }
     final response = await http.put(
       url.replace(
         path: '${url.path}/$id',
       ),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: HttpConstants.authHeaders(
+        token,
+      ),
       body: json.encode(
         {
           'title': title,
@@ -195,13 +220,17 @@ class ChatPageRepository {
     if (url == null) {
       return null;
     }
+    final token = await _tokenManager.getAccessToken();
+    if (token case null) {
+      return null;
+    }
     final response = await http.delete(
       url.replace(
         path: '${url.path}/$id',
       ),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: HttpConstants.authHeaders(
+        token,
+      ),
     );
     return response.ok;
   }

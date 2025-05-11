@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
+import 'package:note_maker/core/constants/http.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:note_maker/services/token_manager.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
@@ -43,9 +44,7 @@ class AuthPageRepository {
     try {
       response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: HttpConstants.baseHeaders,
         body: json.encode(
           {
             'email': email,
@@ -114,9 +113,7 @@ class AuthPageRepository {
     try {
       response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: HttpConstants.baseHeaders,
         body: json.encode(
           {
             'email': email,
