@@ -7,10 +7,12 @@ import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
 import 'package:note_maker/services/env_var_loader.dart';
+import 'package:note_maker/services/token_manager.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 
 class EditNoteRepository with LocalDBServiceMixin {
   final _env = EnvVarLoader();
+  final _tokenManager = TokenManager();
 
   Uri? get _notesUrl {
     return _env.backendUrl?.replace(
@@ -59,9 +61,13 @@ class EditNoteRepository with LocalDBServiceMixin {
     if (url == null) {
       return null;
     }
+    final token = await _tokenManager.getAccessToken();
+    if (token case null) {
+      return null;
+    }
     final response = await http.post(
       url,
-      headers: HttpConstants.baseHeaders,
+      headers: HttpConstants.authHeaders(token),
       body: json.encode(
         {
           'title': note.title,
@@ -98,11 +104,15 @@ class EditNoteRepository with LocalDBServiceMixin {
     if (url == null) {
       return null;
     }
+    final token = await _tokenManager.getAccessToken();
+    if (token case null) {
+      return null;
+    }
     final response = await http.put(
       url.replace(
         path: '${url.path}/$id',
       ),
-      headers: HttpConstants.baseHeaders,
+      headers: HttpConstants.authHeaders(token),
       body: json.encode(
         {
           'title': note.title,
@@ -139,11 +149,15 @@ class EditNoteRepository with LocalDBServiceMixin {
     if (url == null) {
       return null;
     }
+    final token = await _tokenManager.getAccessToken();
+    if (token case null) {
+      return null;
+    }
     final response = await http.post(
       url.replace(
         path: '${url.path}/$id/embed',
       ),
-      headers: HttpConstants.baseHeaders,
+      headers: HttpConstants.authHeaders(token),
       body: json.encode(
         {
           'title': note.title,
