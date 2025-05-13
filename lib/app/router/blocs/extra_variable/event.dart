@@ -1,10 +1,13 @@
-abstract class ExtraVariableEvent<T extends Object> {}
+sealed class ExtraVariableEvent<T extends Object> {
+  const ExtraVariableEvent();
+}
 
 /// Event for updating the extra variable.
-class ExtraVariableUpdate<T> extends ExtraVariableEvent {
+final class UpdateVariableEvent<T extends Object>
+    extends ExtraVariableEvent<T> {
   final T extra;
 
-  ExtraVariableUpdate({
+  const UpdateVariableEvent({
     required this.extra,
   });
 }

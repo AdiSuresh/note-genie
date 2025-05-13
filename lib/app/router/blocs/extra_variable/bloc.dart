@@ -4,14 +4,14 @@ import 'package:note_maker/app/router/blocs/extra_variable/event.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/state.dart';
 
 /// Bloc for managing the extra variable state.
-class ExtraVariableBloc extends Bloc<ExtraVariableEvent, ExtraVariableState> {
-  ExtraVariableBloc()
-      : super(
-          const ExtraVariableState(
-            extra: null,
-          ),
-        ) {
-    on<ExtraVariableUpdate>(
+final class ExtraVariableBloc
+    extends Bloc<ExtraVariableEvent, ExtraVariableState> {
+  ExtraVariableBloc([
+    super.initialState = const ExtraVariableState(
+      extra: null,
+    ),
+  ]) {
+    on<UpdateVariableEvent>(
       (event, emit) {
         emit(
           ExtraVariableState(
@@ -28,7 +28,7 @@ extension ExtraVariableExtension on BuildContext {
     dynamic data,
   ) {
     read<ExtraVariableBloc>().add(
-      ExtraVariableUpdate(
+      UpdateVariableEvent(
         extra: data,
       ),
     );
