@@ -12,6 +12,10 @@ final class AuthenticatedState extends AuthState {
   });
 }
 
+final class AuthenticatingState extends AuthState {
+  const AuthenticatingState();
+}
+
 final class UnauthenticatedState extends AuthState {
   const UnauthenticatedState();
 }
