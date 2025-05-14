@@ -3,17 +3,17 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:note_maker/models/user/model.dart';
 
-class TokenManager {
+class SessionManager {
   static const String _tokenKey = 'access_token';
   static const String _userKey = 'user';
 
-  static final TokenManager _instance = TokenManager._();
+  static final SessionManager _instance = SessionManager._();
 
   static const _storage = FlutterSecureStorage();
 
-  factory TokenManager() => _instance;
+  factory SessionManager() => _instance;
 
-  TokenManager._();
+  SessionManager._();
 
   Future<void> saveUser(
     User user,

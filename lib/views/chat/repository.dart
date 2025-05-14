@@ -6,7 +6,7 @@ import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/chat_message/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:http/http.dart' as http;
-import 'package:note_maker/services/token_manager.dart';
+import 'package:note_maker/services/session_manager.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 
 class ChatPageRepository {
@@ -15,7 +15,7 @@ class ChatPageRepository {
   );
 
   final _env = EnvVarLoader();
-  final _tokenManager = TokenManager();
+  final _sessionManager = SessionManager();
 
   ChatPageRepository();
 
@@ -30,7 +30,7 @@ class ChatPageRepository {
     if (url == null) {
       return [];
     }
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     if (token case null) {
       return [];
     }
@@ -81,7 +81,7 @@ class ChatPageRepository {
     if (url == null) {
       return null;
     }
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     if (token case null) {
       return null;
     }
@@ -120,7 +120,7 @@ class ChatPageRepository {
     if (url == null) {
       return null;
     }
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     if (token case null) {
       return null;
     }
@@ -193,7 +193,7 @@ class ChatPageRepository {
     if (url == null) {
       return null;
     }
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     if (token case null) {
       return null;
     }
@@ -220,7 +220,7 @@ class ChatPageRepository {
     if (url == null) {
       return null;
     }
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     if (token case null) {
       return null;
     }

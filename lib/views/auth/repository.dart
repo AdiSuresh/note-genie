@@ -5,7 +5,7 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
 import 'package:note_maker/core/constants/http.dart';
 import 'package:note_maker/services/env_var_loader.dart';
-import 'package:note_maker/services/token_manager.dart';
+import 'package:note_maker/services/session_manager.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 import 'package:note_maker/utils/extensions/jwt.dart';
 import 'package:note_maker/models/auth/auth_response.dart';
@@ -17,7 +17,7 @@ class AuthPageRepository {
   );
 
   final _env = EnvVarLoader();
-  final _tokenManager = TokenManager();
+  final _sessionManager = SessionManager();
 
   Uri? get _signInUrl {
     return _env.backendUrl?.replace(
@@ -69,7 +69,7 @@ class AuthPageRepository {
               'access_token': final String token,
               'token_type': String(),
             }:
-            await _tokenManager.saveAccessToken(
+            await _sessionManager.saveAccessToken(
               token,
             );
             return SignInSuccess();
@@ -166,7 +166,7 @@ class AuthPageRepository {
   }
 
   Future<bool> get isLoggedIn async {
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     switch (token) {
       case String():
         try {
@@ -186,6 +186,6 @@ class AuthPageRepository {
   }
 
   Future<void> logout() async {
-    await _tokenManager.deleteAccessToken();
+    await _sessionManager.deleteAccessToken();
   }
 }
