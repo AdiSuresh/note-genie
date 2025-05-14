@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:note_maker/app/blocs/auth/bloc.dart';
+import 'package:note_maker/app/blocs/auth/event.dart';
 import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
 import 'package:note_maker/app/router/blocs/navigation/state.dart';
@@ -51,6 +53,14 @@ class _NoteMakerState extends State<NoteMaker> {
                 currentPath: router.path,
               ),
             );
+          },
+        ),
+        BlocProvider(
+          create: (context) {
+            return AuthBloc()
+              ..add(
+                const AttemptSignInEvent(),
+              );
           },
         ),
       ],
