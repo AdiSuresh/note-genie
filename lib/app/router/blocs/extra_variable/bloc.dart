@@ -25,7 +25,7 @@ final class ExtraVariableBloc
 
 extension ExtraVariableExtension on BuildContext {
   set extra(
-    dynamic data,
+    Object? data,
   ) {
     read<ExtraVariableBloc>().add(
       UpdateVariableEvent(
