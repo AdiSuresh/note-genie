@@ -44,6 +44,12 @@ class SessionManager {
     return null;
   }
 
+  Future<void> deleteUser() async {
+    await _storage.delete(
+      key: _userKey,
+    );
+  }
+
   Future<void> saveAccessToken(
     String token,
   ) async {
@@ -68,5 +74,14 @@ class SessionManager {
   Future<bool> hasAccessToken() async {
     final token = await getAccessToken();
     return token != null && token.isNotEmpty;
+  }
+
+  Future<void> logout() async {
+    await Future.wait(
+      [
+        deleteAccessToken(),
+        deleteUser(),
+      ],
+    );
   }
 }
