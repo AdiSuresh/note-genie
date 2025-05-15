@@ -13,32 +13,41 @@ final class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignInUserEvent>(
       (event, emit) async {
         emit(
-          AuthenticatedState(
-            user: event.user,
-          ),
+          const AuthenticatingState(),
         );
         await _sessionManager.saveUser(
           event.user,
+        );
+        emit(
+          AuthenticatedState(
+            user: event.user,
+          ),
         );
       },
     );
     on<AttemptSignInEvent>(
       (event, emit) async {
+        emit(
+          const AuthenticatingState(),
+        );
         final user = await _sessionManager.getUser();
-        switch (user) {
-          case User():
-            emit(
-              AuthenticatedState(
-                user: user,
-              ),
-            );
-          case _:
-        }
+        final nextState = switch (user) {
+          final User user => AuthenticatedState(
+              user: user,
+            ),
+          _ => const UnauthenticatedState(),
+        };
+        emit(
+          nextState,
+        );
       },
     );
     on<SignOutUserEvent>(
       (event, emit) async {
-        await _sessionManager.deleteAccessToken();
+        emit(
+          const AuthenticatingState(),
+        );
+        await _sessionManager.logout();
         emit(
           const UnauthenticatedState(),
         );
