@@ -1,3 +1,5 @@
+import 'package:note_maker/models/user/model.dart';
+
 sealed class AuthResponse {
   const AuthResponse();
 }
@@ -14,9 +16,17 @@ sealed class AuthFailure<R extends Enum> implements AuthResponse {
   );
 }
 
-sealed class SignInResponse extends AuthResponse {}
+sealed class SignInResponse extends AuthResponse {
+  const SignInResponse();
+}
 
-final class SignInSuccess extends SignInResponse {}
+final class SignInSuccess extends SignInResponse {
+  final User user;
+
+  const SignInSuccess({
+    required this.user,
+  });
+}
 
 enum SignInFailureReason {
   unknownAccount(

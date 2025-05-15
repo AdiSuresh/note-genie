@@ -7,12 +7,12 @@ import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/objectbox.g.dart';
 import 'package:note_maker/services/env_var_loader.dart';
-import 'package:note_maker/services/token_manager.dart';
+import 'package:note_maker/services/session_manager.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
 
 class EditNoteRepository with LocalDBServiceMixin {
   final _env = EnvVarLoader();
-  final _tokenManager = TokenManager();
+  final _sessionManager = SessionManager();
 
   Uri? get _notesUrl {
     return _env.backendUrl?.replace(
@@ -61,7 +61,7 @@ class EditNoteRepository with LocalDBServiceMixin {
     if (url == null) {
       return null;
     }
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     if (token case null) {
       return null;
     }
@@ -104,7 +104,7 @@ class EditNoteRepository with LocalDBServiceMixin {
     if (url == null) {
       return null;
     }
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     if (token case null) {
       return null;
     }
@@ -149,7 +149,7 @@ class EditNoteRepository with LocalDBServiceMixin {
     if (url == null) {
       return null;
     }
-    final token = await _tokenManager.getAccessToken();
+    final token = await _sessionManager.getAccessToken();
     if (token case null) {
       return null;
     }

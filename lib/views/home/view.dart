@@ -10,7 +10,6 @@ import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/utils/extensions/type.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
-import 'package:note_maker/views/auth/repository.dart';
 import 'package:note_maker/views/edit_note/view.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/home/bloc.dart';
@@ -18,6 +17,7 @@ import 'package:note_maker/views/home/event.dart';
 import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/collection_chip.dart';
+import 'package:note_maker/views/home/widgets/drawer.dart';
 import 'package:note_maker/views/home/widgets/home_page_title.dart';
 import 'package:note_maker/views/home/widgets/home_pop_scope.dart';
 import 'package:note_maker/views/home/widgets/note_collection_tab_list.dart';
@@ -64,6 +64,8 @@ class _HomePageState extends State<HomePage>
       Icons.folder,
     ),
   ];
+
+  final scaffoldKey = GlobalKey<ScaffoldState>();
 
   final collectionNameCtrl = TextEditingController();
   final collectionNameFormKey = GlobalKey<FormState>();
@@ -212,6 +214,8 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     super.build(context);
     final scaffold = Scaffold(
+      key: scaffoldKey,
+      drawer: const HomePageDrawer(),
       body: Column(
         children: [
           AppBarWrapper(
@@ -230,7 +234,7 @@ class _HomePageState extends State<HomePage>
                         children: [
                           IconButton(
                             onPressed: () {
-                              AuthPageRepository().logout();
+                              scaffoldKey.currentState?.openDrawer();
                             },
                             icon: Icon(
                               Icons.menu,
