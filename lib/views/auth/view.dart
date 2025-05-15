@@ -4,6 +4,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:note_maker/app/blocs/auth/bloc.dart';
+import 'package:note_maker/app/blocs/auth/event.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/models/auth/auth_response.dart';
 import 'package:note_maker/views/auth/bloc.dart';
@@ -47,6 +49,8 @@ class _AuthPageState extends State<AuthPage> {
 
   AuthPageBloc get bloc => context.read<AuthPageBloc>();
 
+  AuthBloc get authBloc => context.read<AuthBloc>();
+
   @override
   void initState() {
     super.initState();
@@ -71,8 +75,15 @@ class _AuthPageState extends State<AuthPage> {
     }
     switch (state) {
       case SignInAttemptedState(
-          response: SignInSuccess(),
+          response: SignInSuccess(
+            :final user,
+          ),
         ):
+        authBloc.add(
+          SignInUserEvent(
+            user: user,
+          ),
+        );
         UiUtils.showSnackBar(
           context,
           content: 'Signed in successfully',
@@ -271,11 +282,9 @@ class _AuthPageState extends State<AuthPage> {
                 buildWhen: (previous, current) {
                   switch ((previous, current)) {
                     case (AuthFormState(), AuthFormState()):
-                      print('no rebuild');
                       return false;
                     default:
                   }
-                  print('rebuild');
                   return true;
                 },
                 builder: (context, state) {
