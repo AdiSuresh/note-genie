@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
 import 'package:note_maker/core/constants/http.dart';
+import 'package:note_maker/models/user/model.dart';
 import 'package:note_maker/services/env_var_loader.dart';
 import 'package:note_maker/services/session_manager.dart';
 import 'package:note_maker/utils/extensions/base_response.dart';
@@ -72,7 +73,11 @@ class AuthPageRepository {
             await _sessionManager.saveAccessToken(
               token,
             );
-            return SignInSuccess();
+            return SignInSuccess(
+              user: User(
+                email: email,
+              ),
+            );
           case _:
         }
       } catch (e) {
