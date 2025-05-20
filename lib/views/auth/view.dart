@@ -201,6 +201,9 @@ class _AuthPageState extends State<AuthPage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
+                    prefixIcon: const Icon(
+                      Icons.email,
+                    ),
                   ),
                 ),
               ),
