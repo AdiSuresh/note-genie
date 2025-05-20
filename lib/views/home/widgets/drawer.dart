@@ -51,24 +51,22 @@ class HomePageDrawer extends StatelessWidget {
               };
               return Padding(
                 padding: const EdgeInsets.all(15),
-                child: CustomAnimatedSwitcher(
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        minRadius: 25,
-                        child: avatar,
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      minRadius: 25,
+                      child: avatar,
+                    ),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: Text(
+                        text,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: Text(
-                          text,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               );
             },
