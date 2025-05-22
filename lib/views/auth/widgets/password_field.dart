@@ -29,6 +29,9 @@ class PasswordField extends StatelessWidget {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
             ),
+            prefixIcon: const Icon(
+              Icons.lock,
+            ),
             suffixIcon: Tooltip(
               message: value ? 'Hide password' : 'Show password',
               child: GestureDetector(

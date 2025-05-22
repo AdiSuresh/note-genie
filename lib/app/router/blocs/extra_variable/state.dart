@@ -1,4 +1,4 @@
-class ExtraVariableState<T> {
+class ExtraVariableState<T extends Object?> {
   final T extra;
 
   const ExtraVariableState({

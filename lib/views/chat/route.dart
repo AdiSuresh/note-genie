@@ -2,9 +2,10 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:note_maker/app/blocs/auth/bloc.dart';
+import 'package:note_maker/app/blocs/auth/state.dart';
 import 'package:note_maker/models/chat/model.dart';
 import 'package:note_maker/models/future_data/model.dart';
-import 'package:note_maker/views/auth/repository.dart';
 import 'package:note_maker/views/chat/bloc.dart';
 import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/repository.dart';
@@ -13,7 +14,6 @@ import 'package:note_maker/views/chat/view.dart';
 
 class ChatRoute extends GoRouteData {
   final String? id;
-  final _repo = AuthPageRepository();
 
   ChatRoute({
     this.id,
@@ -21,9 +21,10 @@ class ChatRoute extends GoRouteData {
 
   @override
   Future<String?> redirect(BuildContext context, GoRouterState state) async {
-    final isLoggedIn = await _repo.isLoggedIn;
-    if (!isLoggedIn) {
-      return '/auth?redirect-to=/chat';
+    switch (context.read<AuthBloc>().state) {
+      case UnauthenticatedState():
+        return '/auth?redirect-to=/chat';
+      case _:
     }
     return null;
   }

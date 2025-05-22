@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/blocs/auth/bloc.dart';
 import 'package:note_maker/app/blocs/auth/event.dart';
 import 'package:note_maker/app/blocs/auth/state.dart';
+import 'package:note_maker/utils/extensions/build_context.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 
 class HomePageDrawer extends StatelessWidget {
@@ -18,6 +19,66 @@ class HomePageDrawer extends StatelessWidget {
       backgroundColor: Colors.white,
       child: Column(
         children: [
+          BlocBuilder<AuthBloc, AuthState>(
+            buildWhen: (previous, current) {
+              return previous.runtimeType != current.runtimeType;
+            },
+            builder: (context, state) {
+              final (avatar, text) = switch (state) {
+                AuthenticatedState(
+                  :final user,
+                ) =>
+                  (
+                    Text(
+                      user.email
+                          .substring(
+                            0,
+                            1,
+                          )
+                          .toUpperCase(),
+                      style: context.themeData.textTheme.bodyLarge?.copyWith(
+                        fontSize: 24,
+                      ),
+                    ),
+                    user.email,
+                  ),
+                _ => (
+                    Icon(
+                      Icons.person,
+                    ),
+                    'You\'re not signed in',
+                  ),
+              };
+              return Padding(
+                padding: const EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      minRadius: 25,
+                      child: avatar,
+                    ),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: Text(
+                        text,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const Divider(
+            indent: 15,
+            endIndent: 15,
+            height: 1,
+          ),
+          const SizedBox(
+            height: 7.5,
+          ),
           Expanded(
             child: ListView(
               children: [
@@ -30,6 +91,9 @@ class HomePageDrawer extends StatelessWidget {
                       child: switch (state) {
                         UnauthenticatedState() => _ListItem(
                             title: 'Sign in',
+                            icon: const Icon(
+                              Icons.login,
+                            ),
                             onTap: () {
                               context.go(
                                 '/auth',
@@ -37,6 +101,9 @@ class HomePageDrawer extends StatelessWidget {
                             },
                           ),
                         AuthenticatedState() => _ListItem(
+                            icon: const Icon(
+                              Icons.person,
+                            ),
                             title: 'Profile',
                             onTap: () {},
                           ),
@@ -47,6 +114,9 @@ class HomePageDrawer extends StatelessWidget {
                 ),
                 _ListItem(
                   title: 'Settings',
+                  icon: const Icon(
+                    Icons.settings,
+                  ),
                   onTap: () {},
                 ),
                 BlocBuilder<AuthBloc, AuthState>(
@@ -54,6 +124,9 @@ class HomePageDrawer extends StatelessWidget {
                     return switch (state) {
                       AuthenticatedState() => _ListItem(
                           title: 'Sign out',
+                          icon: const Icon(
+                            Icons.logout,
+                          ),
                           onTap: () {
                             authBloc.add(
                               const SignOutUserEvent(),
@@ -75,10 +148,12 @@ class HomePageDrawer extends StatelessWidget {
 
 class _ListItem extends StatelessWidget {
   final String title;
+  final Icon icon;
   final VoidCallback onTap;
 
   const _ListItem({
     required this.title,
+    required this.icon,
     required this.onTap,
   });
 
@@ -90,8 +165,11 @@ class _ListItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(15),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            icon,
+            const SizedBox(
+              width: 15,
+            ),
             Text(
               title,
               style: textTheme.titleMedium,
