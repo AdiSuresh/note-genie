@@ -31,8 +31,17 @@ class FadeCollapseSwitcher extends StatelessWidget {
         return t2;
       },
       child: switch (visibility) {
-        true => child,
-        _ => const SizedBox(),
+        true => KeyedSubtree(
+            key: const ValueKey(
+              true,
+            ),
+            child: child ?? const SizedBox(),
+          ),
+        _ => const SizedBox(
+            key: ValueKey(
+              false,
+            ),
+          ),
       },
     );
   }
