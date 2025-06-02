@@ -336,14 +336,29 @@ class _EditNoteState extends State<EditNote> {
           body: Stack(
             fit: StackFit.expand,
             children: [
-              QuillEditor(
-                config: const QuillEditorConfig(
-                  padding: EdgeInsets.all(15),
-                  scrollPhysics: BouncingScrollPhysics(),
-                ),
-                focusNode: contentFocus,
-                scrollController: contentScrollCtrl,
-                controller: contentCtrl,
+              Column(
+                children: [
+                  Expanded(
+                    child: QuillEditor(
+                      config: const QuillEditorConfig(
+                        padding: EdgeInsets.all(15),
+                        scrollPhysics: BouncingScrollPhysics(),
+                      ),
+                      focusNode: contentFocus,
+                      scrollController: contentScrollCtrl,
+                      controller: contentCtrl,
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: QuillSimpleToolbar(
+                      controller: contentCtrl,
+                      config: const QuillSimpleToolbarConfig(
+                        buttonOptions: QuillSimpleToolbarButtonOptions(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const NoteCollectionListSheet(),
             ],
