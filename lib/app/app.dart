@@ -77,7 +77,7 @@ class _NoteMakerState extends State<NoteMaker> {
           localizationsDelegates: const [
             FlutterQuillLocalizations.delegate,
           ],
-          supportedLocales: [
+          supportedLocales: const [
             Locale(
               'en',
             ),
