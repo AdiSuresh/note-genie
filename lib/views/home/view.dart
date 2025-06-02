@@ -23,6 +23,7 @@ import 'package:note_maker/views/home/widgets/home_pop_scope.dart';
 import 'package:note_maker/views/home/widgets/note_collection_tab_list.dart';
 import 'package:note_maker/views/home/widgets/note_list.dart';
 import 'package:note_maker/widgets/app_bar_wrapper.dart';
+import 'package:note_maker/widgets/fade_collapse_switcher.dart';
 import 'package:note_maker/widgets/note_collection_list_tile.dart';
 import 'package:note_maker/views/home/widgets/no_collections_message.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
@@ -412,46 +413,38 @@ class _HomePageState extends State<HomePage>
                           const verticalPadding = EdgeInsets.symmetric(
                             vertical: 7.5,
                           );
-                          final child = switch (state) {
-                            IdleState() => Row(
-                                children: [
-                                  Expanded(
-                                    child: NoteCollectionTabList(),
-                                  ),
-                                  Padding(
-                                    padding: verticalPadding.copyWith(
-                                      left: 7.5,
-                                      right: 15,
-                                    ),
-                                    child: Tooltip(
-                                      message: 'Add collection',
-                                      child: CollectionChip(
-                                        onTap: () {
-                                          putCollection(
-                                            NoteCollectionEntity.untitled(),
-                                          );
-                                        },
-                                        child: const Icon(
-                                          Icons.create_new_folder,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            _ => const SizedBox(),
+                          final visibility = switch (state) {
+                            IdleState() => true,
+                            _ => false,
                           };
-                          return AnimatedSwitcher(
-                            duration: animationDuration,
-                            transitionBuilder: (child, animation) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: SizeTransition(
-                                  sizeFactor: animation,
-                                  child: child,
+                          final child = Row(
+                            children: [
+                              Expanded(
+                                child: NoteCollectionTabList(),
+                              ),
+                              Padding(
+                                padding: verticalPadding.copyWith(
+                                  left: 7.5,
+                                  right: 15,
                                 ),
-                              );
-                            },
+                                child: Tooltip(
+                                  message: 'Add collection',
+                                  child: CollectionChip(
+                                    onTap: () {
+                                      putCollection(
+                                        NoteCollectionEntity.untitled(),
+                                      );
+                                    },
+                                    child: const Icon(
+                                      Icons.create_new_folder,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                          return FadeCollapseSwitcher(
+                            visibility: visibility,
                             child: child,
                           );
                         },
