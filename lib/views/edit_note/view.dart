@@ -116,7 +116,7 @@ class _EditNoteState extends State<EditNote> {
   }
 
   void onContentFocusChanged() {
-    logger.i(contentFocus.hasFocus);
+    logger.i('hasFocus: ${contentFocus.hasFocus}');
     toolbarVisible.value = contentFocus.hasFocus;
     sheetCtrl.jumpTo(
       0,
