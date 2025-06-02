@@ -17,6 +17,7 @@ import 'package:note_maker/views/edit_note/widgets/note_collection_list_sheet.da
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
 import 'package:note_maker/widgets/draggable_scrollable_bloc/bloc.dart';
+import 'package:note_maker/widgets/fade_collapse_switcher.dart';
 
 class EditNote extends StatefulWidget {
   static const path = '/edit-note';
@@ -45,6 +46,9 @@ class _EditNoteState extends State<EditNote> {
 
   late final QuillController contentCtrl;
   final contentFocus = FocusNode();
+  final toolbarVisible = ValueNotifier<bool>(
+    false,
+  );
   final contentScrollCtrl = ScrollController();
 
   StreamSubscription<DocChange>? docChangesSub;
@@ -93,7 +97,7 @@ class _EditNoteState extends State<EditNote> {
       ),
     );
     contentFocus.addListener(
-      onEditorFocus,
+      onContentFocusChanged,
     );
   }
 
@@ -102,15 +106,18 @@ class _EditNoteState extends State<EditNote> {
     titleCtrl.dispose();
     contentCtrl.dispose();
     contentFocus.removeListener(
-      onEditorFocus,
+      onContentFocusChanged,
     );
     contentFocus.dispose();
+    toolbarVisible.dispose();
     contentScrollCtrl.dispose();
     docChangesSub?.cancel();
     super.dispose();
   }
 
-  void onEditorFocus() {
+  void onContentFocusChanged() {
+    logger.i('hasFocus: ${contentFocus.hasFocus}');
+    toolbarVisible.value = contentFocus.hasFocus;
     sheetCtrl.jumpTo(
       0,
     );
@@ -336,14 +343,38 @@ class _EditNoteState extends State<EditNote> {
           body: Stack(
             fit: StackFit.expand,
             children: [
-              QuillEditor(
-                config: const QuillEditorConfig(
-                  padding: EdgeInsets.all(15),
-                  scrollPhysics: BouncingScrollPhysics(),
-                ),
-                focusNode: contentFocus,
-                scrollController: contentScrollCtrl,
-                controller: contentCtrl,
+              Column(
+                children: [
+                  Expanded(
+                    child: QuillEditor(
+                      config: const QuillEditorConfig(
+                        padding: EdgeInsets.all(15),
+                        scrollPhysics: BouncingScrollPhysics(),
+                      ),
+                      focusNode: contentFocus,
+                      scrollController: contentScrollCtrl,
+                      controller: contentCtrl,
+                    ),
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: toolbarVisible,
+                    builder: (context, value, child) {
+                      return FadeCollapseSwitcher(
+                        visibility: value,
+                        child: child,
+                      );
+                    },
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: QuillSimpleToolbar(
+                        controller: contentCtrl,
+                        config: const QuillSimpleToolbarConfig(
+                          buttonOptions: QuillSimpleToolbarButtonOptions(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const NoteCollectionListSheet(),
             ],

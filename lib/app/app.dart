@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:note_maker/app/blocs/auth/bloc.dart';
 import 'package:note_maker/app/blocs/auth/event.dart';
 import 'package:note_maker/app/logger.dart';
@@ -73,6 +74,14 @@ class _NoteMakerState extends State<NoteMaker> {
           theme: Themes.lightTheme,
           darkTheme: Themes.darkTheme,
           scrollBehavior: const CustomScrollBehavior(),
+          localizationsDelegates: const [
+            FlutterQuillLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale(
+              'en',
+            ),
+          ],
         ),
       ),
     );

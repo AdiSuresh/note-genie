@@ -16,6 +16,7 @@ import 'package:note_maker/views/auth/widgets/password_field.dart';
 import 'package:note_maker/views/auth/widgets/pop_scope.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/dismiss_keyboard.dart';
+import 'package:note_maker/widgets/fade_collapse_switcher.dart';
 import 'package:note_maker/widgets/three_dot_indicator.dart';
 
 class AuthPage extends StatefulWidget {
@@ -239,42 +240,28 @@ class _AuthPageState extends State<AuthPage> {
                     final NonIdleState state => state,
                     _ => null,
                   };
-                  return AnimatedSwitcher(
-                    duration: animationDuration,
-                    transitionBuilder: (child, animation) {
-                      final t1 = FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                      final t2 = SizeTransition(
-                        sizeFactor: animation,
-                        child: t1,
-                      );
-                      return t2;
-                    },
-                    child: switch (signUpFormState) {
-                      null => const SizedBox(),
-                      _ => Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 7.5,
-                          ),
-                          child: PasswordField(
-                            labelText: 'Re-enter password',
-                            controller: reEnterPasswordCtrl,
-                            passwordVisible: reEnteredPasswordVisible,
-                            validator: (value) {
-                              switch (value) {
-                                case '':
-                                  return 'This field is required';
-                                case String() when value != passwordCtrl.text:
-                                  return 'Passwords do not match';
-                                case _:
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                    },
+                  return FadeCollapseSwitcher(
+                    visibility: signUpFormState != null,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 7.5,
+                      ),
+                      child: PasswordField(
+                        labelText: 'Re-enter password',
+                        controller: reEnterPasswordCtrl,
+                        passwordVisible: reEnteredPasswordVisible,
+                        validator: (value) {
+                          switch (value) {
+                            case '':
+                              return 'This field is required';
+                            case String() when value != passwordCtrl.text:
+                              return 'Passwords do not match';
+                            case _:
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
                   );
                 },
               ),

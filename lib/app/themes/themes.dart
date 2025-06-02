@@ -37,7 +37,7 @@ class Themes {
         color: Colors.white,
         surfaceTintColor: Colors.white,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         shape: Themes.shape,
       ),
