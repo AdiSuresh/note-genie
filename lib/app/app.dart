@@ -20,7 +20,7 @@ class NoteMaker extends StatefulWidget {
 }
 
 class _NoteMakerState extends State<NoteMaker> {
-  final logger = AppLogger(
+  static final logger = AppLogger(
     NoteMaker,
   );
 

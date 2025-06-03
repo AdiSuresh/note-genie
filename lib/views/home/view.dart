@@ -593,39 +593,32 @@ class _HomePageState extends State<HomePage>
                                     state.selected[i],
                                   _ => false,
                                 };
-                                return AnimatedSwitcher(
+                                final visibility = switch (state) {
+                                  DeleteNoteCollectionsState(
+                                    previousState: SelectNoteCollectionsState(
+                                      :final selected,
+                                    ),
+                                  )
+                                      when selected[i] =>
+                                    false,
+                                  _ => true,
+                                };
+                                return FadeCollapseSwitcher(
+                                  visibility: visibility,
                                   duration: const Duration(
                                     milliseconds: 250,
                                   ),
-                                  transitionBuilder: (child, animation) {
-                                    return FadeTransition(
-                                      opacity: animation,
-                                      child: SizeTransition(
-                                        sizeFactor: animation,
-                                        child: child,
-                                      ),
-                                    );
-                                  },
-                                  child: switch (state) {
-                                    DeleteNoteCollectionsState(
-                                      previousState: SelectNoteCollectionsState(
-                                        :final selected,
-                                      ),
-                                    )
-                                        when selected[i] =>
-                                      const SizedBox(),
-                                    _ => Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 7.5,
-                                          horizontal: 15,
-                                        ),
-                                        child: SelectionHighlight(
-                                          selected: selected,
-                                          scaleFactor: 1.0125,
-                                          child: tile,
-                                        ),
-                                      ),
-                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 7.5,
+                                      horizontal: 15,
+                                    ),
+                                    child: SelectionHighlight(
+                                      selected: selected,
+                                      scaleFactor: 1.0125,
+                                      child: tile,
+                                    ),
+                                  ),
                                 );
                               },
                             ).toList(),

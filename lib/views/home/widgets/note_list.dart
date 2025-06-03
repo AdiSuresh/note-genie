@@ -10,6 +10,7 @@ import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/widgets/note_list_tile.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 import 'package:note_maker/widgets/empty_footer.dart';
+import 'package:note_maker/widgets/fade_collapse_switcher.dart';
 import 'package:note_maker/widgets/selection_highlight.dart';
 
 class NoteList extends StatelessWidget {
@@ -190,39 +191,32 @@ class _NoteListTileWrapper extends StatelessWidget {
         selected[index],
       _ => false,
     };
-    return AnimatedSwitcher(
+    final visibility = switch (state) {
+      DeleteNotesState(
+        previousState: SelectNotesState(
+          :final selected,
+        ),
+      )
+          when selected[index] =>
+        false,
+      _ => true,
+    };
+    return FadeCollapseSwitcher(
+      visibility: visibility,
       duration: const Duration(
         milliseconds: 250,
       ),
-      transitionBuilder: (child, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: SizeTransition(
-            sizeFactor: animation,
-            child: child,
-          ),
-        );
-      },
-      child: switch (state) {
-        DeleteNotesState(
-          previousState: SelectNotesState(
-            :final selected,
-          ),
-        )
-            when selected[index] =>
-          const SizedBox(),
-        _ => Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 7.5,
-              horizontal: 15,
-            ),
-            child: SelectionHighlight(
-              selected: selected,
-              scaleFactor: 1.0125,
-              child: tile,
-            ),
-          ),
-      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 7.5,
+          horizontal: 15,
+        ),
+        child: SelectionHighlight(
+          selected: selected,
+          scaleFactor: 1.0125,
+          child: tile,
+        ),
+      ),
     );
   }
 }
