@@ -65,24 +65,22 @@ class _NoteMakerState extends State<NoteMaker> {
           },
         ),
       ],
-      child: SafeArea(
-        child: MaterialApp.router(
-          routerConfig: router.router,
-          title: 'Note-maker',
-          debugShowCheckedModeBanner: false,
-          themeMode: ThemeMode.light,
-          theme: Themes.lightTheme,
-          darkTheme: Themes.darkTheme,
-          scrollBehavior: const CustomScrollBehavior(),
-          localizationsDelegates: const [
-            FlutterQuillLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale(
-              'en',
-            ),
-          ],
-        ),
+      child: MaterialApp.router(
+        routerConfig: router.router,
+        title: 'Note-maker',
+        debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.light,
+        theme: Themes.lightTheme,
+        darkTheme: Themes.darkTheme,
+        scrollBehavior: const CustomScrollBehavior(),
+        localizationsDelegates: const [
+          FlutterQuillLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale(
+            'en',
+          ),
+        ],
       ),
     );
   }

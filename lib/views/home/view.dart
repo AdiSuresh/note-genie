@@ -731,11 +731,13 @@ class _HomePageState extends State<HomePage>
     final scaffold = Scaffold(
       key: scaffoldKey,
       drawer: const HomePageDrawer(),
-      body: Stack(
-        children: [
-          bodyLayer1,
-          bodyLayer2,
-        ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            bodyLayer1,
+            bodyLayer2,
+          ],
+        ),
       ),
     );
     return HomePopScope(

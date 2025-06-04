@@ -105,6 +105,7 @@ class NoteList extends StatelessWidget {
               ),
             ),
           (final currentCollection, final notes) => ListView(
+              padding: EdgeInsets.zero,
               key: PageStorageKey(
                 switch (state) {
                   SearchState() => notes,
