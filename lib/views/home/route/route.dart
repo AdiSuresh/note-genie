@@ -18,10 +18,10 @@ part 'route.g.dart';
 @TypedGoRoute<HomeRoute>(
   path: HomePage.path,
   routes: <TypedGoRoute<GoRouteData>>[
-    TypedGoRoute<AuthPageRoute>(
+    TypedGoRoute<AuthRoute>(
       path: 'auth',
     ),
-    TypedGoRoute<SettingsPageRoute>(
+    TypedGoRoute<SettingsRoute>(
       path: 'settings',
     ),
     TypedGoRoute<EditNoteRoute>(

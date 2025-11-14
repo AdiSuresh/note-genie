@@ -5,6 +5,7 @@ import 'package:note_maker/app/blocs/auth/bloc.dart';
 import 'package:note_maker/app/blocs/auth/event.dart';
 import 'package:note_maker/app/blocs/auth/state.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
+import 'package:note_maker/views/settings/route.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 
 class HomePageDrawer extends StatelessWidget {
@@ -118,7 +119,9 @@ class HomePageDrawer extends StatelessWidget {
                     icon: const Icon(
                       Icons.settings,
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      const SettingsRoute().go(context);
+                    },
                   ),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {

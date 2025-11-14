@@ -6,8 +6,8 @@ import 'package:note_maker/views/auth/repository.dart';
 import 'package:note_maker/views/auth/view.dart';
 import 'package:note_maker/views/home/route/route.dart';
 
-class AuthPageRoute extends GoRouteData with $AuthPageRoute {
-  AuthPageRoute();
+class AuthRoute extends GoRouteData with $AuthRoute {
+  AuthRoute();
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
