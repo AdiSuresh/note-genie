@@ -10,9 +10,10 @@ class AppTheme {
 
   ThemeData get data {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFFE3C4A4),
-      contrastLevel: -0.1,
+      seedColor: const Color(0xFF82A0B9),
+      contrastLevel: 0.1,
       brightness: brightness,
+      dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
     );
     final textTheme = GoogleFonts.sourceSans3TextTheme().apply(
       bodyColor: colorScheme.onSurface,

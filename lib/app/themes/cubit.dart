@@ -9,6 +9,9 @@ class ThemeModeCubit extends Cubit<ThemeMode> {
   ThemeModeCubit() : super(ThemeMode.system);
 
   Future<void> update(ThemeMode themeMode) async {
+    if (state == themeMode) {
+      return;
+    }
     emit(themeMode);
     await manager.set(themeMode);
   }

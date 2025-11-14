@@ -9,9 +9,7 @@ import 'package:note_maker/views/settings/route.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 
 class HomePageDrawer extends StatelessWidget {
-  const HomePageDrawer({
-    super.key,
-  });
+  const HomePageDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,60 +24,33 @@ class HomePageDrawer extends StatelessWidget {
               },
               builder: (context, state) {
                 final (avatar, text) = switch (state) {
-                  AuthenticatedState(
-                    :final user,
-                  ) =>
-                    (
-                      Text(
-                        user.email
-                            .substring(
-                              0,
-                              1,
-                            )
-                            .toUpperCase(),
-                        style: context.themeData.textTheme.bodyLarge?.copyWith(
-                          fontSize: 24,
-                        ),
+                  AuthenticatedState(:final user) => (
+                    Text(
+                      user.email.substring(0, 1).toUpperCase(),
+                      style: context.themeData.textTheme.bodyLarge?.copyWith(
+                        fontSize: 24,
                       ),
-                      user.email,
                     ),
-                  _ => (
-                      Icon(
-                        Icons.person,
-                      ),
-                      'You\'re not signed in',
-                    ),
+                    user.email,
+                  ),
+                  _ => (Icon(Icons.person), 'You\'re not signed in'),
                 };
                 return Padding(
                   padding: const EdgeInsets.all(15),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        minRadius: 25,
-                        child: avatar,
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
+                      CircleAvatar(minRadius: 25, child: avatar),
+                      const SizedBox(width: 15),
                       Expanded(
-                        child: Text(
-                          text,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        child: Text(text, overflow: TextOverflow.ellipsis),
                       ),
                     ],
                   ),
                 );
               },
             ),
-            const Divider(
-              indent: 15,
-              endIndent: 15,
-              height: 1,
-            ),
-            const SizedBox(
-              height: 7.5,
-            ),
+            const Divider(indent: 15, endIndent: 15, height: 1),
+            const SizedBox(height: 7.5),
             Expanded(
               child: ListView(
                 padding: EdgeInsets.zero,
@@ -92,21 +63,17 @@ class HomePageDrawer extends StatelessWidget {
                       return CustomAnimatedSwitcher(
                         child: switch (state) {
                           UnauthenticatedState() => _ListItem(
-                              title: 'Sign in',
-                              icon: const Icon(
-                                Icons.login,
-                              ),
-                              onTap: () {
-                                AuthRoute().go(context);
-                              },
-                            ),
+                            title: 'Sign in',
+                            icon: const Icon(Icons.login),
+                            onTap: () {
+                              AuthRoute().go(context);
+                            },
+                          ),
                           AuthenticatedState() => _ListItem(
-                              icon: const Icon(
-                                Icons.person,
-                              ),
-                              title: 'Profile',
-                              onTap: () {},
-                            ),
+                            icon: const Icon(Icons.person),
+                            title: 'Profile',
+                            onTap: () {},
+                          ),
                           _ => const SizedBox(),
                         },
                       );
@@ -114,9 +81,7 @@ class HomePageDrawer extends StatelessWidget {
                   ),
                   _ListItem(
                     title: 'Settings',
-                    icon: const Icon(
-                      Icons.settings,
-                    ),
+                    icon: const Icon(Icons.settings),
                     onTap: () {
                       const SettingsRoute().go(context);
                     },
@@ -125,16 +90,12 @@ class HomePageDrawer extends StatelessWidget {
                     builder: (context, state) {
                       return switch (state) {
                         AuthenticatedState() => _ListItem(
-                            title: 'Sign out',
-                            icon: const Icon(
-                              Icons.logout,
-                            ),
-                            onTap: () {
-                              authBloc.add(
-                                const SignOutUserEvent(),
-                              );
-                            },
-                          ),
+                          title: 'Sign out',
+                          icon: const Icon(Icons.logout),
+                          onTap: () {
+                            authBloc.add(const SignOutUserEvent());
+                          },
+                        ),
                         _ => const SizedBox(),
                       };
                     },
@@ -170,13 +131,8 @@ class _ListItem extends StatelessWidget {
         child: Row(
           children: [
             icon,
-            const SizedBox(
-              width: 15,
-            ),
-            Text(
-              title,
-              style: textTheme.titleMedium,
-            ),
+            const SizedBox(width: 15),
+            Text(title, style: textTheme.titleMedium),
           ],
         ),
       ),
