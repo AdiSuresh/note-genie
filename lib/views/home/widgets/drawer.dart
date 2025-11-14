@@ -16,7 +16,6 @@ class HomePageDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final authBloc = context.read<AuthBloc>();
     return Drawer(
-      backgroundColor: Colors.white,
       child: SafeArea(
         child: Column(
           children: [

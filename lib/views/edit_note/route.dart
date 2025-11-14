@@ -8,9 +8,10 @@ import 'package:note_maker/views/edit_note/bloc.dart';
 import 'package:note_maker/views/edit_note/repository.dart';
 import 'package:note_maker/views/edit_note/state/state.dart';
 import 'package:note_maker/views/edit_note/view.dart';
+import 'package:note_maker/views/home/route/route.dart';
 import 'package:note_maker/widgets/draggable_scrollable_bloc/bloc.dart';
 
-class EditNoteRoute extends GoRouteData {
+class EditNoteRoute extends GoRouteData with $EditNoteRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     final note = switch (context.extra) {

@@ -11,8 +11,9 @@ import 'package:note_maker/views/chat/event.dart';
 import 'package:note_maker/views/chat/repository.dart';
 import 'package:note_maker/views/chat/state/state.dart';
 import 'package:note_maker/views/chat/view.dart';
+import 'package:note_maker/views/home/route/route.dart';
 
-class ChatRoute extends GoRouteData {
+class ChatRoute extends GoRouteData with $ChatRoute {
   final String? id;
 
   ChatRoute({
