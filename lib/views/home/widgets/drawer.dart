@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:note_maker/app/blocs/auth/bloc.dart';
 import 'package:note_maker/app/blocs/auth/event.dart';
 import 'package:note_maker/app/blocs/auth/state.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
+import 'package:note_maker/views/auth/route.dart';
 import 'package:note_maker/views/settings/route.dart';
 import 'package:note_maker/widgets/custom_animated_switcher.dart';
 
@@ -97,9 +97,7 @@ class HomePageDrawer extends StatelessWidget {
                                 Icons.login,
                               ),
                               onTap: () {
-                                context.go(
-                                  '/auth',
-                                );
+                                AuthRoute().go(context);
                               },
                             ),
                           AuthenticatedState() => _ListItem(

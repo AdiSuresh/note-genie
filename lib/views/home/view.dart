@@ -7,10 +7,9 @@ import 'package:note_maker/app/logger.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
 import 'package:note_maker/models/note_collection/model.dart';
 import 'package:note_maker/utils/extensions/build_context.dart';
-import 'package:note_maker/utils/extensions/type.dart';
 import 'package:note_maker/utils/ui_utils.dart';
 import 'package:note_maker/utils/text_input_validation/validators.dart';
-import 'package:note_maker/views/edit_note/view.dart';
+import 'package:note_maker/views/edit_note/route.dart';
 import 'package:note_maker/models/note/model.dart';
 import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/event.dart';
@@ -199,9 +198,7 @@ class _HomePageState extends State<HomePage>
             ),
           _ => null,
         };
-        context.go(
-          (EditNote).asRoutePath(),
-        );
+        EditNoteRoute().go(context);
       case 1:
         putCollection(
           NoteCollectionEntity.untitled(),
