@@ -8,7 +8,8 @@ import 'package:note_maker/app/router/blocs/navigation/bloc.dart';
 import 'package:note_maker/app/router/blocs/navigation/state.dart';
 import 'package:note_maker/app/router/router.dart';
 import 'package:note_maker/app/router/blocs/extra_variable/bloc.dart';
-import 'package:note_maker/app/themes/themes.dart';
+import 'package:note_maker/app/themes/cubit.dart';
+import 'package:note_maker/app/themes/theme.dart';
 
 class NoteMaker extends StatefulWidget {
   const NoteMaker({
@@ -49,6 +50,11 @@ class _NoteMakerState extends State<NoteMaker> {
         ),
         BlocProvider(
           create: (context) {
+            return ThemeModeCubit()..set();
+          },
+        ),
+        BlocProvider(
+          create: (context) {
             return NavigationBloc(
               NavigationState(
                 currentPath: router.path,
@@ -65,22 +71,26 @@ class _NoteMakerState extends State<NoteMaker> {
           },
         ),
       ],
-      child: MaterialApp.router(
-        routerConfig: router.router,
-        title: 'Note-maker',
-        debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.light,
-        theme: Themes.lightTheme,
-        darkTheme: Themes.darkTheme,
-        scrollBehavior: const CustomScrollBehavior(),
-        localizationsDelegates: const [
-          FlutterQuillLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale(
-            'en',
-          ),
-        ],
+      child: BlocBuilder<ThemeModeCubit, ThemeMode>(
+        builder: (context, state) {
+          return MaterialApp.router(
+            routerConfig: router.router,
+            title: 'Note Genie',
+            debugShowCheckedModeBanner: false,
+            themeMode: state,
+            theme: AppTheme().data,
+            darkTheme: AppTheme(brightness: Brightness.dark).data,
+            scrollBehavior: const CustomScrollBehavior(),
+            localizationsDelegates: const [
+              FlutterQuillLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale(
+                'en',
+              ),
+            ],
+          );
+        },
       ),
     );
   }

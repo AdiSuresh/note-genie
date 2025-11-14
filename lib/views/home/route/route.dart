@@ -11,14 +11,18 @@ import 'package:note_maker/views/home/bloc.dart';
 import 'package:note_maker/views/home/repository.dart';
 import 'package:note_maker/views/home/state/state.dart';
 import 'package:note_maker/views/home/view.dart';
+import 'package:note_maker/views/settings/route.dart';
 
 part 'route.g.dart';
 
 @TypedGoRoute<HomeRoute>(
   path: HomePage.path,
   routes: <TypedGoRoute<GoRouteData>>[
-    TypedGoRoute<AuthPageRoute>(
+    TypedGoRoute<AuthRoute>(
       path: 'auth',
+    ),
+    TypedGoRoute<SettingsRoute>(
+      path: 'settings',
     ),
     TypedGoRoute<EditNoteRoute>(
       path: 'edit-note',
@@ -33,7 +37,7 @@ part 'route.g.dart';
     ),
   ],
 )
-class HomeRoute extends GoRouteData {
+class HomeRoute extends GoRouteData with $HomeRoute {
   HomeRoute();
 
   @override

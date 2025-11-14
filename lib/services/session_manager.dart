@@ -1,15 +1,12 @@
 import 'dart:convert';
-
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:note_maker/core/secure_storage.dart';
 import 'package:note_maker/models/user/model.dart';
 
-class SessionManager {
+class SessionManager with SecureStorageMixin {
   static const String _tokenKey = 'access_token';
   static const String _userKey = 'user';
 
   static final SessionManager _instance = SessionManager._();
-
-  static const _storage = FlutterSecureStorage();
 
   factory SessionManager() => _instance;
 
@@ -18,7 +15,7 @@ class SessionManager {
   Future<void> saveUser(
     User user,
   ) async {
-    await _storage.write(
+    await storage.write(
       key: _userKey,
       value: json.encode(
         user.toJson(),
@@ -27,7 +24,7 @@ class SessionManager {
   }
 
   Future<User?> getUser() async {
-    final data = await _storage.read(
+    final data = await storage.read(
       key: _userKey,
     );
     try {
@@ -45,7 +42,7 @@ class SessionManager {
   }
 
   Future<void> deleteUser() async {
-    await _storage.delete(
+    await storage.delete(
       key: _userKey,
     );
   }
@@ -53,20 +50,20 @@ class SessionManager {
   Future<void> saveAccessToken(
     String token,
   ) async {
-    await _storage.write(
+    await storage.write(
       key: _tokenKey,
       value: token,
     );
   }
 
   Future<String?> getAccessToken() async {
-    return await _storage.read(
+    return await storage.read(
       key: _tokenKey,
     );
   }
 
   Future<void> deleteAccessToken() async {
-    await _storage.delete(
+    await storage.delete(
       key: _tokenKey,
     );
   }
