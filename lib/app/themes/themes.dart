@@ -34,7 +34,7 @@ class Themes {
         elevation: 0,
         scrolledUnderElevation: 2.5,
         shadowColor: Colors.black,
-        color: Colors.white,
+        backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
       ),
       cardTheme: CardThemeData(
